@@ -11,7 +11,7 @@ Diabetic Retinopathy is a leading cause of blindness worldwide. Early detection 
 
 ---
 
-## 🗂 Dataset
+## 🗂 Dataset 
 
 **Dataset Used:**  
 APTOS 2019 Blindness Detection  
@@ -37,7 +37,7 @@ The dataset was preprocessed and split into training and validation sets using T
 
 ---
 
-## 🧠 Model Architecture
+## 🧠 Model Architecture and Method Implemented 
 
 - Base model: EfficientNetB0 (pretrained on ImageNet)
 - Global Average Pooling layer
@@ -85,7 +85,7 @@ weighted avg 0.94    0.94     0.94      799
 
 ---
 
-## 🚀 How to Run
+## 🚀 How to Run ( Steps to execute )
 
 ```
 git clone https://github.com/YOUR_USERNAME/dr-detection-efficientnet.git
