@@ -1,6 +1,5 @@
-let patientChart = null; // Global reference for Chart.js
+let patientChart = null;
 
-// Counter animation
 function animateCount(el, target, suffix, decimals) {
   let start = 0;
   const duration = 1800;
@@ -27,7 +26,6 @@ const statsObserver = new IntersectionObserver(entries => {
 }, { threshold: 0.5 });
 statsObserver.observe(document.querySelector('.stats-strip'));
 
-// Scroll reveal
 const revealObserver = new IntersectionObserver(entries => {
   entries.forEach((e, i) => {
     if (e.isIntersecting) {
@@ -38,7 +36,6 @@ const revealObserver = new IntersectionObserver(entries => {
 }, { threshold: 0.1 });
 document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
-// Upload logic elements
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
 const previewWrap = document.getElementById('preview-wrap');
@@ -47,7 +44,6 @@ const resultCard = document.getElementById('result-card');
 const loadingOverlay = document.getElementById('loading-overlay');
 const loadingText = document.getElementById('loading-text');
 
-// Ensure button and div click events are separated
 uploadArea.addEventListener('click', () => fileInput.click());
 
 const chooseFileBtn = document.getElementById('chooseFileBtn');
@@ -68,19 +64,16 @@ uploadArea.addEventListener('drop', e => {
 fileInput.addEventListener('change', () => { if (fileInput.files[0]) processFile(fileInput.files[0]); });
 
 const loadingMessages = [
-  'Preprocessing image...', 'Extracting features...', 'Running EfficientNetB0...', 'Grading severity...'
+  'Initializing MPS Backend...', 'Extracting vascular features...', 'Running EfficientNetB0...', 'Grading severity...'
 ];
 
 function processFile(file) {
   const reader = new FileReader();
   reader.onload = e => {
     previewImg.src = e.target.result;
-    
-    // Hide form and upload area
     document.getElementById('patientForm').style.display = 'none';
     uploadArea.style.display = 'none';
     
-    // Show preview and loading
     previewWrap.style.display = 'block';
     loadingOverlay.style.display = 'block';
     resultCard.style.display = 'none';
@@ -91,7 +84,6 @@ function processFile(file) {
       loadingText.textContent = loadingMessages[msgIdx];
     }, 700);
 
-    // Simulate model inference (3 seconds)
     setTimeout(() => {
       clearInterval(msgInterval);
       loadingOverlay.style.display = 'none';
@@ -101,7 +93,6 @@ function processFile(file) {
   reader.readAsDataURL(file);
 }
 
-// Result Generation with Advanced Clinical Features
 function showResult() {
   const patId = document.getElementById('pat-id').value || 'Unknown';
   const patAge = document.getElementById('pat-age').value || 'N/A';
@@ -134,12 +125,10 @@ function showResult() {
   document.getElementById('severity-val').textContent = `Stage ${stage.level}`;
   setTimeout(() => { document.getElementById('severity-indicator').style.left = stage.pos + '%'; }, 100);
   
-  // --- RADIAL METRICS ANIMATION ---
   document.getElementById('m-prob').textContent = networkCertainty + '%';
   document.getElementById('m-conf').textContent = lesionDensity;
   document.getElementById('m-time').textContent = (Math.random() * 0.3 + 0.1).toFixed(2) + 's';
 
-  // Calculate SVG stroke offsets (Circumference is ~264)
   setTimeout(() => {
     const certOffset = 264 - (264 * (networkCertainty / 100));
     const lesionOffset = 264 - (264 * (Math.min(lesionDensity, 100) / 100));
@@ -147,12 +136,9 @@ function showResult() {
     document.getElementById('lesion-ring').style.strokeDashoffset = lesionOffset;
   }, 200);
 
-  // --- CHART.JS INITIALIZATION ---
   const ctx = document.getElementById('progressionChart').getContext('2d');
+  if (patientChart) patientChart.destroy(); 
   
-  if (patientChart) patientChart.destroy(); // Destroy old chart if doing a new scan
-  
-  // Mock historical data trending towards current severity
   const historicalData = [Math.max(0, stage.level - 2), Math.max(0, stage.level - 1), Math.max(0, stage.level - 1), stage.level, stage.level];
 
   patientChart = new Chart(ctx, {
@@ -170,7 +156,7 @@ function showResult() {
         pointBorderWidth: 2,
         pointRadius: 5,
         fill: true,
-        tension: 0.4 // Smooth curves
+        tension: 0.4
       }]
     },
     options: {
@@ -179,15 +165,11 @@ function showResult() {
       plugins: { legend: { display: false } },
       scales: {
         y: { 
-          beginAtZero: true, 
-          max: 4, 
+          beginAtZero: true, max: 4, 
           ticks: { stepSize: 1, color: '#6b8f9e' },
           grid: { color: 'rgba(0,220,180,0.05)' }
         },
-        x: { 
-          ticks: { color: '#6b8f9e' },
-          grid: { display: false }
-        }
+        x: { ticks: { color: '#6b8f9e' }, grid: { display: false } }
       }
     }
   });
@@ -196,7 +178,6 @@ function showResult() {
   resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-// Reset Form Logic
 function resetForm() {
   document.getElementById('patientForm').style.display = 'block';
   uploadArea.style.display = 'block';
@@ -204,7 +185,6 @@ function resetForm() {
   resultCard.style.display = 'none';
   fileInput.value = '';
   
-  // Reset Heatmap & XAI Controls
   const overlay = document.getElementById('heatmap-overlay');
   const xaiControls = document.getElementById('xai-controls');
   const toggleBtn = document.getElementById('toggleHeatmapBtn');
@@ -223,11 +203,8 @@ function resetForm() {
   document.getElementById('cert-ring').style.strokeDashoffset = 264;
   document.getElementById('lesion-ring').style.strokeDashoffset = 264;
   
-  // Clear patient form
-  document.getElementById('pat-id').value = '';
   document.getElementById('pat-age').value = '';
   
-  // Scroll back up
   document.getElementById('detect').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -236,7 +213,6 @@ if (analyzeAnotherBtn) {
     analyzeAnotherBtn.addEventListener('click', resetForm);
 }
 
-// Advanced Grad-CAM Controls
 const toggleHeatmapBtn = document.getElementById('toggleHeatmapBtn');
 const xaiControls = document.getElementById('xai-controls');
 const heatmapOverlay = document.getElementById('heatmap-overlay');
@@ -253,8 +229,6 @@ if(toggleHeatmapBtn) {
         toggleHeatmapBtn.style.color = '#00ddb4';
         toggleHeatmapBtn.style.border = '1px solid #00ddb4';
         xaiControls.style.display = 'block';
-        
-        // Apply slider value immediately
         heatmapOverlay.style.opacity = heatmapSlider.value / 100;
     } else {
         toggleHeatmapBtn.textContent = 'Enable Explainability';
@@ -267,7 +241,6 @@ if(toggleHeatmapBtn) {
   });
 }
 
-// Live Opacity Updates for Heatmap
 if(heatmapSlider) {
   heatmapSlider.addEventListener('input', (e) => {
     const val = e.target.value;
@@ -278,7 +251,6 @@ if(heatmapSlider) {
   });
 }
 
-// Download PDF Mock Logic
 const downloadReportBtn = document.getElementById('downloadReportBtn');
 if(downloadReportBtn) {
   downloadReportBtn.addEventListener('click', () => {
@@ -286,7 +258,6 @@ if(downloadReportBtn) {
   });
 }
 
-// Smooth scroll for nav links
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
     e.preventDefault();
