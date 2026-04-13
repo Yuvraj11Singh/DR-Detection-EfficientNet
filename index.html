@@ -75,7 +75,7 @@
 <section id="detect">
   <div class="section-label reveal">/ Diagnosis Engine</div>
   <h2 class="section-title reveal">Upload a fundus<br />image for analysis.</h2>
-  <p class="section-desc reveal">Supports JPG, PNG retinal images. The model will classify and output confidence scores, with a downloadable clinical report.</p>
+  <p class="section-desc reveal">Supports JPG, PNG retinal images. The model will classify severity and output visual explainability maps, with a downloadable clinical report.</p>
 
   <div class="patient-form reveal" id="patientForm">
     <div class="form-grid">
@@ -133,25 +133,45 @@
       </div>
       <div class="confidence-bar-wrap">
         <div class="confidence-label">
-          <span>Confidence</span>
-          <span id="conf-val">—</span>
+          <span>DR Severity Stage</span>
+          <span id="severity-val">—</span>
         </div>
-        <div class="confidence-bar-bg">
-          <div class="confidence-bar-fill" id="conf-bar" style="width:0%"></div>
+        <div class="severity-spectrum">
+          <div class="stage-marker" id="stage-0">0</div>
+          <div class="stage-marker" id="stage-1">1</div>
+          <div class="stage-marker" id="stage-2">2</div>
+          <div class="stage-marker" id="stage-3">3</div>
+          <div class="stage-marker" id="stage-4">4</div>
+          <div class="severity-indicator" id="severity-indicator"></div>
+        </div>
+        <div class="spectrum-labels">
+          <span>None</span>
+          <span>Mild</span>
+          <span>Moderate</span>
+          <span>Severe</span>
+          <span>Prolif.</span>
         </div>
       </div>
     </div>
 
     <div class="metrics-grid">
-      <div class="metric-card"><div class="metric-val" id="m-prob">—</div><div class="metric-name">DR Probability</div></div>
-      <div class="metric-card"><div class="metric-val" id="m-conf">—</div><div class="metric-name">Confidence</div></div>
+      <div class="metric-card"><div class="metric-val" id="m-prob">—</div><div class="metric-name">Network Certainty</div></div>
+      <div class="metric-card"><div class="metric-val" id="m-conf">—</div><div class="metric-name">Lesion Density</div></div>
       <div class="metric-card"><div class="metric-val" id="m-time">—</div><div class="metric-name">Inference Time</div></div>
-      <div class="metric-card"><div class="metric-val" id="m-model">B0</div><div class="metric-name">Model Used</div></div>
+      <div class="metric-card"><div class="metric-val" id="m-model">B0</div><div class="metric-name">Architecture</div></div>
+    </div>
+
+    <div class="xai-controls" id="xai-controls" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <span style="font-family:'DM Mono',monospace; font-size:12px; color:var(--accent); text-transform:uppercase; letter-spacing:1px;">Grad-CAM Activation Map</span>
+        <span style="font-family:'DM Mono',monospace; font-size:12px; color:var(--muted);" id="opacity-val">70%</span>
+      </div>
+      <input type="range" id="heatmapSlider" min="0" max="100" value="70" class="styled-slider">
     </div>
 
     <div class="action-buttons">
-      <button class="btn-primary" id="toggleHeatmapBtn">Toggle Explainability (Grad-CAM)</button>
-      <button class="btn-ghost" id="downloadReportBtn">Download PDF Report</button>
+      <button class="btn-primary" id="toggleHeatmapBtn">Enable Explainability</button>
+      <button class="btn-ghost" id="downloadReportBtn">Export PDF</button>
       <button class="btn-ghost" id="analyzeAnotherBtn">New Patient</button>
     </div>
   </div>
@@ -184,8 +204,8 @@
         <div class="step-icon">
           <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
-        <h3>Binary Classification</h3>
-        <p>A sigmoid output neuron predicts DR probability. Threshold at 0.5 determines positive/negative classification with confidence score.</p>
+        <h3>Severity Classification</h3>
+        <p>A multi-class output neuron predicts DR probability across 5 stages, generating Grad-CAM heatmaps for model interpretability.</p>
       </div>
     </div>
   </div>
@@ -208,7 +228,7 @@
         <li class="arch-item"><div class="arch-dot"></div><div><strong>Backbone</strong> <br/><span>EfficientNetB0 — ImageNet pretrained</span></div></li>
         <li class="arch-item"><div class="arch-dot"></div><div><strong>Phase 1 LR</strong> <br/><span>1e-4 Adam — head training, 5 epochs</span></div></li>
         <li class="arch-item"><div class="arch-dot"></div><div><strong>Phase 2 LR</strong> <br/><span>1e-5 Adam — fine-tune top 30 layers, 10 epochs</span></div></li>
-        <li class="arch-item"><div class="arch-dot"></div><div><strong>Regularization</strong> <br/><span>Dropout 0.4 before sigmoid head</span></div></li>
+        <li class="arch-item"><div class="arch-dot"></div><div><strong>Regularization</strong> <br/><span>Dropout 0.4 before classification head</span></div></li>
         <li class="arch-item"><div class="arch-dot"></div><div><strong>Input Size</strong> <br/><span>224 × 224 × 3 RGB</span></div></li>
         <li class="arch-item"><div class="arch-dot"></div><div><strong>Dataset</strong> <br/><span>APTOS 2019 Blindness Detection</span></div></li>
       </ul>

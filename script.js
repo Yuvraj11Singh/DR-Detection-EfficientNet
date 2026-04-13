@@ -36,7 +36,7 @@ const revealObserver = new IntersectionObserver(entries => {
 }, { threshold: 0.1 });
 document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
-// Upload logic
+// Upload logic elements
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
 const previewWrap = document.getElementById('preview-wrap');
@@ -66,7 +66,7 @@ uploadArea.addEventListener('drop', e => {
 fileInput.addEventListener('change', () => { if (fileInput.files[0]) processFile(fileInput.files[0]); });
 
 const loadingMessages = [
-  'Preprocessing image...', 'Extracting features...', 'Running EfficientNetB0...', 'Generating confidence scores...'
+  'Preprocessing image...', 'Extracting features...', 'Running EfficientNetB0...', 'Grading severity...'
 ];
 
 function processFile(file) {
@@ -89,7 +89,7 @@ function processFile(file) {
       loadingText.textContent = loadingMessages[msgIdx];
     }, 700);
 
-    // Simulate model inference (replace with real API call)
+    // Simulate model inference (3 seconds)
     setTimeout(() => {
       clearInterval(msgInterval);
       loadingOverlay.style.display = 'none';
@@ -99,14 +99,13 @@ function processFile(file) {
   reader.readAsDataURL(file);
 }
 
-// Result Generation with Patient Data Integration
+// Result Generation with Advanced Clinical Features
 function showResult() {
   // Capture Patient Data
   const patId = document.getElementById('pat-id').value || 'Unknown';
   const patAge = document.getElementById('pat-age').value || 'N/A';
   const patEye = document.getElementById('pat-eye').value;
 
-  // Populate Summary
   document.getElementById('patient-summary').innerHTML = `
     <span><strong>ID:</strong> ${patId}</span>
     <span><strong>Age:</strong> ${patAge}</span>
@@ -114,27 +113,46 @@ function showResult() {
     <span><strong>Date:</strong> ${new Date().toLocaleDateString()}</span>
   `;
 
-  // Demo output
-  const prob = Math.random();
-  const isPositive = prob > 0.5;
-  const confidence = isPositive ? prob : (1 - prob);
-  const confPct = (confidence * 100).toFixed(1);
+  // --- API HOOK PREPARATION ---
+  // When you connect your FastAPI backend, you will replace the simulation below with:
+  //
+  // const formData = new FormData();
+  // formData.append("file", fileInput.files[0]);
+  // fetch('http://localhost:8000/predict', { method: 'POST', body: formData })
+  //   .then(res => res.json())
+  //   .then(data => { updateUI(data); });
+  // -----------------------------
 
-  document.getElementById('result-label').textContent = isPositive ? 'DR Detected' : 'No DR Detected';
+  // Advanced Mock Output: 5-Stage Severity
+  const severityStages = [
+    { level: 0, name: "No DR", color: "badge-negative", pos: 0 },
+    { level: 1, name: "Mild NPDR", color: "badge-positive", pos: 25 },
+    { level: 2, name: "Moderate NPDR", color: "badge-positive", pos: 50 },
+    { level: 3, name: "Severe NPDR", color: "badge-positive", pos: 75 },
+    { level: 4, name: "Proliferative DR", color: "badge-positive", pos: 100 }
+  ];
+  
+  // Randomly pick a severity for the demo
+  const stage = severityStages[Math.floor(Math.random() * severityStages.length)];
+  const networkCertainty = (Math.random() * (99.9 - 85.0) + 85.0).toFixed(1);
+  const lesionDensity = (stage.level * 22 + Math.random() * 10).toFixed(1);
+
+  // Update Main Labels
+  document.getElementById('result-label').textContent = stage.name;
   const badge = document.getElementById('result-badge');
-  badge.textContent = isPositive ? 'Positive' : 'Negative';
-  badge.className = 'result-badge ' + (isPositive ? 'badge-positive' : 'badge-negative');
+  badge.textContent = stage.level === 0 ? 'Negative' : 'Refer to Ophthalmologist';
+  badge.className = 'result-badge ' + stage.color;
   
-  document.getElementById('conf-val').textContent = confPct + '%';
-  
-  // Small timeout to allow CSS transition to happen
+  // Animate Indicator
+  document.getElementById('severity-val').textContent = `Stage ${stage.level}`;
   setTimeout(() => {
-    document.getElementById('conf-bar').style.width = confPct + '%';
+    document.getElementById('severity-indicator').style.left = stage.pos + '%';
   }, 100);
   
-  document.getElementById('m-prob').textContent = (prob * 100).toFixed(1) + '%';
-  document.getElementById('m-conf').textContent = confPct + '%';
-  document.getElementById('m-time').textContent = (Math.random() * 0.4 + 0.1).toFixed(2) + 's';
+  // Update Metrics
+  document.getElementById('m-prob').textContent = networkCertainty + '%';
+  document.getElementById('m-conf').textContent = lesionDensity;
+  document.getElementById('m-time').textContent = (Math.random() * 0.3 + 0.1).toFixed(2) + 's';
 
   resultCard.style.display = 'block';
   resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -148,18 +166,22 @@ function resetForm() {
   resultCard.style.display = 'none';
   fileInput.value = '';
   
-  // Reset Heatmap
+  // Reset Heatmap & XAI Controls
   const overlay = document.getElementById('heatmap-overlay');
-  overlay.classList.remove('active');
+  const xaiControls = document.getElementById('xai-controls');
   const toggleBtn = document.getElementById('toggleHeatmapBtn');
+  
+  overlay.classList.remove('active');
+  xaiControls.style.display = 'none';
+  
   if(toggleBtn) {
-      toggleBtn.textContent = 'Toggle Explainability (Grad-CAM)';
+      toggleBtn.textContent = 'Enable Explainability';
       toggleBtn.style.background = 'var(--accent)';
       toggleBtn.style.color = '#030a0e';
       toggleBtn.style.border = 'none';
   }
 
-  document.getElementById('conf-bar').style.width = '0%';
+  document.getElementById('severity-indicator').style.left = '0%';
   
   // Clear patient form
   document.getElementById('pat-id').value = '';
@@ -169,29 +191,49 @@ function resetForm() {
   document.getElementById('detect').scrollIntoView({ behavior: 'smooth' });
 }
 
-// Button Listeners
 const analyzeAnotherBtn = document.getElementById('analyzeAnotherBtn');
 if (analyzeAnotherBtn) {
     analyzeAnotherBtn.addEventListener('click', resetForm);
 }
 
-// Grad-CAM Toggle Logic
+// Advanced Grad-CAM Controls
 const toggleHeatmapBtn = document.getElementById('toggleHeatmapBtn');
+const xaiControls = document.getElementById('xai-controls');
+const heatmapOverlay = document.getElementById('heatmap-overlay');
+const heatmapSlider = document.getElementById('heatmapSlider');
+const opacityVal = document.getElementById('opacity-val');
+
 if(toggleHeatmapBtn) {
   toggleHeatmapBtn.addEventListener('click', () => {
-    const overlay = document.getElementById('heatmap-overlay');
-    overlay.classList.toggle('active');
+    heatmapOverlay.classList.toggle('active');
     
-    if(overlay.classList.contains('active')) {
-        toggleHeatmapBtn.textContent = 'Hide Explainability';
+    if(heatmapOverlay.classList.contains('active')) {
+        toggleHeatmapBtn.textContent = 'Disable Explainability';
         toggleHeatmapBtn.style.background = 'rgba(0, 221, 180, 0.2)';
         toggleHeatmapBtn.style.color = '#00ddb4';
         toggleHeatmapBtn.style.border = '1px solid #00ddb4';
+        xaiControls.style.display = 'block';
+        
+        // Apply slider value immediately
+        heatmapOverlay.style.opacity = heatmapSlider.value / 100;
     } else {
-        toggleHeatmapBtn.textContent = 'Toggle Explainability (Grad-CAM)';
+        toggleHeatmapBtn.textContent = 'Enable Explainability';
         toggleHeatmapBtn.style.background = 'var(--accent)';
         toggleHeatmapBtn.style.color = '#030a0e';
         toggleHeatmapBtn.style.border = 'none';
+        xaiControls.style.display = 'none';
+        heatmapOverlay.style.opacity = 0;
+    }
+  });
+}
+
+// Live Opacity Updates for Heatmap
+if(heatmapSlider) {
+  heatmapSlider.addEventListener('input', (e) => {
+    const val = e.target.value;
+    opacityVal.textContent = val + '%';
+    if(heatmapOverlay.classList.contains('active')) {
+      heatmapOverlay.style.opacity = val / 100;
     }
   });
 }
