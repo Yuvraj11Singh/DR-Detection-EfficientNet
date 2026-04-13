@@ -1,17 +1,28 @@
-# RetinaAI — DR Detection
+# RetinaAI — Full requirements
 # Install with: pip install -r requirements.txt
 
-# Deep Learning
+# ── Deep Learning ─────────────────────────────────────
 tensorflow>=2.12.0
 
-# Web Server
+# ── Web Server ────────────────────────────────────────
 flask>=3.0.0
 flask-cors>=4.0.0
 
-# Image Processing
+# ── Image Processing ──────────────────────────────────
 Pillow>=10.0.0
+opencv-python>=4.8.0        # gradcam.py — heatmap overlay
 numpy>=1.24.0
 
-# ML Evaluation
+# ── ML Evaluation ─────────────────────────────────────
 scikit-learn>=1.3.0
 matplotlib>=3.7.0
+
+# ── Model Export (optional) ───────────────────────────
+tf2onnx>=1.15.0             # export.py ONNX support
+onnx>=1.14.0                # export.py ONNX support
+
+# ── Report Generation (optional) ─────────────────────
+weasyprint>=60.0            # report.py PDF export
+
+# ── Utilities ─────────────────────────────────────────
+tqdm>=4.65.0                # progress bars
