@@ -19,7 +19,8 @@
     RetinaAI
   </div>
   <ul class="nav-links">
-    <li><a href="#detect">Diagnosis Engine</a></li>
+    <li><a href="#" onclick="switchView('detect')">Diagnosis Engine</a></li>
+    <li><a href="#" onclick="switchView('registry')">Patient Registry</a></li>
     <li><a href="#model">Model Metrics</a></li>
   </ul>
   <div class="nav-actions">
@@ -38,7 +39,20 @@
       </div>
     </div>
 
-    <button class="btn-primary" id="sidebarNewScanBtn" style="width: 100%; margin-bottom: 24px;">+ Initiate New Scan</button>
+    <div class="sidebar-section">
+      <ul class="sidebar-nav" id="sidebarNav">
+        <li class="active" data-target="detect" onclick="switchView('detect')">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          Diagnosis Engine
+        </li>
+        <li data-target="registry" onclick="switchView('registry')">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          Cohort Analytics
+        </li>
+      </ul>
+    </div>
+
+    <button class="btn-primary" id="sidebarNewScanBtn" style="width: 100%; margin-bottom: 24px;" onclick="switchView('detect'); resetForm();">+ Initiate New Scan</button>
 
     <div class="sidebar-section" style="flex-grow: 1; overflow-y: auto;">
       <h4 class="sidebar-heading">Session History</h4>
@@ -106,7 +120,7 @@
       </div>
     </div>
 
-    <section id="detect">
+    <section id="detect" class="view-section active">
       <div id="upload-flow">
         <div class="section-label reveal">/ Diagnosis Engine</div>
         <h2 class="section-title reveal">Upload patient fundus<br />for processing.</h2>
@@ -147,7 +161,6 @@
           <img id="preview-img" src="" alt="Uploaded retina" />
           <div id="heatmap-overlay"></div>
         </div>
-        
         <div id="loading-overlay">
           <div class="spinner"></div>
           <p class="loading-text" id="loading-text">Initializing MPS Backend...</p>
@@ -238,6 +251,43 @@
           <button class="btn-ghost" id="downloadReportBtn">Export PDF to EHR</button>
           <button class="btn-ghost" onclick="resetForm()">Scan Next Patient</button>
         </div>
+      </div>
+    </section>
+
+    <section id="registry" class="view-section">
+      <div class="section-label">/ Global Telemetry</div>
+      <h2 class="section-title">Cohort Analytics & Registry</h2>
+      <p class="section-desc">A macro-level view of all clinical scans processed during the current session, enabling population health analysis and anomaly detection.</p>
+
+      <div class="dashboard-grid" style="margin-bottom: 40px;">
+        <div class="dash-panel" style="justify-content: center; align-items: center; text-align: center;">
+          <div class="panel-label">Total Scans Processed</div>
+          <div style="font-family:'Syne',sans-serif; font-size: 72px; font-weight:800; color:var(--accent);" id="reg-total">0</div>
+        </div>
+        <div class="dash-panel">
+          <div class="panel-label">Severity Distribution</div>
+          <div class="chart-container" style="height: 180px;">
+            <canvas id="distributionChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <div class="panel-label" style="padding: 24px 24px 0;">Session Database</div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Patient ID</th>
+              <th>Age</th>
+              <th>Eye</th>
+              <th>Diagnosis</th>
+              <th>Certainty</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody id="registryTableBody">
+            </tbody>
+        </table>
       </div>
     </section>
 

@@ -1,7 +1,5 @@
 let patientChart = null;
-
-// --- DYNAMIC SESSION DATABASE ---
-// This array holds all patients scanned during the current browser session.
+let distChart = null; // Global reference for Analytics Chart
 let sessionHistory = []; 
 
 // UI Elements
@@ -13,6 +11,28 @@ const resultCard = document.getElementById('result-card');
 const loadingOverlay = document.getElementById('loading-overlay');
 const loadingText = document.getElementById('loading-text');
 const historyList = document.getElementById('historyList');
+
+// VIEW SWITCHING LOGIC
+function switchView(targetId) {
+  // Update Navigation Active States
+  document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
+  const activeNav = document.querySelector(`.sidebar-nav li[data-target="${targetId}"]`);
+  if(activeNav) activeNav.classList.add('active');
+
+  // Update Main Sections
+  document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+  document.getElementById(targetId).classList.add('active');
+
+  // Hide Hero and Stats if not on Detect view
+  if(targetId === 'registry') {
+    document.getElementById('hero-section').style.display = 'none';
+    document.getElementById('stats-strip').style.display = 'none';
+    updateRegistryView(); // Refresh chart when switching
+  } else {
+    document.getElementById('hero-section').style.display = 'flex';
+    document.getElementById('stats-strip').style.display = 'flex';
+  }
+}
 
 // Counter animation
 function animateCount(el, target, suffix, decimals) {
@@ -79,13 +99,11 @@ function processFile(file) {
   const reader = new FileReader();
   reader.onload = e => {
     
-    // Hide form and upload area
     document.getElementById('upload-flow').style.display = 'none';
-    
     previewWrap.style.display = 'block';
     loadingOverlay.style.display = 'block';
     resultCard.style.display = 'none';
-    previewImg.style.display = 'none'; // Hide image until loaded
+    previewImg.style.display = 'none'; 
 
     let msgIdx = 0;
     const msgInterval = setInterval(() => {
@@ -93,13 +111,11 @@ function processFile(file) {
       loadingText.textContent = loadingMessages[msgIdx];
     }, 700);
 
-    // Simulate model inference
     setTimeout(() => {
       clearInterval(msgInterval);
       loadingOverlay.style.display = 'none';
       previewImg.style.display = 'block';
       
-      // Generate patient data for the "new" upload
       const patId = document.getElementById('pat-id').value || `P-${Math.floor(Math.random()*10000)}`;
       const patAge = document.getElementById('pat-age').value || 'N/A';
       const patEye = document.getElementById('pat-eye').value;
@@ -113,38 +129,29 @@ function processFile(file) {
       const stage = severityStages[Math.floor(Math.random() * severityStages.length)];
       
       const newPatientData = {
-        uniqueKey: Date.now().toString(), // Generate a unique ID for the session array
-        id: patId, 
-        age: patAge, 
-        eye: patEye, 
-        date: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-        stageLevel: stage.level, 
-        stageName: stage.name, 
-        color: stage.color, 
-        pos: stage.pos,
+        uniqueKey: Date.now().toString(), 
+        id: patId, age: patAge, eye: patEye, date: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        stageLevel: stage.level, stageName: stage.name, color: stage.color, pos: stage.pos,
         certainty: (Math.random() * (99.9 - 85.0) + 85.0).toFixed(1),
         density: (stage.level * 22 + Math.random() * 10).toFixed(1),
         time: (Math.random() * 0.3 + 0.1).toFixed(2) + "s",
         history: [Math.max(0, stage.level - 2), Math.max(0, stage.level - 1), Math.max(0, stage.level - 1), stage.level, stage.level],
-        imageSrc: e.target.result // Use the Base64 string of the uploaded file
+        imageSrc: e.target.result 
       };
 
-      // Push to the top of our session history array
       sessionHistory.unshift(newPatientData);
-      
-      // Update the Sidebar UI
       updateSidebar(newPatientData.uniqueKey);
-
-      // Render the Dashboard with the new data
       renderDashboard(newPatientData);
+      
+      // Update Registry in background
+      updateRegistryView();
+      
     }, 3000);
   };
   reader.readAsDataURL(file);
 }
 
-// --- UPDATE SIDEBAR FUNCTION ---
 function updateSidebar(activeKey) {
-  // Clear the list
   historyList.innerHTML = '';
   
   if (sessionHistory.length === 0) {
@@ -152,12 +159,10 @@ function updateSidebar(activeKey) {
       return;
   }
 
-  // Build the list from the array
   sessionHistory.forEach(patient => {
     const li = document.createElement('li');
     if (patient.uniqueKey === activeKey) li.classList.add('active');
     
-    // Determine status dot color
     let dotClass = 'success';
     if(patient.stageLevel > 1) dotClass = 'warning';
     if(patient.stageLevel > 3) dotClass = 'danger';
@@ -165,7 +170,7 @@ function updateSidebar(activeKey) {
     li.innerHTML = `
       <div class="pat-list-info">
         <span class="status-dot ${dotClass}"></span> 
-        <img src="${patient.imageSrc}" class="sidebar-thumb" alt="Scan Thumb" />
+        <img src="${patient.imageSrc}" class="sidebar-thumb" alt="Thumb" />
         <div class="pat-list-details">
           <strong>${patient.id}</strong>
           <span style="font-size:10px; color:var(--muted);">${patient.stageName}</span>
@@ -174,9 +179,9 @@ function updateSidebar(activeKey) {
       <span class="pat-list-time">${patient.date}</span>
     `;
 
-    // Add click listener to re-render this patient
     li.addEventListener('click', () => {
-      updateSidebar(patient.uniqueKey); // Update active state
+      switchView('detect');
+      updateSidebar(patient.uniqueKey); 
       renderDashboard(patient);
     });
 
@@ -184,9 +189,7 @@ function updateSidebar(activeKey) {
   });
 }
 
-// --- MASTER DASHBOARD RENDERER ---
 function renderDashboard(patient) {
-  // 1. Adjust View Visibility
   document.getElementById('upload-flow').style.display = 'none';
   document.getElementById('loading-overlay').style.display = 'none';
   
@@ -194,7 +197,6 @@ function renderDashboard(patient) {
   previewImg.style.display = 'block';
   previewImg.src = patient.imageSrc;
 
-  // Reset XAI if it was open
   document.getElementById('heatmap-overlay').classList.remove('active');
   document.getElementById('xai-controls').style.display = 'none';
   const toggleBtn = document.getElementById('toggleHeatmapBtn');
@@ -205,7 +207,6 @@ function renderDashboard(patient) {
       toggleBtn.style.border = 'none';
   }
 
-  // 2. Populate Patient Summary
   document.getElementById('patient-summary').innerHTML = `
     <span><strong>ID:</strong> ${patient.id}</span>
     <span><strong>Age:</strong> ${patient.age}</span>
@@ -213,7 +214,6 @@ function renderDashboard(patient) {
     <span><strong>Time Processed:</strong> ${patient.date}</span>
   `;
 
-  // 3. Populate Severity
   document.getElementById('result-label').textContent = patient.stageName;
   const badge = document.getElementById('result-badge');
   badge.textContent = patient.stageLevel === 0 ? 'Negative' : 'Refer to Ophthalmologist';
@@ -222,7 +222,6 @@ function renderDashboard(patient) {
   document.getElementById('severity-val').textContent = `Stage ${patient.stageLevel}`;
   setTimeout(() => { document.getElementById('severity-indicator').style.left = patient.pos + '%'; }, 100);
   
-  // 4. Populate Radial Rings
   document.getElementById('m-prob').textContent = patient.certainty + '%';
   document.getElementById('m-conf').textContent = patient.density;
   document.getElementById('m-time').textContent = patient.time;
@@ -234,7 +233,6 @@ function renderDashboard(patient) {
     document.getElementById('lesion-ring').style.strokeDashoffset = lesionOffset;
   }, 200);
 
-  // 5. Draw Chart
   const ctx = document.getElementById('progressionChart').getContext('2d');
   if (patientChart) patientChart.destroy(); 
   
@@ -243,17 +241,10 @@ function renderDashboard(patient) {
     data: {
       labels: ['Jan', 'Apr', 'Jul', 'Oct', 'Current'],
       datasets: [{
-        label: 'Severity Level',
-        data: patient.history,
-        borderColor: '#00ddb4',
-        backgroundColor: 'rgba(0, 221, 180, 0.1)',
-        borderWidth: 3,
-        pointBackgroundColor: '#030a0e',
-        pointBorderColor: '#00aaff',
-        pointBorderWidth: 2,
-        pointRadius: 5,
-        fill: true,
-        tension: 0.4
+        label: 'Severity Level', data: patient.history,
+        borderColor: '#00ddb4', backgroundColor: 'rgba(0, 221, 180, 0.1)',
+        borderWidth: 3, pointBackgroundColor: '#030a0e', pointBorderColor: '#00aaff',
+        pointBorderWidth: 2, pointRadius: 5, fill: true, tension: 0.4
       }]
     },
     options: {
@@ -266,19 +257,78 @@ function renderDashboard(patient) {
     }
   });
 
-  // 6. Reveal Dashboard
   resultCard.style.display = 'block';
   resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-// --- RESET FORM FOR NEW SCAN ---
+// --- REGISTRY AND ANALYTICS LOGIC ---
+function updateRegistryView() {
+  document.getElementById('reg-total').textContent = sessionHistory.length;
+  
+  const tbody = document.getElementById('registryTableBody');
+  tbody.innerHTML = '';
+  
+  let stageCounts = [0, 0, 0, 0, 0];
+
+  if(sessionHistory.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--muted);">No records found.</td></tr>`;
+  } else {
+      sessionHistory.forEach(pat => {
+          stageCounts[pat.stageLevel]++;
+          const tr = document.createElement('tr');
+          
+          let bClass = 'badge-positive';
+          if(pat.stageLevel === 0) bClass = 'badge-negative';
+
+          tr.innerHTML = `
+            <td><strong>${pat.id}</strong></td>
+            <td>${pat.age}</td>
+            <td>${pat.eye}</td>
+            <td><span class="result-badge ${bClass}" style="font-size:9px; padding: 4px 10px;">${pat.stageName}</span></td>
+            <td>${pat.certainty}%</td>
+            <td style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${pat.date}</td>
+          `;
+          
+          tr.addEventListener('click', () => {
+             switchView('detect');
+             updateSidebar(pat.uniqueKey);
+             renderDashboard(pat);
+          });
+
+          tbody.appendChild(tr);
+      });
+  }
+
+  const ctxDist = document.getElementById('distributionChart').getContext('2d');
+  if(distChart) distChart.destroy();
+  
+  distChart = new Chart(ctxDist, {
+      type: 'doughnut',
+      data: {
+          labels: ['None', 'Mild', 'Moderate', 'Severe', 'Proliferative'],
+          datasets: [{
+              data: stageCounts,
+              backgroundColor: ['#00ddb4', '#aacc00', '#ffdd00', '#ff8800', '#ff4e7e'],
+              borderWidth: 0,
+              hoverOffset: 4
+          }]
+      },
+      options: {
+          responsive: true, maintainAspectRatio: false,
+          cutout: '75%',
+          plugins: {
+              legend: { position: 'right', labels: { color: '#6b8f9e', font: { family: "'DM Mono', monospace", size: 10 } } }
+          }
+      }
+  });
+}
+
 function resetForm() {
   document.getElementById('upload-flow').style.display = 'block';
   previewWrap.style.display = 'none';
   resultCard.style.display = 'none';
   fileInput.value = '';
   
-  // Remove active state from sidebar items
   document.querySelectorAll('.patient-list li').forEach(li => li.classList.remove('active'));
 
   const overlay = document.getElementById('heatmap-overlay');
@@ -305,10 +355,6 @@ function resetForm() {
   document.getElementById('detect').scrollIntoView({ behavior: 'smooth' });
 }
 
-// Hook up the new sidebar button
-document.getElementById('sidebarNewScanBtn').addEventListener('click', resetForm);
-
-// Advanced Grad-CAM Controls
 const toggleHeatmapBtn = document.getElementById('toggleHeatmapBtn');
 const xaiControls = document.getElementById('xai-controls');
 const heatmapOverlay = document.getElementById('heatmap-overlay');
@@ -349,9 +395,7 @@ if(heatmapSlider) {
 
 const downloadReportBtn = document.getElementById('downloadReportBtn');
 if(downloadReportBtn) {
-  downloadReportBtn.addEventListener('click', () => {
-    window.print(); 
-  });
+  downloadReportBtn.addEventListener('click', () => { window.print(); });
 }
 
 document.querySelectorAll('a[href^="#"]').forEach(a => {
