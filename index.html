@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>RetinaAI — Diabetic Retinopathy Detection</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -154,11 +155,50 @@
       </div>
     </div>
 
-    <div class="metrics-grid">
-      <div class="metric-card"><div class="metric-val" id="m-prob">—</div><div class="metric-name">Network Certainty</div></div>
-      <div class="metric-card"><div class="metric-val" id="m-conf">—</div><div class="metric-name">Lesion Density</div></div>
-      <div class="metric-card"><div class="metric-val" id="m-time">—</div><div class="metric-name">Inference Time</div></div>
-      <div class="metric-card"><div class="metric-val" id="m-model">B0</div><div class="metric-name">Architecture</div></div>
+    <div class="dashboard-grid">
+      <div class="dash-panel">
+        <div style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:16px;">
+          Patient Progression (Historical)
+        </div>
+        <div class="chart-container">
+          <canvas id="progressionChart"></canvas>
+        </div>
+      </div>
+
+      <div class="dash-panel">
+        <div style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:24px;">
+          Network Telemetry
+        </div>
+        
+        <div class="radial-metrics-wrapper">
+          <div class="radial-item">
+            <div class="svg-wrap">
+              <svg viewBox="0 0 100 100">
+                <circle class="ring-bg" cx="50" cy="50" r="42"></circle>
+                <circle class="ring-fill" id="cert-ring" cx="50" cy="50" r="42" style="stroke: var(--accent);"></circle>
+              </svg>
+              <div class="ring-text" id="m-prob">0%</div>
+            </div>
+            <div class="ring-label">Certainty</div>
+          </div>
+
+          <div class="radial-item">
+            <div class="svg-wrap">
+              <svg viewBox="0 0 100 100">
+                <circle class="ring-bg" cx="50" cy="50" r="42"></circle>
+                <circle class="ring-fill" id="lesion-ring" cx="50" cy="50" r="42" style="stroke: var(--accent2);"></circle>
+              </svg>
+              <div class="ring-text" id="m-conf">0</div>
+            </div>
+            <div class="ring-label">Density Score</div>
+          </div>
+        </div>
+
+        <div class="quick-stats">
+          <div class="stat-row"><span>Inference Time:</span> <strong id="m-time">0.00s</strong></div>
+          <div class="stat-row"><span>Architecture:</span> <strong>EfficientNetB0</strong></div>
+        </div>
+      </div>
     </div>
 
     <div class="xai-controls" id="xai-controls" style="display:none;">

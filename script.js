@@ -1,3 +1,5 @@
+let patientChart = null; // Global reference for Chart.js
+
 // Counter animation
 function animateCount(el, target, suffix, decimals) {
   let start = 0;
@@ -101,7 +103,6 @@ function processFile(file) {
 
 // Result Generation with Advanced Clinical Features
 function showResult() {
-  // Capture Patient Data
   const patId = document.getElementById('pat-id').value || 'Unknown';
   const patAge = document.getElementById('pat-age').value || 'N/A';
   const patEye = document.getElementById('pat-eye').value;
@@ -113,17 +114,6 @@ function showResult() {
     <span><strong>Date:</strong> ${new Date().toLocaleDateString()}</span>
   `;
 
-  // --- API HOOK PREPARATION ---
-  // When you connect your FastAPI backend, you will replace the simulation below with:
-  //
-  // const formData = new FormData();
-  // formData.append("file", fileInput.files[0]);
-  // fetch('http://localhost:8000/predict', { method: 'POST', body: formData })
-  //   .then(res => res.json())
-  //   .then(data => { updateUI(data); });
-  // -----------------------------
-
-  // Advanced Mock Output: 5-Stage Severity
   const severityStages = [
     { level: 0, name: "No DR", color: "badge-negative", pos: 0 },
     { level: 1, name: "Mild NPDR", color: "badge-positive", pos: 25 },
@@ -132,27 +122,75 @@ function showResult() {
     { level: 4, name: "Proliferative DR", color: "badge-positive", pos: 100 }
   ];
   
-  // Randomly pick a severity for the demo
   const stage = severityStages[Math.floor(Math.random() * severityStages.length)];
   const networkCertainty = (Math.random() * (99.9 - 85.0) + 85.0).toFixed(1);
   const lesionDensity = (stage.level * 22 + Math.random() * 10).toFixed(1);
 
-  // Update Main Labels
   document.getElementById('result-label').textContent = stage.name;
   const badge = document.getElementById('result-badge');
   badge.textContent = stage.level === 0 ? 'Negative' : 'Refer to Ophthalmologist';
   badge.className = 'result-badge ' + stage.color;
   
-  // Animate Indicator
   document.getElementById('severity-val').textContent = `Stage ${stage.level}`;
-  setTimeout(() => {
-    document.getElementById('severity-indicator').style.left = stage.pos + '%';
-  }, 100);
+  setTimeout(() => { document.getElementById('severity-indicator').style.left = stage.pos + '%'; }, 100);
   
-  // Update Metrics
+  // --- RADIAL METRICS ANIMATION ---
   document.getElementById('m-prob').textContent = networkCertainty + '%';
   document.getElementById('m-conf').textContent = lesionDensity;
   document.getElementById('m-time').textContent = (Math.random() * 0.3 + 0.1).toFixed(2) + 's';
+
+  // Calculate SVG stroke offsets (Circumference is ~264)
+  setTimeout(() => {
+    const certOffset = 264 - (264 * (networkCertainty / 100));
+    const lesionOffset = 264 - (264 * (Math.min(lesionDensity, 100) / 100));
+    document.getElementById('cert-ring').style.strokeDashoffset = certOffset;
+    document.getElementById('lesion-ring').style.strokeDashoffset = lesionOffset;
+  }, 200);
+
+  // --- CHART.JS INITIALIZATION ---
+  const ctx = document.getElementById('progressionChart').getContext('2d');
+  
+  if (patientChart) patientChart.destroy(); // Destroy old chart if doing a new scan
+  
+  // Mock historical data trending towards current severity
+  const historicalData = [Math.max(0, stage.level - 2), Math.max(0, stage.level - 1), Math.max(0, stage.level - 1), stage.level, stage.level];
+
+  patientChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['Jan', 'Apr', 'Jul', 'Oct', 'Current'],
+      datasets: [{
+        label: 'Severity Level',
+        data: historicalData,
+        borderColor: '#00ddb4',
+        backgroundColor: 'rgba(0, 221, 180, 0.1)',
+        borderWidth: 3,
+        pointBackgroundColor: '#030a0e',
+        pointBorderColor: '#00aaff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        fill: true,
+        tension: 0.4 // Smooth curves
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { 
+          beginAtZero: true, 
+          max: 4, 
+          ticks: { stepSize: 1, color: '#6b8f9e' },
+          grid: { color: 'rgba(0,220,180,0.05)' }
+        },
+        x: { 
+          ticks: { color: '#6b8f9e' },
+          grid: { display: false }
+        }
+      }
+    }
+  });
 
   resultCard.style.display = 'block';
   resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -182,6 +220,8 @@ function resetForm() {
   }
 
   document.getElementById('severity-indicator').style.left = '0%';
+  document.getElementById('cert-ring').style.strokeDashoffset = 264;
+  document.getElementById('lesion-ring').style.strokeDashoffset = 264;
   
   // Clear patient form
   document.getElementById('pat-id').value = '';
