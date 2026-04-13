@@ -45,7 +45,7 @@ const resultCard = document.getElementById('result-card');
 const loadingOverlay = document.getElementById('loading-overlay');
 const loadingText = document.getElementById('loading-text');
 
-// Ensure button and div click events are separated to avoid inline onclick attributes
+// Ensure button and div click events are separated
 uploadArea.addEventListener('click', () => fileInput.click());
 
 const chooseFileBtn = document.getElementById('chooseFileBtn');
@@ -73,7 +73,12 @@ function processFile(file) {
   const reader = new FileReader();
   reader.onload = e => {
     previewImg.src = e.target.result;
+    
+    // Hide form and upload area
+    document.getElementById('patientForm').style.display = 'none';
     uploadArea.style.display = 'none';
+    
+    // Show preview and loading
     previewWrap.style.display = 'block';
     loadingOverlay.style.display = 'block';
     resultCard.style.display = 'none';
@@ -94,8 +99,22 @@ function processFile(file) {
   reader.readAsDataURL(file);
 }
 
+// Result Generation with Patient Data Integration
 function showResult() {
-  // This is demo output — replace with actual backend response
+  // Capture Patient Data
+  const patId = document.getElementById('pat-id').value || 'Unknown';
+  const patAge = document.getElementById('pat-age').value || 'N/A';
+  const patEye = document.getElementById('pat-eye').value;
+
+  // Populate Summary
+  document.getElementById('patient-summary').innerHTML = `
+    <span><strong>ID:</strong> ${patId}</span>
+    <span><strong>Age:</strong> ${patAge}</span>
+    <span><strong>Eye:</strong> ${patEye}</span>
+    <span><strong>Date:</strong> ${new Date().toLocaleDateString()}</span>
+  `;
+
+  // Demo output
   const prob = Math.random();
   const isPositive = prob > 0.5;
   const confidence = isPositive ? prob : (1 - prob);
@@ -105,8 +124,14 @@ function showResult() {
   const badge = document.getElementById('result-badge');
   badge.textContent = isPositive ? 'Positive' : 'Negative';
   badge.className = 'result-badge ' + (isPositive ? 'badge-positive' : 'badge-negative');
+  
   document.getElementById('conf-val').textContent = confPct + '%';
-  document.getElementById('conf-bar').style.width = confPct + '%';
+  
+  // Small timeout to allow CSS transition to happen
+  setTimeout(() => {
+    document.getElementById('conf-bar').style.width = confPct + '%';
+  }, 100);
+  
   document.getElementById('m-prob').textContent = (prob * 100).toFixed(1) + '%';
   document.getElementById('m-conf').textContent = confPct + '%';
   document.getElementById('m-time').textContent = (Math.random() * 0.4 + 0.1).toFixed(2) + 's';
@@ -115,19 +140,71 @@ function showResult() {
   resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
+// Reset Form Logic
 function resetForm() {
+  document.getElementById('patientForm').style.display = 'block';
   uploadArea.style.display = 'block';
   previewWrap.style.display = 'none';
   resultCard.style.display = 'none';
   fileInput.value = '';
+  
+  // Reset Heatmap
+  const overlay = document.getElementById('heatmap-overlay');
+  overlay.classList.remove('active');
+  const toggleBtn = document.getElementById('toggleHeatmapBtn');
+  if(toggleBtn) {
+      toggleBtn.textContent = 'Toggle Explainability (Grad-CAM)';
+      toggleBtn.style.background = 'var(--accent)';
+      toggleBtn.style.color = '#030a0e';
+      toggleBtn.style.border = 'none';
+  }
+
+  document.getElementById('conf-bar').style.width = '0%';
+  
+  // Clear patient form
+  document.getElementById('pat-id').value = '';
+  document.getElementById('pat-age').value = '';
+  
+  // Scroll back up
+  document.getElementById('detect').scrollIntoView({ behavior: 'smooth' });
 }
 
+// Button Listeners
 const analyzeAnotherBtn = document.getElementById('analyzeAnotherBtn');
 if (analyzeAnotherBtn) {
     analyzeAnotherBtn.addEventListener('click', resetForm);
 }
 
-// Smooth scroll
+// Grad-CAM Toggle Logic
+const toggleHeatmapBtn = document.getElementById('toggleHeatmapBtn');
+if(toggleHeatmapBtn) {
+  toggleHeatmapBtn.addEventListener('click', () => {
+    const overlay = document.getElementById('heatmap-overlay');
+    overlay.classList.toggle('active');
+    
+    if(overlay.classList.contains('active')) {
+        toggleHeatmapBtn.textContent = 'Hide Explainability';
+        toggleHeatmapBtn.style.background = 'rgba(0, 221, 180, 0.2)';
+        toggleHeatmapBtn.style.color = '#00ddb4';
+        toggleHeatmapBtn.style.border = '1px solid #00ddb4';
+    } else {
+        toggleHeatmapBtn.textContent = 'Toggle Explainability (Grad-CAM)';
+        toggleHeatmapBtn.style.background = 'var(--accent)';
+        toggleHeatmapBtn.style.color = '#030a0e';
+        toggleHeatmapBtn.style.border = 'none';
+    }
+  });
+}
+
+// Download PDF Mock Logic
+const downloadReportBtn = document.getElementById('downloadReportBtn');
+if(downloadReportBtn) {
+  downloadReportBtn.addEventListener('click', () => {
+    window.print(); 
+  });
+}
+
+// Smooth scroll for nav links
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
     e.preventDefault();

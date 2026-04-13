@@ -75,7 +75,27 @@
 <section id="detect">
   <div class="section-label reveal">/ Diagnosis Engine</div>
   <h2 class="section-title reveal">Upload a fundus<br />image for analysis.</h2>
-  <p class="section-desc reveal">Supports JPG, PNG retinal images. The model will classify and output confidence scores, with downloadable report.</p>
+  <p class="section-desc reveal">Supports JPG, PNG retinal images. The model will classify and output confidence scores, with a downloadable clinical report.</p>
+
+  <div class="patient-form reveal" id="patientForm">
+    <div class="form-grid">
+      <div class="input-group">
+        <label>Patient ID</label>
+        <input type="text" id="pat-id" placeholder="e.g., P-8472" />
+      </div>
+      <div class="input-group">
+        <label>Patient Age</label>
+        <input type="number" id="pat-age" placeholder="e.g., 54" />
+      </div>
+      <div class="input-group">
+        <label>Eye Scanned</label>
+        <select id="pat-eye">
+          <option value="Left (OS)">Left (OS)</option>
+          <option value="Right (OD)">Right (OD)</option>
+        </select>
+      </div>
+    </div>
+  </div>
 
   <div class="upload-area reveal" id="uploadArea">
     <div class="upload-icon">
@@ -88,7 +108,11 @@
   </div>
 
   <div id="preview-wrap">
-    <img id="preview-img" src="" alt="Uploaded retina" />
+    <div class="image-container">
+      <img id="preview-img" src="" alt="Uploaded retina" />
+      <div id="heatmap-overlay"></div>
+    </div>
+    
     <div id="loading-overlay">
       <div class="spinner"></div>
       <p class="loading-text" id="loading-text">Preprocessing image...</p>
@@ -96,6 +120,12 @@
   </div>
 
   <div id="result-card">
+    <div class="report-header">
+      <h4>Clinical Analysis Report</h4>
+      <div class="patient-summary" id="patient-summary">
+        </div>
+    </div>
+
     <div class="result-header">
       <div>
         <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;margin-bottom:8px;" id="result-label">—</div>
@@ -111,14 +141,18 @@
         </div>
       </div>
     </div>
+
     <div class="metrics-grid">
       <div class="metric-card"><div class="metric-val" id="m-prob">—</div><div class="metric-name">DR Probability</div></div>
       <div class="metric-card"><div class="metric-val" id="m-conf">—</div><div class="metric-name">Confidence</div></div>
       <div class="metric-card"><div class="metric-val" id="m-time">—</div><div class="metric-name">Inference Time</div></div>
       <div class="metric-card"><div class="metric-val" id="m-model">B0</div><div class="metric-name">Model Used</div></div>
     </div>
-    <div style="margin-top:32px; text-align:center;">
-      <button class="btn-ghost" id="analyzeAnotherBtn">Analyze Another Image</button>
+
+    <div class="action-buttons">
+      <button class="btn-primary" id="toggleHeatmapBtn">Toggle Explainability (Grad-CAM)</button>
+      <button class="btn-ghost" id="downloadReportBtn">Download PDF Report</button>
+      <button class="btn-ghost" id="analyzeAnotherBtn">New Patient</button>
     </div>
   </div>
 </section>
