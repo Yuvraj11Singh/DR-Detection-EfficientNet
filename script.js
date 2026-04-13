@@ -1,5 +1,5 @@
 let patientChart = null;
-let distChart = null; // Global reference for Analytics Chart
+let distChart = null; 
 let sessionHistory = []; 
 
 // UI Elements
@@ -12,22 +12,48 @@ const loadingOverlay = document.getElementById('loading-overlay');
 const loadingText = document.getElementById('loading-text');
 const historyList = document.getElementById('historyList');
 
+// --- DRAGGABLE SIDEBAR LOGIC ---
+const resizer = document.getElementById('sidebarResizer');
+const root = document.documentElement;
+let isResizing = false;
+
+resizer.addEventListener('mousedown', (e) => {
+    isResizing = true;
+    document.body.classList.add('resizing');
+    resizer.classList.add('active');
+});
+
+document.addEventListener('mousemove', (e) => {
+    if (!isResizing) return;
+    let newWidth = e.clientX;
+    // Set boundaries so they don't break the layout
+    if (newWidth < 250) newWidth = 250;
+    if (newWidth > 550) newWidth = 550;
+    root.style.setProperty('--sidebar-width', newWidth + 'px');
+});
+
+document.addEventListener('mouseup', () => {
+    if (isResizing) {
+        isResizing = false;
+        document.body.classList.remove('resizing');
+        resizer.classList.remove('active');
+    }
+});
+
+
 // VIEW SWITCHING LOGIC
 function switchView(targetId) {
-  // Update Navigation Active States
   document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
   const activeNav = document.querySelector(`.sidebar-nav li[data-target="${targetId}"]`);
   if(activeNav) activeNav.classList.add('active');
 
-  // Update Main Sections
   document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
   document.getElementById(targetId).classList.add('active');
 
-  // Hide Hero and Stats if not on Detect view
   if(targetId === 'registry') {
     document.getElementById('hero-section').style.display = 'none';
     document.getElementById('stats-strip').style.display = 'none';
-    updateRegistryView(); // Refresh chart when switching
+    updateRegistryView(); 
   } else {
     document.getElementById('hero-section').style.display = 'flex';
     document.getElementById('stats-strip').style.display = 'flex';
@@ -143,7 +169,6 @@ function processFile(file) {
       updateSidebar(newPatientData.uniqueKey);
       renderDashboard(newPatientData);
       
-      // Update Registry in background
       updateRegistryView();
       
     }, 3000);
@@ -261,7 +286,6 @@ function renderDashboard(patient) {
   resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-// --- REGISTRY AND ANALYTICS LOGIC ---
 function updateRegistryView() {
   document.getElementById('reg-total').textContent = sessionHistory.length;
   
