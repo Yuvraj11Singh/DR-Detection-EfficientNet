@@ -1,0 +1,17 @@
+# RetinaAI — DR Detection
+# Install with: pip install -r requirements.txt
+
+# Deep Learning
+tensorflow>=2.12.0
+
+# Web Server
+flask>=3.0.0
+flask-cors>=4.0.0
+
+# Image Processing
+Pillow>=10.0.0
+numpy>=1.24.0
+
+# ML Evaluation
+scikit-learn>=1.3.0
+matplotlib>=3.7.0
