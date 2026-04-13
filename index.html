@@ -38,60 +38,33 @@
       </div>
     </div>
 
-    <div class="sidebar-section">
-      <h4 class="sidebar-heading">Active Queue</h4>
-      <ul class="patient-list">
-        <li class="active" data-id="P-8472">
-          <div class="pat-list-info">
-            <span class="status-dot warning"></span> 
-            <strong>P-8472</strong>
-          </div>
-          <span class="pat-list-time">Pending</span>
-        </li>
-        <li data-id="P-8471">
-          <div class="pat-list-info">
-            <span class="status-dot success"></span> 
-            <strong>P-8471</strong>
-          </div>
-          <span class="pat-list-time">10:42 AM</span>
-        </li>
-        <li data-id="P-8470">
-          <div class="pat-list-info">
-            <span class="status-dot success"></span> 
-            <strong>P-8470</strong>
-          </div>
-          <span class="pat-list-time">09:15 AM</span>
-        </li>
-        <li data-id="P-8469">
-          <div class="pat-list-info">
-            <span class="status-dot danger"></span> 
-            <strong>P-8469</strong>
-          </div>
-          <span class="pat-list-time">Yesterday</span>
+    <button class="btn-primary" id="sidebarNewScanBtn" style="width: 100%; margin-bottom: 24px;">+ Initiate New Scan</button>
+
+    <div class="sidebar-section" style="flex-grow: 1; overflow-y: auto;">
+      <h4 class="sidebar-heading">Session History</h4>
+      <ul class="patient-list" id="historyList">
+        <li style="text-align:center; padding: 20px; color: var(--muted); font-size: 12px; border: 1px dashed var(--border); cursor: default;">
+          No scans processed yet.<br>Upload an image to start.
         </li>
       </ul>
     </div>
 
-    <div class="sidebar-section" style="margin-top: auto;">
+    <div class="sidebar-section" style="margin-top: 24px;">
       <h4 class="sidebar-heading">System Diagnostics</h4>
       <div class="diagnostic-item">
          <span>Core ML Engine</span>
          <span class="diag-status green">Online</span>
       </div>
       <div class="diagnostic-item">
-         <span>MPS Backend</span>
-         <span class="diag-status green">Active</span>
-      </div>
-      <div class="diagnostic-item">
-         <span>Local Compute</span>
-         <span class="diag-status">M4 Optimized</span>
+         <span>Session Storage</span>
+         <span class="diag-status green" id="storageStatus">Active</span>
       </div>
     </div>
   </aside>
 
   <main class="main-content">
     
-    <div class="hero">
+    <div class="hero" id="hero-section">
       <div class="hero-tag">AI-Powered Clinical Vision</div>
 
       <div class="retina-visual">
@@ -114,11 +87,11 @@
       <p>Upload a retinal fundus image. The local neural engine will execute feature extraction and output a comprehensive severity mapping in seconds.</p>
 
       <div class="cta-row">
-        <a href="#detect" class="btn-primary">Initiate Scan</a>
+        <a href="#detect" class="btn-primary" onclick="resetForm()">Initiate Scan</a>
       </div>
     </div>
 
-    <div class="stats-strip">
+    <div class="stats-strip" id="stats-strip">
       <div class="stat-item">
         <div class="stat-num" id="cnt-auc">0</div>
         <div class="stat-label">Validation AUC</div>
@@ -134,37 +107,39 @@
     </div>
 
     <section id="detect">
-      <div class="section-label reveal">/ Diagnosis Engine</div>
-      <h2 class="section-title reveal">Upload patient fundus<br />for processing.</h2>
-      
-      <div class="patient-form reveal" id="patientForm">
-        <div class="form-grid">
-          <div class="input-group">
-            <label>Patient ID</label>
-            <input type="text" id="pat-id" placeholder="e.g., P-8472" value="P-8472" />
-          </div>
-          <div class="input-group">
-            <label>Patient Age</label>
-            <input type="number" id="pat-age" placeholder="e.g., 54" />
-          </div>
-          <div class="input-group">
-            <label>Eye Scanned</label>
-            <select id="pat-eye">
-              <option value="Left (OS)">Left (OS)</option>
-              <option value="Right (OD)">Right (OD)</option>
-            </select>
+      <div id="upload-flow">
+        <div class="section-label reveal">/ Diagnosis Engine</div>
+        <h2 class="section-title reveal">Upload patient fundus<br />for processing.</h2>
+        
+        <div class="patient-form reveal" id="patientForm">
+          <div class="form-grid">
+            <div class="input-group">
+              <label>Patient ID</label>
+              <input type="text" id="pat-id" placeholder="e.g., P-8472" />
+            </div>
+            <div class="input-group">
+              <label>Patient Age</label>
+              <input type="number" id="pat-age" placeholder="e.g., 54" />
+            </div>
+            <div class="input-group">
+              <label>Eye Scanned</label>
+              <select id="pat-eye">
+                <option value="Left (OS)">Left (OS)</option>
+                <option value="Right (OD)">Right (OD)</option>
+              </select>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="upload-area reveal" id="uploadArea">
-        <div class="upload-icon">
-          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div class="upload-area reveal" id="uploadArea">
+          <div class="upload-icon">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <h3>Drop DICOM, JPG, or PNG here</h3>
+          <p>Ensure standard field-of-view illumination</p>
+          <button class="btn-primary" id="chooseFileBtn">Browse Storage</button>
+          <input type="file" id="fileInput" accept="image/*" />
         </div>
-        <h3>Drop DICOM, JPG, or PNG here</h3>
-        <p>Ensure standard field-of-view illumination</p>
-        <button class="btn-primary" id="chooseFileBtn">Browse Storage</button>
-        <input type="file" id="fileInput" accept="image/*" />
       </div>
 
       <div id="preview-wrap">
@@ -261,7 +236,7 @@
         <div class="action-buttons">
           <button class="btn-primary" id="toggleHeatmapBtn">Enable Explainability</button>
           <button class="btn-ghost" id="downloadReportBtn">Export PDF to EHR</button>
-          <button class="btn-ghost" id="analyzeAnotherBtn">Scan Next Patient</button>
+          <button class="btn-ghost" onclick="resetForm()">Scan Next Patient</button>
         </div>
       </div>
     </section>

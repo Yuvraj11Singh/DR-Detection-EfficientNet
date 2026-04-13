@@ -1,26 +1,18 @@
 let patientChart = null;
 
-// --- MOCK DATABASE FOR SIDEBAR PATIENTS ---
-const pastPatientsDB = {
-  "P-8471": {
-    id: "P-8471", age: 62, eye: "Right (OD)", date: "Today, 10:42 AM",
-    stageLevel: 2, stageName: "Moderate NPDR", color: "badge-positive", pos: 50,
-    certainty: 94.2, density: 45.1, time: "0.28s", history: [0, 1, 1, 2, 2],
-    imageSrc: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Diabetic_retinopathy.jpg/800px-Diabetic_retinopathy.jpg"
-  },
-  "P-8470": {
-    id: "P-8470", age: 45, eye: "Left (OS)", date: "Today, 09:15 AM",
-    stageLevel: 0, stageName: "No DR", color: "badge-negative", pos: 0,
-    certainty: 98.5, density: 12.0, time: "0.31s", history: [0, 0, 0, 0, 0],
-    imageSrc: "https://upload.wikimedia.org/wikipedia/commons/3/30/Fundus_photograph_of_normal_left_eye.jpg"
-  },
-  "P-8469": {
-    id: "P-8469", age: 71, eye: "Right (OD)", date: "Yesterday, 04:20 PM",
-    stageLevel: 4, stageName: "Proliferative DR", color: "badge-positive", pos: 100,
-    certainty: 89.9, density: 92.4, time: "0.45s", history: [2, 3, 3, 4, 4],
-    imageSrc: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Macular_degeneration.jpg/800px-Macular_degeneration.jpg"
-  }
-};
+// --- DYNAMIC SESSION DATABASE ---
+// This array holds all patients scanned during the current browser session.
+let sessionHistory = []; 
+
+// UI Elements
+const uploadArea = document.getElementById('uploadArea');
+const fileInput = document.getElementById('fileInput');
+const previewWrap = document.getElementById('preview-wrap');
+const previewImg = document.getElementById('preview-img');
+const resultCard = document.getElementById('result-card');
+const loadingOverlay = document.getElementById('loading-overlay');
+const loadingText = document.getElementById('loading-text');
+const historyList = document.getElementById('historyList');
 
 // Counter animation
 function animateCount(el, target, suffix, decimals) {
@@ -60,14 +52,6 @@ const revealObserver = new IntersectionObserver(entries => {
 document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
 // UPLOAD LOGIC
-const uploadArea = document.getElementById('uploadArea');
-const fileInput = document.getElementById('fileInput');
-const previewWrap = document.getElementById('preview-wrap');
-const previewImg = document.getElementById('preview-img');
-const resultCard = document.getElementById('result-card');
-const loadingOverlay = document.getElementById('loading-overlay');
-const loadingText = document.getElementById('loading-text');
-
 uploadArea.addEventListener('click', () => fileInput.click());
 
 const chooseFileBtn = document.getElementById('chooseFileBtn');
@@ -96,8 +80,7 @@ function processFile(file) {
   reader.onload = e => {
     
     // Hide form and upload area
-    document.getElementById('patientForm').style.display = 'none';
-    uploadArea.style.display = 'none';
+    document.getElementById('upload-flow').style.display = 'none';
     
     previewWrap.style.display = 'block';
     loadingOverlay.style.display = 'block';
@@ -116,8 +99,8 @@ function processFile(file) {
       loadingOverlay.style.display = 'none';
       previewImg.style.display = 'block';
       
-      // Generate random patient data for the "new" upload
-      const patId = document.getElementById('pat-id').value || 'Unknown';
+      // Generate patient data for the "new" upload
+      const patId = document.getElementById('pat-id').value || `P-${Math.floor(Math.random()*10000)}`;
       const patAge = document.getElementById('pat-age').value || 'N/A';
       const patEye = document.getElementById('pat-eye').value;
       const severityStages = [
@@ -130,31 +113,81 @@ function processFile(file) {
       const stage = severityStages[Math.floor(Math.random() * severityStages.length)];
       
       const newPatientData = {
-        id: patId, age: patAge, eye: patEye, date: new Date().toLocaleDateString(),
-        stageLevel: stage.level, stageName: stage.name, color: stage.color, pos: stage.pos,
+        uniqueKey: Date.now().toString(), // Generate a unique ID for the session array
+        id: patId, 
+        age: patAge, 
+        eye: patEye, 
+        date: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        stageLevel: stage.level, 
+        stageName: stage.name, 
+        color: stage.color, 
+        pos: stage.pos,
         certainty: (Math.random() * (99.9 - 85.0) + 85.0).toFixed(1),
         density: (stage.level * 22 + Math.random() * 10).toFixed(1),
         time: (Math.random() * 0.3 + 0.1).toFixed(2) + "s",
         history: [Math.max(0, stage.level - 2), Math.max(0, stage.level - 1), Math.max(0, stage.level - 1), stage.level, stage.level],
-        imageSrc: e.target.result // Use the uploaded file
+        imageSrc: e.target.result // Use the Base64 string of the uploaded file
       };
 
+      // Push to the top of our session history array
+      sessionHistory.unshift(newPatientData);
+      
+      // Update the Sidebar UI
+      updateSidebar(newPatientData.uniqueKey);
+
+      // Render the Dashboard with the new data
       renderDashboard(newPatientData);
     }, 3000);
   };
   reader.readAsDataURL(file);
 }
 
+// --- UPDATE SIDEBAR FUNCTION ---
+function updateSidebar(activeKey) {
+  // Clear the list
+  historyList.innerHTML = '';
+  
+  if (sessionHistory.length === 0) {
+      historyList.innerHTML = `<li style="text-align:center; padding: 20px; color: var(--muted); font-size: 12px; border: 1px dashed var(--border); cursor: default;">No scans processed yet.<br>Upload an image to start.</li>`;
+      return;
+  }
+
+  // Build the list from the array
+  sessionHistory.forEach(patient => {
+    const li = document.createElement('li');
+    if (patient.uniqueKey === activeKey) li.classList.add('active');
+    
+    // Determine status dot color
+    let dotClass = 'success';
+    if(patient.stageLevel > 1) dotClass = 'warning';
+    if(patient.stageLevel > 3) dotClass = 'danger';
+
+    li.innerHTML = `
+      <div class="pat-list-info">
+        <span class="status-dot ${dotClass}"></span> 
+        <img src="${patient.imageSrc}" class="sidebar-thumb" alt="Scan Thumb" />
+        <div class="pat-list-details">
+          <strong>${patient.id}</strong>
+          <span style="font-size:10px; color:var(--muted);">${patient.stageName}</span>
+        </div>
+      </div>
+      <span class="pat-list-time">${patient.date}</span>
+    `;
+
+    // Add click listener to re-render this patient
+    li.addEventListener('click', () => {
+      updateSidebar(patient.uniqueKey); // Update active state
+      renderDashboard(patient);
+    });
+
+    historyList.appendChild(li);
+  });
+}
+
 // --- MASTER DASHBOARD RENDERER ---
 function renderDashboard(patient) {
-  // 1. Manage Active Class in Sidebar
-  document.querySelectorAll('.patient-list li').forEach(li => li.classList.remove('active'));
-  const activeLi = document.querySelector(`.patient-list li[data-id="${patient.id}"]`);
-  if(activeLi) activeLi.classList.add('active');
-
-  // 2. Adjust View Visibility
-  document.getElementById('patientForm').style.display = 'none';
-  document.getElementById('uploadArea').style.display = 'none';
+  // 1. Adjust View Visibility
+  document.getElementById('upload-flow').style.display = 'none';
   document.getElementById('loading-overlay').style.display = 'none';
   
   previewWrap.style.display = 'block';
@@ -172,15 +205,15 @@ function renderDashboard(patient) {
       toggleBtn.style.border = 'none';
   }
 
-  // 3. Populate Patient Summary
+  // 2. Populate Patient Summary
   document.getElementById('patient-summary').innerHTML = `
     <span><strong>ID:</strong> ${patient.id}</span>
     <span><strong>Age:</strong> ${patient.age}</span>
     <span><strong>Eye:</strong> ${patient.eye}</span>
-    <span><strong>Date:</strong> ${patient.date}</span>
+    <span><strong>Time Processed:</strong> ${patient.date}</span>
   `;
 
-  // 4. Populate Severity
+  // 3. Populate Severity
   document.getElementById('result-label').textContent = patient.stageName;
   const badge = document.getElementById('result-badge');
   badge.textContent = patient.stageLevel === 0 ? 'Negative' : 'Refer to Ophthalmologist';
@@ -189,7 +222,7 @@ function renderDashboard(patient) {
   document.getElementById('severity-val').textContent = `Stage ${patient.stageLevel}`;
   setTimeout(() => { document.getElementById('severity-indicator').style.left = patient.pos + '%'; }, 100);
   
-  // 5. Populate Radial Rings
+  // 4. Populate Radial Rings
   document.getElementById('m-prob').textContent = patient.certainty + '%';
   document.getElementById('m-conf').textContent = patient.density;
   document.getElementById('m-time').textContent = patient.time;
@@ -201,7 +234,7 @@ function renderDashboard(patient) {
     document.getElementById('lesion-ring').style.strokeDashoffset = lesionOffset;
   }, 200);
 
-  // 6. Draw Chart
+  // 5. Draw Chart
   const ctx = document.getElementById('progressionChart').getContext('2d');
   if (patientChart) patientChart.destroy(); 
   
@@ -233,37 +266,20 @@ function renderDashboard(patient) {
     }
   });
 
-  // 7. Reveal Dashboard
+  // 6. Reveal Dashboard
   resultCard.style.display = 'block';
   resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-// --- SIDEBAR CLICK LISTENER ---
-document.querySelectorAll('.patient-list li').forEach(li => {
-  li.addEventListener('click', function() {
-    const clickedId = this.getAttribute('data-id');
-    
-    // If clicking the pending patient, go back to the upload screen
-    if (clickedId === "P-8472") {
-      resetForm();
-    } else {
-      // Pull from the mock database and render instantly
-      renderDashboard(pastPatientsDB[clickedId]);
-    }
-  });
-});
-
-// Reset Form Logic
+// --- RESET FORM FOR NEW SCAN ---
 function resetForm() {
-  document.getElementById('patientForm').style.display = 'block';
-  uploadArea.style.display = 'block';
+  document.getElementById('upload-flow').style.display = 'block';
   previewWrap.style.display = 'none';
   resultCard.style.display = 'none';
   fileInput.value = '';
   
-  // Set Active Sidebar back to Pending
+  // Remove active state from sidebar items
   document.querySelectorAll('.patient-list li').forEach(li => li.classList.remove('active'));
-  document.querySelector('.patient-list li[data-id="P-8472"]').classList.add('active');
 
   const overlay = document.getElementById('heatmap-overlay');
   const xaiControls = document.getElementById('xai-controls');
@@ -283,16 +299,14 @@ function resetForm() {
   document.getElementById('cert-ring').style.strokeDashoffset = 264;
   document.getElementById('lesion-ring').style.strokeDashoffset = 264;
   
-  document.getElementById('pat-id').value = 'P-8472';
+  document.getElementById('pat-id').value = '';
   document.getElementById('pat-age').value = '';
   
   document.getElementById('detect').scrollIntoView({ behavior: 'smooth' });
 }
 
-const analyzeAnotherBtn = document.getElementById('analyzeAnotherBtn');
-if (analyzeAnotherBtn) {
-    analyzeAnotherBtn.addEventListener('click', resetForm);
-}
+// Hook up the new sidebar button
+document.getElementById('sidebarNewScanBtn').addEventListener('click', resetForm);
 
 // Advanced Grad-CAM Controls
 const toggleHeatmapBtn = document.getElementById('toggleHeatmapBtn');
