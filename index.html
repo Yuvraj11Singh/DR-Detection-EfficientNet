@@ -13,6 +13,12 @@
 <div class="blob1"></div>
 <div class="blob2"></div>
 
+<!-- SCAN LINE EFFECT -->
+<div class="scan-line"></div>
+
+<!-- TOAST CONTAINER -->
+<div id="toastContainer" class="toast-container"></div>
+
 <nav>
   <div class="logo">
     <div class="logo-dot"></div>
@@ -20,10 +26,12 @@
   </div>
   <ul class="nav-links">
     <li><a href="#" onclick="switchView('detect')">Diagnosis Engine</a></li>
-    <li><a href="#" onclick="switchView('registry')">Patient Registry</a></li>
-    <li><a href="#model">Model Metrics</a></li>
+    <li><a href="#" onclick="switchView('registry')">Cohort Registry</a></li>
+    <li><a href="#" onclick="switchView('image-lab')">Image Lab</a></li>
+    <li><a href="#model">Architecture</a></li>
   </ul>
-  <div class="nav-actions">
+  <div class="nav-actions" style="display:flex;align-items:center;gap:12px;">
+    <div class="live-clock" id="liveClock"></div>
     <span class="nav-tag">Secure Portal</span>
   </div>
 </nav>
@@ -31,12 +39,13 @@
 <div class="app-layout">
   
   <aside class="clinical-sidebar">
-    <div class="doc-profile">
+    <div class="doc-profile" onclick="openProfileModal()">
       <div class="doc-avatar">YS</div>
       <div class="doc-info">
         <span class="doc-title">Attending Clinician</span>
         <span class="doc-name">Dr. Yuvraj</span>
       </div>
+      <div class="profile-arrow">›</div>
     </div>
 
     <div class="sidebar-section">
@@ -49,29 +58,40 @@
           <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
           Cohort Analytics
         </li>
-      </ul>
-    </div>
-
-    <button class="btn-primary" id="sidebarNewScanBtn" style="width: 100%; margin-bottom: 24px;" onclick="switchView('detect'); resetForm();">+ Initiate New Scan</button>
-
-    <div class="sidebar-section" style="flex-grow: 1; overflow-y: auto;">
-      <h4 class="sidebar-heading">Session History</h4>
-      <ul class="patient-list" id="historyList">
-        <li style="text-align:center; padding: 20px; color: var(--muted); font-size: 12px; border: 1px dashed var(--border); cursor: default;">
-          No scans processed yet.<br>Upload an image to start.
+        <li data-target="image-lab" onclick="switchView('image-lab')">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+          Image Lab
         </li>
       </ul>
     </div>
 
-    <div class="sidebar-section" style="margin-top: 24px;">
+    <button class="btn-primary" id="sidebarNewScanBtn" style="width:100%;margin-bottom:24px;" onclick="switchView('detect');resetForm();">+ Initiate New Scan</button>
+
+    <div class="sidebar-section" style="flex-grow:1;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h4 class="sidebar-heading" style="margin:0;">Session History</h4>
+        <span id="historyCount" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);background:rgba(0,221,180,0.1);padding:2px 8px;border-radius:100px;">0</span>
+      </div>
+      <ul class="patient-list" id="historyList">
+        <li class="empty-history">
+          No scans yet.<br/>Upload an image to start.
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-section" style="margin-top:16px;">
       <h4 class="sidebar-heading">System Diagnostics</h4>
       <div class="diagnostic-item">
-         <span>Core ML Engine</span>
-         <span class="diag-status green">Online</span>
+        <span>Core ML Engine</span>
+        <span class="diag-status green">● Online</span>
       </div>
       <div class="diagnostic-item">
-         <span>Session Storage</span>
-         <span class="diag-status green" id="storageStatus">Active</span>
+        <span>Canvas CV Engine</span>
+        <span class="diag-status green" id="cvStatus">● Active</span>
+      </div>
+      <div class="diagnostic-item">
+        <span>Session Records</span>
+        <span class="diag-status green" id="storageStatus">● 0 scans</span>
       </div>
     </div>
 
@@ -80,15 +100,15 @@
 
   <main class="main-content">
     
+    <!-- HERO -->
     <div class="hero" id="hero-section">
       <div class="hero-tag">AI-Powered Clinical Vision</div>
-
       <div class="retina-visual">
         <div class="retina-ring"></div>
         <div class="retina-ring"></div>
         <div class="retina-ring"></div>
         <div class="retina-core">
-          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg viewBox="0 0 48 48" fill="none">
             <circle cx="24" cy="24" r="10" stroke="#00ddb4" stroke-width="1.5"/>
             <circle cx="24" cy="24" r="4" fill="#00ddb4" opacity="0.6"/>
             <line x1="24" y1="4" x2="24" y2="12" stroke="#00ddb4" stroke-width="1.5" stroke-linecap="round"/>
@@ -98,15 +118,15 @@
           </svg>
         </div>
       </div>
-
       <h1>Detect <span class="accent">Diabetic Retinopathy</span> Early.</h1>
-      <p>Upload a retinal fundus image. The local neural engine will execute feature extraction and output a comprehensive severity mapping in seconds.</p>
-
+      <p>Upload a retinal fundus image. Our neural engine executes deep feature extraction and delivers a comprehensive severity mapping — in seconds.</p>
       <div class="cta-row">
         <a href="#detect" class="btn-primary" onclick="resetForm()">Initiate Scan</a>
+        <a href="#" class="btn-ghost" onclick="switchView('image-lab')">Open Image Lab</a>
       </div>
     </div>
 
+    <!-- STATS STRIP -->
     <div class="stats-strip" id="stats-strip">
       <div class="stat-item">
         <div class="stat-num" id="cnt-auc">0</div>
@@ -120,8 +140,15 @@
         <div class="stat-num" id="cnt-params">0</div>
         <div class="stat-label">Model Parameters</div>
       </div>
+      <div class="stat-item">
+        <div class="stat-num" id="cnt-session">0</div>
+        <div class="stat-label">Session Scans</div>
+      </div>
     </div>
 
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- DETECT VIEW -->
+    <!-- ═══════════════════════════════════════════════ -->
     <section id="detect" class="view-section active">
       <div id="upload-flow">
         <div class="section-label reveal">/ Diagnosis Engine</div>
@@ -144,6 +171,15 @@
                 <option value="Right (OD)">Right (OD)</option>
               </select>
             </div>
+            <div class="input-group">
+              <label>Image Quality Filter</label>
+              <select id="pat-filter">
+                <option value="none">No Pre-Processing</option>
+                <option value="clahe">CLAHE Enhancement</option>
+                <option value="green">Green Channel</option>
+                <option value="edge">Edge Detection</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -152,32 +188,89 @@
             <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           </div>
           <h3>Drop DICOM, JPG, or PNG here</h3>
-          <p>Ensure standard field-of-view illumination</p>
+          <p>Ensure standard field-of-view illumination. Max 20MB.</p>
           <button class="btn-primary" id="chooseFileBtn">Browse Storage</button>
           <input type="file" id="fileInput" accept="image/*" />
+        </div>
+
+        <!-- CV PREVIEW BEFORE ANALYSIS -->
+        <div id="cv-preview-strip" style="display:none;margin-top:24px;">
+          <div class="section-label">/ Image Pre-Processing Preview</div>
+          <div class="cv-strip-grid">
+            <div class="cv-strip-item">
+              <canvas id="cv-orig" class="cv-canvas"></canvas>
+              <span>Original</span>
+            </div>
+            <div class="cv-strip-item">
+              <canvas id="cv-gray" class="cv-canvas"></canvas>
+              <span>Grayscale</span>
+            </div>
+            <div class="cv-strip-item">
+              <canvas id="cv-green" class="cv-canvas"></canvas>
+              <span>Green Channel</span>
+            </div>
+            <div class="cv-strip-item">
+              <canvas id="cv-edge" class="cv-canvas"></canvas>
+              <span>Edge Map</span>
+            </div>
+            <div class="cv-strip-item">
+              <canvas id="cv-clahe" class="cv-canvas"></canvas>
+              <span>CLAHE Enhanced</span>
+            </div>
+          </div>
+          <div class="image-stats-bar" id="imageStatsBar"></div>
+          <div style="display:flex;gap:12px;margin-top:16px;justify-content:center;">
+            <button class="btn-primary" id="proceedAnalysisBtn">Proceed to Analysis</button>
+            <button class="btn-ghost" onclick="resetForm()">Cancel</button>
+          </div>
         </div>
       </div>
 
       <div id="preview-wrap">
-        <div class="image-container">
-          <img id="preview-img" src="" alt="Uploaded retina" />
-          <div id="heatmap-overlay"></div>
+        <div class="dual-image-container">
+          <div class="image-panel">
+            <span class="image-panel-label">Original Fundus</span>
+            <div class="image-container">
+              <img id="preview-img" src="" alt="Uploaded retina" />
+              <div id="heatmap-overlay"></div>
+              <!-- Measurement crosshair -->
+              <div class="crosshair-h"></div>
+              <div class="crosshair-v"></div>
+            </div>
+          </div>
+          <div class="image-panel" id="processedPanel" style="display:none;">
+            <span class="image-panel-label" id="processedLabel">Processed</span>
+            <div class="image-container">
+              <canvas id="processedCanvas" class="processed-canvas"></canvas>
+            </div>
+          </div>
         </div>
         <div id="loading-overlay">
-          <div class="spinner"></div>
-          <p class="loading-text" id="loading-text">Initializing MPS Backend...</p>
+          <div class="loading-inner">
+            <div class="spinner"></div>
+            <p class="loading-text" id="loading-text">Initializing MPS Backend...</p>
+            <div class="loading-steps">
+              <div class="load-step" id="ls-1">① Image preprocessing</div>
+              <div class="load-step" id="ls-2">② Feature extraction</div>
+              <div class="load-step" id="ls-3">③ Severity grading</div>
+              <div class="load-step" id="ls-4">④ Report generation</div>
+            </div>
+          </div>
         </div>
       </div>
 
       <div id="result-card">
         <div class="report-header">
-          <h4>Clinical Analysis Report</h4>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <h4>Clinical Analysis Report</h4>
+            <div class="report-id-badge" id="reportIdBadge"></div>
+          </div>
           <div class="patient-summary" id="patient-summary"></div>
         </div>
 
         <div class="result-header">
           <div>
-            <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;margin-bottom:8px;" id="result-label">—</div>
+            <div class="result-main-label" id="result-label">—</div>
             <span class="result-badge" id="result-badge">—</span>
           </div>
           <div class="confidence-bar-wrap">
@@ -194,13 +287,18 @@
               <div class="severity-indicator" id="severity-indicator"></div>
             </div>
             <div class="spectrum-labels">
-              <span>None</span>
-              <span>Mild</span>
-              <span>Moderate</span>
-              <span>Severe</span>
-              <span>Prolif.</span>
+              <span>None</span><span>Mild</span><span>Moderate</span><span>Severe</span><span>Prolif.</span>
             </div>
           </div>
+        </div>
+
+        <!-- RISK SCORE PANEL -->
+        <div class="risk-panel" id="riskPanel">
+          <div class="risk-panel-header">
+            <span class="panel-label">Risk Factor Analysis</span>
+            <span class="risk-overall" id="riskOverall"></span>
+          </div>
+          <div class="risk-factors-grid" id="riskFactorsGrid"></div>
         </div>
 
         <div class="dashboard-grid">
@@ -208,7 +306,6 @@
             <div class="panel-label">Patient Progression (Historical)</div>
             <div class="chart-container"><canvas id="progressionChart"></canvas></div>
           </div>
-
           <div class="dash-panel">
             <div class="panel-label">Network Telemetry</div>
             <div class="radial-metrics-wrapper">
@@ -216,7 +313,7 @@
                 <div class="svg-wrap">
                   <svg viewBox="0 0 100 100">
                     <circle class="ring-bg" cx="50" cy="50" r="42"></circle>
-                    <circle class="ring-fill" id="cert-ring" cx="50" cy="50" r="42" style="stroke: var(--accent);"></circle>
+                    <circle class="ring-fill" id="cert-ring" cx="50" cy="50" r="42" style="stroke:var(--accent);"></circle>
                   </svg>
                   <div class="ring-text" id="m-prob">0%</div>
                 </div>
@@ -226,100 +323,301 @@
                 <div class="svg-wrap">
                   <svg viewBox="0 0 100 100">
                     <circle class="ring-bg" cx="50" cy="50" r="42"></circle>
-                    <circle class="ring-fill" id="lesion-ring" cx="50" cy="50" r="42" style="stroke: var(--accent2);"></circle>
+                    <circle class="ring-fill" id="lesion-ring" cx="50" cy="50" r="42" style="stroke:var(--accent2);"></circle>
                   </svg>
                   <div class="ring-text" id="m-conf">0</div>
                 </div>
-                <div class="ring-label">Density Score</div>
+                <div class="ring-label">Lesion Density</div>
               </div>
             </div>
             <div class="quick-stats">
-              <div class="stat-row"><span>Inference Time:</span> <strong id="m-time">0.00s</strong></div>
-              <div class="stat-row"><span>Architecture:</span> <strong>EfficientNetB0</strong></div>
+              <div class="stat-row"><span>Inference Time:</span><strong id="m-time">0.00s</strong></div>
+              <div class="stat-row"><span>Architecture:</span><strong>EfficientNetB0</strong></div>
+              <div class="stat-row"><span>Image Filter Used:</span><strong id="m-filter">None</strong></div>
+              <div class="stat-row"><span>Brightness:</span><strong id="m-brightness">—</strong></div>
+              <div class="stat-row"><span>Contrast:</span><strong id="m-contrast">—</strong></div>
             </div>
           </div>
         </div>
 
+        <!-- FEATURE HEATMAP ROW -->
+        <div class="feature-maps-row" id="featureMapsRow">
+          <div class="panel-label" style="margin-bottom:16px;">Image Processing Analysis</div>
+          <div class="feature-maps-grid">
+            <div class="feature-map-item">
+              <canvas id="res-gray" class="feature-canvas"></canvas>
+              <span>Grayscale</span>
+            </div>
+            <div class="feature-map-item">
+              <canvas id="res-green" class="feature-canvas"></canvas>
+              <span>Vessel Map</span>
+            </div>
+            <div class="feature-map-item">
+              <canvas id="res-edge" class="feature-canvas"></canvas>
+              <span>Edge Detection</span>
+            </div>
+            <div class="feature-map-item">
+              <canvas id="res-clahe" class="feature-canvas"></canvas>
+              <span>CLAHE Enhanced</span>
+            </div>
+            <div class="feature-map-item">
+              <canvas id="res-heat" class="feature-canvas"></canvas>
+              <span>Pseudo Heatmap</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- XAI CONTROLS -->
         <div class="xai-controls" id="xai-controls" style="display:none;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <span style="font-family:'DM Mono',monospace; font-size:12px; color:var(--accent); text-transform:uppercase; letter-spacing:1px;">Grad-CAM Activation Map</span>
-            <span style="font-family:'DM Mono',monospace; font-size:12px; color:var(--muted);" id="opacity-val">70%</span>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;">Grad-CAM Activation Map</span>
+            <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);" id="opacity-val">70%</span>
           </div>
           <input type="range" id="heatmapSlider" min="0" max="100" value="70" class="styled-slider">
         </div>
 
+        <!-- CLINICAL RECOMMENDATION -->
+        <div class="recommendation-panel" id="recommendationPanel"></div>
+
         <div class="action-buttons">
-          <button class="btn-primary" id="toggleHeatmapBtn">Enable Explainability</button>
+          <button class="btn-primary" id="toggleHeatmapBtn">Enable Grad-CAM</button>
           <button class="btn-ghost" id="downloadReportBtn">Export PDF to EHR</button>
+          <button class="btn-ghost" onclick="switchView('image-lab')">Open in Image Lab</button>
           <button class="btn-ghost" onclick="resetForm()">Scan Next Patient</button>
         </div>
       </div>
     </section>
 
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- REGISTRY VIEW -->
+    <!-- ═══════════════════════════════════════════════ -->
     <section id="registry" class="view-section">
       <div class="section-label">/ Global Telemetry</div>
       <h2 class="section-title">Cohort Analytics & Registry</h2>
-      <p class="section-desc">A macro-level view of all clinical scans processed during the current session, enabling population health analysis and anomaly detection.</p>
+      <p class="section-desc">Population-level view of all clinical scans this session — enabling epidemiological analysis and pattern detection.</p>
 
-      <div class="dashboard-grid" style="margin-bottom: 40px;">
-        <div class="dash-panel" style="justify-content: center; align-items: center; text-align: center;">
-          <div class="panel-label">Total Scans Processed</div>
-          <div style="font-family:'Syne',sans-serif; font-size: 72px; font-weight:800; color:var(--accent);" id="reg-total">0</div>
+      <div class="registry-kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-val" id="reg-total">0</div>
+          <div class="kpi-label">Total Scans</div>
         </div>
+        <div class="kpi-card">
+          <div class="kpi-val" id="reg-positive" style="color:#ff4e7e;">0</div>
+          <div class="kpi-label">DR Positive</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-val" id="reg-negative" style="color:var(--accent);">0</div>
+          <div class="kpi-label">DR Negative</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-val" id="reg-avg-certainty">—</div>
+          <div class="kpi-label">Avg Certainty</div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid" style="margin-bottom:32px;">
         <div class="dash-panel">
           <div class="panel-label">Severity Distribution</div>
-          <div class="chart-container" style="height: 180px;">
+          <div class="chart-container" style="height:200px;">
             <canvas id="distributionChart"></canvas>
+          </div>
+        </div>
+        <div class="dash-panel">
+          <div class="panel-label">Certainty Timeline</div>
+          <div class="chart-container" style="height:200px;">
+            <canvas id="timelineChart"></canvas>
           </div>
         </div>
       </div>
 
       <div class="table-container">
-        <div class="panel-label" style="padding: 24px 24px 0;">Session Database</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px 0;">
+          <div class="panel-label" style="margin:0;">Session Database</div>
+          <input type="text" id="searchInput" placeholder="Search by Patient ID..." class="table-search" />
+        </div>
         <table class="data-table">
           <thead>
             <tr>
-              <th>Patient ID</th>
-              <th>Age</th>
+              <th onclick="sortTable('id')">Patient ID ↕</th>
+              <th onclick="sortTable('age')">Age ↕</th>
               <th>Eye</th>
-              <th>Diagnosis</th>
-              <th>Certainty</th>
+              <th onclick="sortTable('stageLevel')">Diagnosis ↕</th>
+              <th onclick="sortTable('certainty')">Certainty ↕</th>
+              <th>Filter Used</th>
               <th>Timestamp</th>
+              <th>Actions</th>
             </tr>
           </thead>
-          <tbody id="registryTableBody">
-            </tbody>
+          <tbody id="registryTableBody"></tbody>
         </table>
       </div>
     </section>
 
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- IMAGE LAB VIEW -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <section id="image-lab" class="view-section">
+      <div class="section-label">/ Computer Vision Workbench</div>
+      <h2 class="section-title">Image Processing Lab</h2>
+      <p class="section-desc">Real-time canvas-based image analysis. Upload any fundus image to explore processing algorithms used by the diagnostic pipeline.</p>
+
+      <div class="lab-layout">
+        <div class="lab-upload-zone" id="labUploadZone">
+          <svg viewBox="0 0 24 24" width="32" height="32" stroke="var(--accent)" stroke-width="1.5" fill="none" style="margin-bottom:16px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <p style="color:var(--muted);font-size:13px;">Drop an image or click to upload</p>
+          <input type="file" id="labFileInput" accept="image/*" style="display:none;" />
+        </div>
+
+        <div class="lab-workspace" id="labWorkspace" style="display:none;">
+          <!-- Controls -->
+          <div class="lab-controls">
+            <div class="lab-control-group">
+              <label>Brightness</label>
+              <input type="range" id="ctrl-brightness" min="-100" max="100" value="0" class="styled-slider" />
+              <span id="val-brightness">0</span>
+            </div>
+            <div class="lab-control-group">
+              <label>Contrast</label>
+              <input type="range" id="ctrl-contrast" min="-100" max="100" value="0" class="styled-slider" />
+              <span id="val-contrast">0</span>
+            </div>
+            <div class="lab-control-group">
+              <label>Saturation</label>
+              <input type="range" id="ctrl-saturation" min="-100" max="100" value="0" class="styled-slider" />
+              <span id="val-saturation">0</span>
+            </div>
+            <div class="lab-control-group">
+              <label>Sharpen</label>
+              <input type="range" id="ctrl-sharpen" min="0" max="10" value="0" class="styled-slider" />
+              <span id="val-sharpen">0</span>
+            </div>
+            <div class="lab-control-group">
+              <label>Gamma</label>
+              <input type="range" id="ctrl-gamma" min="50" max="250" value="100" class="styled-slider" />
+              <span id="val-gamma">1.0</span>
+            </div>
+          </div>
+
+          <!-- Filter buttons -->
+          <div class="filter-btn-row">
+            <button class="filter-btn active" data-filter="original" onclick="setLabFilter('original',this)">Original</button>
+            <button class="filter-btn" data-filter="grayscale" onclick="setLabFilter('grayscale',this)">Grayscale</button>
+            <button class="filter-btn" data-filter="green" onclick="setLabFilter('green',this)">Green Channel</button>
+            <button class="filter-btn" data-filter="red" onclick="setLabFilter('red',this)">Red Channel</button>
+            <button class="filter-btn" data-filter="clahe" onclick="setLabFilter('clahe',this)">CLAHE</button>
+            <button class="filter-btn" data-filter="edge" onclick="setLabFilter('edge',this)">Edge Detection</button>
+            <button class="filter-btn" data-filter="vessel" onclick="setLabFilter('vessel',this)">Vessel Enhance</button>
+            <button class="filter-btn" data-filter="pseudocolor" onclick="setLabFilter('pseudocolor',this)">Pseudo-color</button>
+            <button class="filter-btn" data-filter="invert" onclick="setLabFilter('invert',this)">Invert</button>
+            <button class="filter-btn" data-filter="emboss" onclick="setLabFilter('emboss',this)">Emboss</button>
+          </div>
+
+          <!-- Main canvases -->
+          <div class="lab-canvas-row">
+            <div class="lab-canvas-wrap">
+              <span class="image-panel-label">Input</span>
+              <canvas id="labOrigCanvas" class="lab-main-canvas"></canvas>
+            </div>
+            <div class="lab-canvas-wrap">
+              <span class="image-panel-label" id="labOutputLabel">Output</span>
+              <canvas id="labOutCanvas" class="lab-main-canvas"></canvas>
+            </div>
+          </div>
+
+          <!-- Histogram -->
+          <div class="histogram-row">
+            <div class="dash-panel" style="flex:1;">
+              <div class="panel-label">RGB Histogram — Input</div>
+              <div class="chart-container" style="height:120px;">
+                <canvas id="histogramChart"></canvas>
+              </div>
+            </div>
+            <div class="dash-panel" style="flex:1;">
+              <div class="panel-label">Image Statistics</div>
+              <div class="img-stats-grid" id="labStatsGrid"></div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:12px;margin-top:16px;">
+            <button class="btn-primary" onclick="downloadLabResult()">Download Result</button>
+            <button class="btn-ghost" onclick="resetLab()">Reset</button>
+            <button class="btn-ghost" onclick="copyLabToScan()">Send to Scan Engine</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODEL SECTION -->
     <section id="model">
       <div class="section-label reveal">/ Architecture</div>
       <h2 class="section-title reveal">Model performance<br />& architecture.</h2>
-      
       <div class="metrics-full-grid">
         <div class="big-metric-card reveal">
           <h4>AUC Score</h4>
           <div class="big-val">0.94+</div>
-          <div class="big-desc">Area under the ROC curve on APTOS validation split. Measures model's ability to discriminate between DR and non-DR cases.</div>
+          <div class="big-desc">Area under the ROC curve on APTOS validation split. Measures the model's ability to discriminate between DR and non-DR cases at all thresholds.</div>
         </div>
         <div class="big-metric-card reveal">
           <h4>Training Setup</h4>
           <ul class="arch-list">
-            <li class="arch-item"><div class="arch-dot"></div><div><strong>Backbone</strong> <br/><span>EfficientNetB0 — ImageNet pretrained</span></div></li>
-            <li class="arch-item"><div class="arch-dot"></div><div><strong>Phase 1 LR</strong> <br/><span>1e-4 Adam — head training, 5 epochs</span></div></li>
-            <li class="arch-item"><div class="arch-dot"></div><div><strong>Regularization</strong> <br/><span>Dropout 0.4 before classification head</span></div></li>
-            <li class="arch-item"><div class="arch-dot"></div><div><strong>Dataset</strong> <br/><span>APTOS 2019 Blindness Detection</span></div></li>
+            <li class="arch-item"><div class="arch-dot"></div><div><strong>Backbone</strong><br/><span>EfficientNetB0 — ImageNet pretrained</span></div></li>
+            <li class="arch-item"><div class="arch-dot"></div><div><strong>Phase 1 LR</strong><br/><span>1e-4 Adam — head training, 5 epochs</span></div></li>
+            <li class="arch-item"><div class="arch-dot"></div><div><strong>Phase 2 LR</strong><br/><span>1e-5 Adam — fine-tune top 30 layers, 10 epochs</span></div></li>
+            <li class="arch-item"><div class="arch-dot"></div><div><strong>Regularization</strong><br/><span>Dropout 0.4 before sigmoid head</span></div></li>
+            <li class="arch-item"><div class="arch-dot"></div><div><strong>Dataset</strong><br/><span>APTOS 2019 Blindness Detection</span></div></li>
           </ul>
         </div>
       </div>
     </section>
 
     <footer>
-      <div class="copy">RetinaAI — Clinical Research Dashboard.</div>
+      <div class="copy">RetinaAI — Clinical Research Dashboard. Not a certified medical device.</div>
       <div class="foot-logo">RetinaAI</div>
     </footer>
   </main>
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="modal-overlay" id="profileModal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeProfileModal()">
+      <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+    <div class="modal-header">
+      <div class="modal-avatar">YS</div>
+      <div class="modal-title-group">
+        <h3 class="modal-name">Yuvraj Singh</h3>
+        <span class="modal-role">AI/ML Researcher & Clinician</span>
+        <span class="modal-location">
+          <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          New Delhi, India
+        </span>
+      </div>
+    </div>
+    <div class="modal-body">
+      <p>Yuvraj Singh is a clinical AI researcher and software engineer based in New Delhi, India. Currently pursuing a B.Tech in Computer Science and Engineering at Manipal University Jaipur, his work focuses on bridging the gap between deep learning and medical diagnostics.</p>
+      <p>Specializing in image classification, neural networks, and Explainable AI (XAI), he architected this RetinaAI diagnostic engine utilizing EfficientNetB0 and Grad-CAM interpretability to assist ophthalmologists in early disease detection.</p>
+    </div>
+  </div>
+</div>
+
+<!-- KEYBOARD SHORTCUTS MODAL -->
+<div class="modal-overlay" id="shortcutsModal">
+  <div class="modal-content" style="max-width:400px;">
+    <button class="modal-close" onclick="document.getElementById('shortcutsModal').classList.remove('active')">
+      <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+    <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:24px;color:var(--accent);">Keyboard Shortcuts</h3>
+    <div class="shortcut-list">
+      <div class="shortcut-item"><kbd>N</kbd><span>New Scan</span></div>
+      <div class="shortcut-item"><kbd>1</kbd><span>Diagnosis Engine</span></div>
+      <div class="shortcut-item"><kbd>2</kbd><span>Cohort Registry</span></div>
+      <div class="shortcut-item"><kbd>3</kbd><span>Image Lab</span></div>
+      <div class="shortcut-item"><kbd>E</kbd><span>Toggle Grad-CAM</span></div>
+      <div class="shortcut-item"><kbd>P</kbd><span>Print / Export PDF</span></div>
+      <div class="shortcut-item"><kbd>?</kbd><span>Show this menu</span></div>
+    </div>
+  </div>
 </div>
 
 <script src="script.js"></script>
