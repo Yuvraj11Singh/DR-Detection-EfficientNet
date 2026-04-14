@@ -460,12 +460,3 @@ kbd { font-family: 'DM Mono', monospace; font-size: 12px; padding: 4px 10px; bac
   .histogram-row { flex-direction: column; }
   .dual-image-container { flex-direction: column; align-items: center; }
 }
-
-@media (max-width: 500px) {
-  .stat-num { font-size: 24px; }
-  .section-title { font-size: 28px; }
-  .upload-area { padding: 40px 20px; }
-  .upload-icon { width: 48px; height: 48px; }
-  .upload-area h3 { font-size: 16px; }
-  .cv-canvas { aspect-ratio: auto; height: 120px; }
-}
