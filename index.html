@@ -12,12 +12,11 @@
 
 <div class="blob1"></div>
 <div class="blob2"></div>
-
-<!-- SCAN LINE EFFECT -->
 <div class="scan-line"></div>
-
-<!-- TOAST CONTAINER -->
 <div id="toastContainer" class="toast-container"></div>
+
+<!-- PAGE TRANSITION OVERLAY -->
+<div id="pageTransition" class="page-transition"></div>
 
 <nav>
   <div class="logo">
@@ -32,9 +31,42 @@
   </ul>
   <div class="nav-actions" style="display:flex;align-items:center;gap:12px;">
     <div class="live-clock" id="liveClock"></div>
+    <!-- AI STATUS BADGE -->
+    <div class="ai-status-badge" id="aiStatusBadge">
+      <div class="ai-status-dot" id="aiStatusDot"></div>
+      <span id="aiStatusText">AI Ready</span>
+    </div>
     <span class="nav-tag">Secure Portal</span>
   </div>
 </nav>
+
+<!-- API KEY MODAL -->
+<div class="modal-overlay" id="apiKeyModal">
+  <div class="modal-content" style="max-width:440px;">
+    <button class="modal-close" onclick="closeApiKeyModal()">
+      <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+      <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#030a0e" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+      </div>
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:var(--accent);">Configure Claude AI</h3>
+        <p style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Clinical Notes Generator</p>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:20px;">Enter your Anthropic API key to enable AI-powered clinical note generation. Your key is stored in session memory only and never transmitted elsewhere.</p>
+    <div class="input-group" style="margin-bottom:16px;">
+      <label>Anthropic API Key</label>
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-..." style="width:100%;" />
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn-primary" style="flex:1;" onclick="saveApiKey()">Save & Activate</button>
+      <button class="btn-ghost" onclick="closeApiKeyModal()">Cancel</button>
+    </div>
+    <p style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:14px;text-align:center;">Key stored in sessionStorage only · Never leaves your browser</p>
+  </div>
+</div>
 
 <div class="app-layout">
   
@@ -73,9 +105,7 @@
         <span id="historyCount" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);background:rgba(0,221,180,0.1);padding:2px 8px;border-radius:100px;">0</span>
       </div>
       <ul class="patient-list" id="historyList">
-        <li class="empty-history">
-          No scans yet.<br/>Upload an image to start.
-        </li>
+        <li class="empty-history">No scans yet.<br/>Upload an image to start.</li>
       </ul>
     </div>
 
@@ -90,9 +120,18 @@
         <span class="diag-status green" id="cvStatus">● Active</span>
       </div>
       <div class="diagnostic-item">
+        <span>Claude AI Notes</span>
+        <span class="diag-status" id="aiDiagStatus">● Unconfigured</span>
+      </div>
+      <div class="diagnostic-item">
         <span>Session Records</span>
         <span class="diag-status green" id="storageStatus">● 0 scans</span>
       </div>
+      <!-- AI Config Button -->
+      <button class="btn-ghost" style="width:100%;margin-top:12px;font-size:10px;padding:8px;" onclick="openApiKeyModal()">
+        <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:6px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        Configure AI Key
+      </button>
     </div>
 
     <div class="resizer" id="sidebarResizer"></div>
@@ -146,9 +185,7 @@
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════ -->
-    <!-- DETECT VIEW -->
-    <!-- ═══════════════════════════════════════════════ -->
+    <!-- ═══════════════════════════════ DETECT VIEW ═══ -->
     <section id="detect" class="view-section active">
       <div id="upload-flow">
         <div class="section-label reveal">/ Diagnosis Engine</div>
@@ -163,6 +200,18 @@
             <div class="input-group">
               <label>Patient Age</label>
               <input type="number" id="pat-age" placeholder="e.g., 54" />
+            </div>
+            <div class="input-group">
+              <label>Diabetes Type</label>
+              <select id="pat-diabetes">
+                <option value="Type 2">Type 2 DM</option>
+                <option value="Type 1">Type 1 DM</option>
+                <option value="Unknown">Unknown</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>HbA1c (%)</label>
+              <input type="number" id="pat-hba1c" placeholder="e.g., 8.2" step="0.1" />
             </div>
             <div class="input-group">
               <label>Eye Scanned</label>
@@ -193,30 +242,14 @@
           <input type="file" id="fileInput" accept="image/*" />
         </div>
 
-        <!-- CV PREVIEW BEFORE ANALYSIS -->
         <div id="cv-preview-strip" style="display:none;margin-top:24px;">
           <div class="section-label">/ Image Pre-Processing Preview</div>
           <div class="cv-strip-grid">
-            <div class="cv-strip-item">
-              <canvas id="cv-orig" class="cv-canvas"></canvas>
-              <span>Original</span>
-            </div>
-            <div class="cv-strip-item">
-              <canvas id="cv-gray" class="cv-canvas"></canvas>
-              <span>Grayscale</span>
-            </div>
-            <div class="cv-strip-item">
-              <canvas id="cv-green" class="cv-canvas"></canvas>
-              <span>Green Channel</span>
-            </div>
-            <div class="cv-strip-item">
-              <canvas id="cv-edge" class="cv-canvas"></canvas>
-              <span>Edge Map</span>
-            </div>
-            <div class="cv-strip-item">
-              <canvas id="cv-clahe" class="cv-canvas"></canvas>
-              <span>CLAHE Enhanced</span>
-            </div>
+            <div class="cv-strip-item"><canvas id="cv-orig" class="cv-canvas"></canvas><span>Original</span></div>
+            <div class="cv-strip-item"><canvas id="cv-gray" class="cv-canvas"></canvas><span>Grayscale</span></div>
+            <div class="cv-strip-item"><canvas id="cv-green" class="cv-canvas"></canvas><span>Green Channel</span></div>
+            <div class="cv-strip-item"><canvas id="cv-edge" class="cv-canvas"></canvas><span>Edge Map</span></div>
+            <div class="cv-strip-item"><canvas id="cv-clahe" class="cv-canvas"></canvas><span>CLAHE Enhanced</span></div>
           </div>
           <div class="image-stats-bar" id="imageStatsBar"></div>
           <div style="display:flex;gap:12px;margin-top:16px;justify-content:center;">
@@ -233,7 +266,6 @@
             <div class="image-container">
               <img id="preview-img" src="" alt="Uploaded retina" />
               <div id="heatmap-overlay"></div>
-              <!-- Measurement crosshair -->
               <div class="crosshair-h"></div>
               <div class="crosshair-v"></div>
             </div>
@@ -340,30 +372,15 @@
           </div>
         </div>
 
-        <!-- FEATURE HEATMAP ROW -->
+        <!-- FEATURE MAPS ROW -->
         <div class="feature-maps-row" id="featureMapsRow">
           <div class="panel-label" style="margin-bottom:16px;">Image Processing Analysis</div>
           <div class="feature-maps-grid">
-            <div class="feature-map-item">
-              <canvas id="res-gray" class="feature-canvas"></canvas>
-              <span>Grayscale</span>
-            </div>
-            <div class="feature-map-item">
-              <canvas id="res-green" class="feature-canvas"></canvas>
-              <span>Vessel Map</span>
-            </div>
-            <div class="feature-map-item">
-              <canvas id="res-edge" class="feature-canvas"></canvas>
-              <span>Edge Detection</span>
-            </div>
-            <div class="feature-map-item">
-              <canvas id="res-clahe" class="feature-canvas"></canvas>
-              <span>CLAHE Enhanced</span>
-            </div>
-            <div class="feature-map-item">
-              <canvas id="res-heat" class="feature-canvas"></canvas>
-              <span>Pseudo Heatmap</span>
-            </div>
+            <div class="feature-map-item"><canvas id="res-gray" class="feature-canvas"></canvas><span>Grayscale</span></div>
+            <div class="feature-map-item"><canvas id="res-green" class="feature-canvas"></canvas><span>Vessel Map</span></div>
+            <div class="feature-map-item"><canvas id="res-edge" class="feature-canvas"></canvas><span>Edge Detection</span></div>
+            <div class="feature-map-item"><canvas id="res-clahe" class="feature-canvas"></canvas><span>CLAHE Enhanced</span></div>
+            <div class="feature-map-item"><canvas id="res-heat" class="feature-canvas"></canvas><span>Pseudo Heatmap</span></div>
           </div>
         </div>
 
@@ -379,8 +396,97 @@
         <!-- CLINICAL RECOMMENDATION -->
         <div class="recommendation-panel" id="recommendationPanel"></div>
 
+        <!-- ════════════════════════════════════════════
+             AI CLINICAL NOTES PANEL (NEW)
+        ════════════════════════════════════════════ -->
+        <div class="ai-notes-panel" id="aiNotesPanel">
+          <div class="ai-notes-header" onclick="toggleNotesPanel()">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="ai-sparkle-icon">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+              </div>
+              <span class="ai-notes-title">AI Clinical Notes</span>
+              <span class="ai-notes-badge" id="aiNotesBadge">Powered by Claude</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span class="ai-notes-toggle-hint" id="aiNotesToggleHint">Click to expand</span>
+              <div class="ai-notes-chevron" id="aiNotesChevron">
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
+            </div>
+          </div>
+          
+          <div class="ai-notes-body" id="aiNotesBody">
+            <!-- No Key State -->
+            <div id="aiNotesNoKey" class="ai-notes-placeholder">
+              <div class="placeholder-icon">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </div>
+              <p>Configure your Anthropic API key to enable AI-generated clinical notes for each scan.</p>
+              <button class="btn-primary" style="font-size:11px;padding:8px 18px;" onclick="openApiKeyModal()">Configure API Key</button>
+            </div>
+
+            <!-- Generating State -->
+            <div id="aiNotesGenerating" class="ai-notes-generating" style="display:none;">
+              <div class="ai-typing-indicator">
+                <div class="ai-typing-dot"></div>
+                <div class="ai-typing-dot"></div>
+                <div class="ai-typing-dot"></div>
+              </div>
+              <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);" id="aiGeneratingText">Generating clinical notes...</span>
+            </div>
+
+            <!-- Notes Output -->
+            <div id="aiNotesOutput" style="display:none;">
+              <!-- Note Type Tabs -->
+              <div class="ai-notes-tabs" id="aiNotesTabs">
+                <button class="ai-tab active" data-note="soap" onclick="showNoteTab('soap',this)">SOAP Note</button>
+                <button class="ai-tab" data-note="summary" onclick="showNoteTab('summary',this)">Executive Summary</button>
+                <button class="ai-tab" data-note="followup" onclick="showNoteTab('followup',this)">Follow-up Plan</button>
+                <button class="ai-tab" data-note="referral" onclick="showNoteTab('referral',this)">Referral Letter</button>
+              </div>
+              
+              <div class="ai-note-content" id="aiNoteContent"></div>
+              
+              <div class="ai-notes-actions">
+                <button class="btn-ghost" style="font-size:11px;padding:8px 16px;" onclick="copyNoteToClipboard()">
+                  <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:5px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                  Copy
+                </button>
+                <button class="btn-ghost" style="font-size:11px;padding:8px 16px;" onclick="regenerateNotes()">
+                  <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:5px;"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 .49-3.51"></path></svg>
+                  Regenerate
+                </button>
+                <div style="margin-left:auto;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);" id="aiNoteTimestamp"></div>
+              </div>
+            </div>
+
+            <!-- Error State -->
+            <div id="aiNotesError" class="ai-notes-placeholder" style="display:none;">
+              <div class="placeholder-icon" style="color:#ff4e7e;">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+              </div>
+              <p id="aiNotesErrorMsg">Unable to generate notes. Please check your API key.</p>
+              <button class="btn-ghost" style="font-size:11px;padding:8px 18px;" onclick="regenerateNotes()">Try Again</button>
+            </div>
+          </div>
+        </div>
+
         <div class="action-buttons">
           <button class="btn-primary" id="toggleHeatmapBtn">Enable Grad-CAM</button>
+          <button class="btn-ghost" id="generateNotesBtn" onclick="generateClinicalNotes()">
+            <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:5px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            Generate AI Notes
+          </button>
           <button class="btn-ghost" id="downloadReportBtn">Export PDF to EHR</button>
           <button class="btn-ghost" onclick="switchView('image-lab')">Open in Image Lab</button>
           <button class="btn-ghost" onclick="resetForm()">Scan Next Patient</button>
@@ -388,9 +494,7 @@
       </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════════ -->
-    <!-- REGISTRY VIEW -->
-    <!-- ═══════════════════════════════════════════════ -->
+    <!-- ════════════ REGISTRY VIEW ════════════ -->
     <section id="registry" class="view-section">
       <div class="section-label">/ Global Telemetry</div>
       <h2 class="section-title">Cohort Analytics & Registry</h2>
@@ -418,22 +522,34 @@
       <div class="dashboard-grid" style="margin-bottom:32px;">
         <div class="dash-panel">
           <div class="panel-label">Severity Distribution</div>
-          <div class="chart-container" style="height:200px;">
-            <canvas id="distributionChart"></canvas>
-          </div>
+          <div class="chart-container" style="height:200px;"><canvas id="distributionChart"></canvas></div>
         </div>
         <div class="dash-panel">
           <div class="panel-label">Certainty Timeline</div>
-          <div class="chart-container" style="height:200px;">
-            <canvas id="timelineChart"></canvas>
-          </div>
+          <div class="chart-container" style="height:200px;"><canvas id="timelineChart"></canvas></div>
         </div>
+      </div>
+
+      <!-- COHORT AI SUMMARY (NEW) -->
+      <div class="cohort-ai-bar" id="cohortAiBar" style="display:none;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div class="ai-sparkle-icon"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></div>
+          <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;">AI Cohort Analysis</span>
+          <button class="btn-ghost" style="font-size:10px;padding:5px 12px;margin-left:auto;" onclick="generateCohortInsights()">Generate Insights</button>
+        </div>
+        <div id="cohortInsightsContent" style="font-size:13px;line-height:1.7;color:var(--muted);"></div>
       </div>
 
       <div class="table-container">
         <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px 0;">
           <div class="panel-label" style="margin:0;">Session Database</div>
-          <input type="text" id="searchInput" placeholder="Search by Patient ID..." class="table-search" />
+          <div style="display:flex;gap:10px;align-items:center;">
+            <button class="btn-ghost" style="font-size:10px;padding:6px 14px;" onclick="exportCSV()">
+              <svg viewBox="0 0 24 24" width="11" height="11" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:5px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export CSV
+            </button>
+            <input type="text" id="searchInput" placeholder="Search by Patient ID..." class="table-search" />
+          </div>
         </div>
         <table class="data-table">
           <thead>
@@ -441,9 +557,10 @@
               <th onclick="sortTable('id')">Patient ID ↕</th>
               <th onclick="sortTable('age')">Age ↕</th>
               <th>Eye</th>
+              <th>Diabetes</th>
               <th onclick="sortTable('stageLevel')">Diagnosis ↕</th>
               <th onclick="sortTable('certainty')">Certainty ↕</th>
-              <th>Filter Used</th>
+              <th>AI Notes</th>
               <th>Timestamp</th>
               <th>Actions</th>
             </tr>
@@ -453,9 +570,7 @@
       </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════════ -->
-    <!-- IMAGE LAB VIEW -->
-    <!-- ═══════════════════════════════════════════════ -->
+    <!-- ════════════ IMAGE LAB VIEW ════════════ -->
     <section id="image-lab" class="view-section">
       <div class="section-label">/ Computer Vision Workbench</div>
       <h2 class="section-title">Image Processing Lab</h2>
@@ -469,36 +584,14 @@
         </div>
 
         <div class="lab-workspace" id="labWorkspace" style="display:none;">
-          <!-- Controls -->
           <div class="lab-controls">
-            <div class="lab-control-group">
-              <label>Brightness</label>
-              <input type="range" id="ctrl-brightness" min="-100" max="100" value="0" class="styled-slider" />
-              <span id="val-brightness">0</span>
-            </div>
-            <div class="lab-control-group">
-              <label>Contrast</label>
-              <input type="range" id="ctrl-contrast" min="-100" max="100" value="0" class="styled-slider" />
-              <span id="val-contrast">0</span>
-            </div>
-            <div class="lab-control-group">
-              <label>Saturation</label>
-              <input type="range" id="ctrl-saturation" min="-100" max="100" value="0" class="styled-slider" />
-              <span id="val-saturation">0</span>
-            </div>
-            <div class="lab-control-group">
-              <label>Sharpen</label>
-              <input type="range" id="ctrl-sharpen" min="0" max="10" value="0" class="styled-slider" />
-              <span id="val-sharpen">0</span>
-            </div>
-            <div class="lab-control-group">
-              <label>Gamma</label>
-              <input type="range" id="ctrl-gamma" min="50" max="250" value="100" class="styled-slider" />
-              <span id="val-gamma">1.0</span>
-            </div>
+            <div class="lab-control-group"><label>Brightness</label><input type="range" id="ctrl-brightness" min="-100" max="100" value="0" class="styled-slider" /><span id="val-brightness">0</span></div>
+            <div class="lab-control-group"><label>Contrast</label><input type="range" id="ctrl-contrast" min="-100" max="100" value="0" class="styled-slider" /><span id="val-contrast">0</span></div>
+            <div class="lab-control-group"><label>Saturation</label><input type="range" id="ctrl-saturation" min="-100" max="100" value="0" class="styled-slider" /><span id="val-saturation">0</span></div>
+            <div class="lab-control-group"><label>Sharpen</label><input type="range" id="ctrl-sharpen" min="0" max="10" value="0" class="styled-slider" /><span id="val-sharpen">0</span></div>
+            <div class="lab-control-group"><label>Gamma</label><input type="range" id="ctrl-gamma" min="50" max="250" value="100" class="styled-slider" /><span id="val-gamma">1.0</span></div>
           </div>
 
-          <!-- Filter buttons -->
           <div class="filter-btn-row">
             <button class="filter-btn active" data-filter="original" onclick="setLabFilter('original',this)">Original</button>
             <button class="filter-btn" data-filter="grayscale" onclick="setLabFilter('grayscale',this)">Grayscale</button>
@@ -512,25 +605,15 @@
             <button class="filter-btn" data-filter="emboss" onclick="setLabFilter('emboss',this)">Emboss</button>
           </div>
 
-          <!-- Main canvases -->
           <div class="lab-canvas-row">
-            <div class="lab-canvas-wrap">
-              <span class="image-panel-label">Input</span>
-              <canvas id="labOrigCanvas" class="lab-main-canvas"></canvas>
-            </div>
-            <div class="lab-canvas-wrap">
-              <span class="image-panel-label" id="labOutputLabel">Output</span>
-              <canvas id="labOutCanvas" class="lab-main-canvas"></canvas>
-            </div>
+            <div class="lab-canvas-wrap"><span class="image-panel-label">Input</span><canvas id="labOrigCanvas" class="lab-main-canvas"></canvas></div>
+            <div class="lab-canvas-wrap"><span class="image-panel-label" id="labOutputLabel">Output</span><canvas id="labOutCanvas" class="lab-main-canvas"></canvas></div>
           </div>
 
-          <!-- Histogram -->
           <div class="histogram-row">
             <div class="dash-panel" style="flex:1;">
               <div class="panel-label">RGB Histogram — Input</div>
-              <div class="chart-container" style="height:120px;">
-                <canvas id="histogramChart"></canvas>
-              </div>
+              <div class="chart-container" style="height:120px;"><canvas id="histogramChart"></canvas></div>
             </div>
             <div class="dash-panel" style="flex:1;">
               <div class="panel-label">Image Statistics</div>
@@ -613,10 +696,22 @@
       <div class="shortcut-item"><kbd>1</kbd><span>Diagnosis Engine</span></div>
       <div class="shortcut-item"><kbd>2</kbd><span>Cohort Registry</span></div>
       <div class="shortcut-item"><kbd>3</kbd><span>Image Lab</span></div>
+      <div class="shortcut-item"><kbd>A</kbd><span>Generate AI Notes</span></div>
       <div class="shortcut-item"><kbd>E</kbd><span>Toggle Grad-CAM</span></div>
       <div class="shortcut-item"><kbd>P</kbd><span>Print / Export PDF</span></div>
       <div class="shortcut-item"><kbd>?</kbd><span>Show this menu</span></div>
     </div>
+  </div>
+</div>
+
+<!-- NOTE FULLSCREEN VIEWER (NEW) -->
+<div class="modal-overlay" id="noteFullscreenModal">
+  <div class="modal-content" style="max-width:680px;max-height:80vh;overflow-y:auto;">
+    <button class="modal-close" onclick="document.getElementById('noteFullscreenModal').classList.remove('active')">
+      <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+    <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:20px;color:var(--accent);" id="noteFullscreenTitle">Clinical Note</h3>
+    <div id="noteFullscreenContent" style="font-size:14px;line-height:1.8;color:var(--text);white-space:pre-wrap;"></div>
   </div>
 </div>
 
