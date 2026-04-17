@@ -620,3 +620,8 @@ kbd { font-family: 'DM Mono', monospace; font-size: 12px; padding: 4px 10px; bac
   .histogram-row { flex-direction: column; }
   .dual-image-container { flex-direction: column; align-items: center; }
 }
+
+@media (max-width: 500px) {
+  .feature-maps-grid { grid-template-columns: repeat(2,1fr); }
+  .lab-controls { grid-template-columns: 1fr; }
+}
