@@ -1,717 +1,598 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>RetinaAI — Clinical Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>RetinaAI — Clinical Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-
-<div class="blob1"></div>
-<div class="blob2"></div>
-<div class="scan-line"></div>
+<div class="blob1"></div><div class="blob2"></div>
+<div class="scan-line" id="scanLine"></div>
 <div id="toastContainer" class="toast-container"></div>
 
-<!-- PAGE TRANSITION OVERLAY -->
-<div id="pageTransition" class="page-transition"></div>
-
-<nav>
-  <div class="logo">
-    <div class="logo-dot"></div>
-    RetinaAI
-  </div>
+<nav id="mainNav">
+  <div class="logo"><div class="logo-dot"></div>RetinaAI<span class="logo-version">v2.0</span></div>
   <ul class="nav-links">
-    <li><a href="#" onclick="switchView('detect')">Diagnosis Engine</a></li>
-    <li><a href="#" onclick="switchView('registry')">Cohort Registry</a></li>
+    <li><a href="#" onclick="switchView('detect')">Diagnosis</a></li>
+    <li><a href="#" onclick="switchView('registry')">Registry</a></li>
     <li><a href="#" onclick="switchView('image-lab')">Image Lab</a></li>
-    <li><a href="#model">Architecture</a></li>
+    <li><a href="#" onclick="switchView('risk-calc')">Risk Calc</a></li>
+    <li><a href="#" onclick="switchView('notes')">Notes</a></li>
+    <li><a href="#" onclick="switchView('settings-view')">Settings</a></li>
   </ul>
-  <div class="nav-actions" style="display:flex;align-items:center;gap:12px;">
+  <div class="nav-right">
     <div class="live-clock" id="liveClock"></div>
-    <!-- AI STATUS BADGE -->
-    <div class="ai-status-badge" id="aiStatusBadge">
-      <div class="ai-status-dot" id="aiStatusDot"></div>
-      <span id="aiStatusText">AI Ready</span>
-    </div>
-    <span class="nav-tag">Secure Portal</span>
+    <button class="nav-icon-btn" onclick="toggleTheme()" title="Toggle Theme">◑</button>
+    <button class="nav-icon-btn" onclick="document.getElementById('shortcutsModal').classList.add('active')" title="Shortcuts">?</button>
+    <span class="nav-tag">● Live</span>
   </div>
 </nav>
 
-<!-- API KEY MODAL -->
-<div class="modal-overlay" id="apiKeyModal">
-  <div class="modal-content" style="max-width:440px;">
-    <button class="modal-close" onclick="closeApiKeyModal()">
-      <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-    </button>
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
-      <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#030a0e" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
-      </div>
-      <div>
-        <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:var(--accent);">Configure Claude AI</h3>
-        <p style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Clinical Notes Generator</p>
-      </div>
+<div class="app-layout">
+<aside class="clinical-sidebar" id="sidebar">
+  <div class="doc-profile" onclick="openProfileModal()">
+    <div class="doc-avatar" id="avatarInitials">YS</div>
+    <div class="doc-info">
+      <span class="doc-title">Attending Clinician</span>
+      <span class="doc-name" id="sidebarDocName">Dr. Yuvraj</span>
     </div>
-    <p style="color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:20px;">Enter your Anthropic API key to enable AI-powered clinical note generation. Your key is stored in session memory only and never transmitted elsewhere.</p>
-    <div class="input-group" style="margin-bottom:16px;">
-      <label>Anthropic API Key</label>
-      <input type="password" id="apiKeyInput" placeholder="sk-ant-..." style="width:100%;" />
+    <div class="profile-arrow">›</div>
+  </div>
+
+  <div class="sidebar-section">
+    <ul class="sidebar-nav" id="sidebarNav">
+      <li class="active" data-target="detect" onclick="switchView('detect')">
+        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Diagnosis Engine</li>
+      <li data-target="registry" onclick="switchView('registry')">
+        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Cohort Registry</li>
+      <li data-target="image-lab" onclick="switchView('image-lab')">
+        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>Image Lab</li>
+      <li data-target="risk-calc" onclick="switchView('risk-calc')">
+        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Risk Calculator</li>
+      <li data-target="notes" onclick="switchView('notes')">
+        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Clinical Notes</li>
+      <li data-target="settings-view" onclick="switchView('settings-view')">
+        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</li>
+    </ul>
+  </div>
+
+  <button class="btn-primary" style="width:100%;margin-bottom:16px;" onclick="switchView('detect');resetForm();">+ New Scan</button>
+
+  <div class="sidebar-quick-stats">
+    <div class="qs-item"><span class="qs-val" id="qs-total">0</span><span class="qs-label">Scans</span></div>
+    <div class="qs-item"><span class="qs-val" style="color:#ff4e7e;" id="qs-pos">0</span><span class="qs-label">DR+</span></div>
+    <div class="qs-item"><span class="qs-val" style="color:var(--accent);" id="qs-neg">0</span><span class="qs-label">Clear</span></div>
+  </div>
+
+  <div class="sidebar-section" style="flex-grow:1;overflow-y:auto;min-height:0;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <h4 class="sidebar-heading" style="margin:0;">Recent Scans</h4>
+      <span id="historyCount" class="count-pill">0</span>
     </div>
-    <div style="display:flex;gap:10px;">
-      <button class="btn-primary" style="flex:1;" onclick="saveApiKey()">Save & Activate</button>
-      <button class="btn-ghost" onclick="closeApiKeyModal()">Cancel</button>
+    <ul class="patient-list" id="historyList"><li class="empty-history">No scans yet.</li></ul>
+  </div>
+
+  <div class="sidebar-section" style="margin-top:12px;">
+    <h4 class="sidebar-heading">System</h4>
+    <div class="diagnostic-item"><span>ML Engine</span><span class="diag-status green">● Online</span></div>
+    <div class="diagnostic-item"><span>CV Pipeline</span><span class="diag-status green">● Active</span></div>
+    <div class="diagnostic-item"><span>Records</span><span class="diag-status green" id="storageStatus">● 0</span></div>
+  </div>
+  <div class="resizer" id="sidebarResizer"></div>
+</aside>
+
+<main class="main-content">
+
+<!-- HERO -->
+<div class="hero" id="hero-section">
+  <div class="hero-tag">AI-Powered Clinical Intelligence</div>
+  <div class="retina-visual">
+    <div class="retina-ring"></div><div class="retina-ring"></div><div class="retina-ring"></div>
+    <div class="retina-core">
+      <svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="10" stroke="#00ddb4" stroke-width="1.5"/><circle cx="24" cy="24" r="4" fill="#00ddb4" opacity="0.6"/><line x1="24" y1="4" x2="24" y2="12" stroke="#00ddb4" stroke-width="1.5" stroke-linecap="round"/><line x1="24" y1="36" x2="24" y2="44" stroke="#00ddb4" stroke-width="1.5" stroke-linecap="round"/><line x1="4" y1="24" x2="12" y2="24" stroke="#00ddb4" stroke-width="1.5" stroke-linecap="round"/><line x1="36" y1="24" x2="44" y2="24" stroke="#00ddb4" stroke-width="1.5" stroke-linecap="round"/></svg>
     </div>
-    <p style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:14px;text-align:center;">Key stored in sessionStorage only · Never leaves your browser</p>
+  </div>
+  <h1>Detect <span class="accent">Diabetic Retinopathy</span> with Clinical Precision.</h1>
+  <p>Upload retinal fundus images, compute risk scores, annotate findings, and track cohorts — all in one offline-capable platform.</p>
+  <div class="cta-row">
+    <a href="#" class="btn-primary" onclick="resetForm()">Initiate Scan</a>
+    <a href="#" class="btn-ghost" onclick="switchView('risk-calc')">Risk Calculator</a>
+    <a href="#" class="btn-ghost" onclick="switchView('image-lab')">Image Lab</a>
   </div>
 </div>
 
-<div class="app-layout">
-  
-  <aside class="clinical-sidebar">
-    <div class="doc-profile" onclick="openProfileModal()">
-      <div class="doc-avatar">YS</div>
-      <div class="doc-info">
-        <span class="doc-title">Attending Clinician</span>
-        <span class="doc-name">Dr. Yuvraj</span>
-      </div>
-      <div class="profile-arrow">›</div>
-    </div>
-
-    <div class="sidebar-section">
-      <ul class="sidebar-nav" id="sidebarNav">
-        <li class="active" data-target="detect" onclick="switchView('detect')">
-          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-          Diagnosis Engine
-        </li>
-        <li data-target="registry" onclick="switchView('registry')">
-          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-          Cohort Analytics
-        </li>
-        <li data-target="image-lab" onclick="switchView('image-lab')">
-          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
-          Image Lab
-        </li>
-      </ul>
-    </div>
-
-    <button class="btn-primary" id="sidebarNewScanBtn" style="width:100%;margin-bottom:24px;" onclick="switchView('detect');resetForm();">+ Initiate New Scan</button>
-
-    <div class="sidebar-section" style="flex-grow:1;overflow-y:auto;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <h4 class="sidebar-heading" style="margin:0;">Session History</h4>
-        <span id="historyCount" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);background:rgba(0,221,180,0.1);padding:2px 8px;border-radius:100px;">0</span>
-      </div>
-      <ul class="patient-list" id="historyList">
-        <li class="empty-history">No scans yet.<br/>Upload an image to start.</li>
-      </ul>
-    </div>
-
-    <div class="sidebar-section" style="margin-top:16px;">
-      <h4 class="sidebar-heading">System Diagnostics</h4>
-      <div class="diagnostic-item">
-        <span>Core ML Engine</span>
-        <span class="diag-status green">● Online</span>
-      </div>
-      <div class="diagnostic-item">
-        <span>Canvas CV Engine</span>
-        <span class="diag-status green" id="cvStatus">● Active</span>
-      </div>
-      <div class="diagnostic-item">
-        <span>Claude AI Notes</span>
-        <span class="diag-status" id="aiDiagStatus">● Unconfigured</span>
-      </div>
-      <div class="diagnostic-item">
-        <span>Session Records</span>
-        <span class="diag-status green" id="storageStatus">● 0 scans</span>
-      </div>
-      <!-- AI Config Button -->
-      <button class="btn-ghost" style="width:100%;margin-top:12px;font-size:10px;padding:8px;" onclick="openApiKeyModal()">
-        <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:6px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-        Configure AI Key
-      </button>
-    </div>
-
-    <div class="resizer" id="sidebarResizer"></div>
-  </aside>
-
-  <main class="main-content">
-    
-    <!-- HERO -->
-    <div class="hero" id="hero-section">
-      <div class="hero-tag">AI-Powered Clinical Vision</div>
-      <div class="retina-visual">
-        <div class="retina-ring"></div>
-        <div class="retina-ring"></div>
-        <div class="retina-ring"></div>
-        <div class="retina-core">
-          <svg viewBox="0 0 48 48" fill="none">
-            <circle cx="24" cy="24" r="10" stroke="#00ddb4" stroke-width="1.5"/>
-            <circle cx="24" cy="24" r="4" fill="#00ddb4" opacity="0.6"/>
-            <line x1="24" y1="4" x2="24" y2="12" stroke="#00ddb4" stroke-width="1.5" stroke-linecap="round"/>
-            <line x1="24" y1="36" x2="24" y2="44" stroke="#00ddb4" stroke-width="1.5" stroke-linecap="round"/>
-            <line x1="4" y1="24" x2="12" y2="24" stroke="#00ddb4" stroke-width="1.5" stroke-linecap="round"/>
-            <line x1="36" y1="24" x2="44" y2="24" stroke="#00ddb4" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-        </div>
-      </div>
-      <h1>Detect <span class="accent">Diabetic Retinopathy</span> Early.</h1>
-      <p>Upload a retinal fundus image. Our neural engine executes deep feature extraction and delivers a comprehensive severity mapping — in seconds.</p>
-      <div class="cta-row">
-        <a href="#detect" class="btn-primary" onclick="resetForm()">Initiate Scan</a>
-        <a href="#" class="btn-ghost" onclick="switchView('image-lab')">Open Image Lab</a>
-      </div>
-    </div>
-
-    <!-- STATS STRIP -->
-    <div class="stats-strip" id="stats-strip">
-      <div class="stat-item">
-        <div class="stat-num" id="cnt-auc">0</div>
-        <div class="stat-label">Validation AUC</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-num" id="cnt-acc">0</div>
-        <div class="stat-label">Model Accuracy</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-num" id="cnt-params">0</div>
-        <div class="stat-label">Model Parameters</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-num" id="cnt-session">0</div>
-        <div class="stat-label">Session Scans</div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════ DETECT VIEW ═══ -->
-    <section id="detect" class="view-section active">
-      <div id="upload-flow">
-        <div class="section-label reveal">/ Diagnosis Engine</div>
-        <h2 class="section-title reveal">Upload patient fundus<br />for processing.</h2>
-        
-        <div class="patient-form reveal" id="patientForm">
-          <div class="form-grid">
-            <div class="input-group">
-              <label>Patient ID</label>
-              <input type="text" id="pat-id" placeholder="e.g., P-8472" />
-            </div>
-            <div class="input-group">
-              <label>Patient Age</label>
-              <input type="number" id="pat-age" placeholder="e.g., 54" />
-            </div>
-            <div class="input-group">
-              <label>Diabetes Type</label>
-              <select id="pat-diabetes">
-                <option value="Type 2">Type 2 DM</option>
-                <option value="Type 1">Type 1 DM</option>
-                <option value="Unknown">Unknown</option>
-              </select>
-            </div>
-            <div class="input-group">
-              <label>HbA1c (%)</label>
-              <input type="number" id="pat-hba1c" placeholder="e.g., 8.2" step="0.1" />
-            </div>
-            <div class="input-group">
-              <label>Eye Scanned</label>
-              <select id="pat-eye">
-                <option value="Left (OS)">Left (OS)</option>
-                <option value="Right (OD)">Right (OD)</option>
-              </select>
-            </div>
-            <div class="input-group">
-              <label>Image Quality Filter</label>
-              <select id="pat-filter">
-                <option value="none">No Pre-Processing</option>
-                <option value="clahe">CLAHE Enhancement</option>
-                <option value="green">Green Channel</option>
-                <option value="edge">Edge Detection</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="upload-area reveal" id="uploadArea">
-          <div class="upload-icon">
-            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          </div>
-          <h3>Drop DICOM, JPG, or PNG here</h3>
-          <p>Ensure standard field-of-view illumination. Max 20MB.</p>
-          <button class="btn-primary" id="chooseFileBtn">Browse Storage</button>
-          <input type="file" id="fileInput" accept="image/*" />
-        </div>
-
-        <div id="cv-preview-strip" style="display:none;margin-top:24px;">
-          <div class="section-label">/ Image Pre-Processing Preview</div>
-          <div class="cv-strip-grid">
-            <div class="cv-strip-item"><canvas id="cv-orig" class="cv-canvas"></canvas><span>Original</span></div>
-            <div class="cv-strip-item"><canvas id="cv-gray" class="cv-canvas"></canvas><span>Grayscale</span></div>
-            <div class="cv-strip-item"><canvas id="cv-green" class="cv-canvas"></canvas><span>Green Channel</span></div>
-            <div class="cv-strip-item"><canvas id="cv-edge" class="cv-canvas"></canvas><span>Edge Map</span></div>
-            <div class="cv-strip-item"><canvas id="cv-clahe" class="cv-canvas"></canvas><span>CLAHE Enhanced</span></div>
-          </div>
-          <div class="image-stats-bar" id="imageStatsBar"></div>
-          <div style="display:flex;gap:12px;margin-top:16px;justify-content:center;">
-            <button class="btn-primary" id="proceedAnalysisBtn">Proceed to Analysis</button>
-            <button class="btn-ghost" onclick="resetForm()">Cancel</button>
-          </div>
-        </div>
-      </div>
-
-      <div id="preview-wrap">
-        <div class="dual-image-container">
-          <div class="image-panel">
-            <span class="image-panel-label">Original Fundus</span>
-            <div class="image-container">
-              <img id="preview-img" src="" alt="Uploaded retina" />
-              <div id="heatmap-overlay"></div>
-              <div class="crosshair-h"></div>
-              <div class="crosshair-v"></div>
-            </div>
-          </div>
-          <div class="image-panel" id="processedPanel" style="display:none;">
-            <span class="image-panel-label" id="processedLabel">Processed</span>
-            <div class="image-container">
-              <canvas id="processedCanvas" class="processed-canvas"></canvas>
-            </div>
-          </div>
-        </div>
-        <div id="loading-overlay">
-          <div class="loading-inner">
-            <div class="spinner"></div>
-            <p class="loading-text" id="loading-text">Initializing MPS Backend...</p>
-            <div class="loading-steps">
-              <div class="load-step" id="ls-1">① Image preprocessing</div>
-              <div class="load-step" id="ls-2">② Feature extraction</div>
-              <div class="load-step" id="ls-3">③ Severity grading</div>
-              <div class="load-step" id="ls-4">④ Report generation</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="result-card">
-        <div class="report-header">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-            <h4>Clinical Analysis Report</h4>
-            <div class="report-id-badge" id="reportIdBadge"></div>
-          </div>
-          <div class="patient-summary" id="patient-summary"></div>
-        </div>
-
-        <div class="result-header">
-          <div>
-            <div class="result-main-label" id="result-label">—</div>
-            <span class="result-badge" id="result-badge">—</span>
-          </div>
-          <div class="confidence-bar-wrap">
-            <div class="confidence-label">
-              <span>DR Severity Stage</span>
-              <span id="severity-val">—</span>
-            </div>
-            <div class="severity-spectrum">
-              <div class="stage-marker" id="stage-0">0</div>
-              <div class="stage-marker" id="stage-1">1</div>
-              <div class="stage-marker" id="stage-2">2</div>
-              <div class="stage-marker" id="stage-3">3</div>
-              <div class="stage-marker" id="stage-4">4</div>
-              <div class="severity-indicator" id="severity-indicator"></div>
-            </div>
-            <div class="spectrum-labels">
-              <span>None</span><span>Mild</span><span>Moderate</span><span>Severe</span><span>Prolif.</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- RISK SCORE PANEL -->
-        <div class="risk-panel" id="riskPanel">
-          <div class="risk-panel-header">
-            <span class="panel-label">Risk Factor Analysis</span>
-            <span class="risk-overall" id="riskOverall"></span>
-          </div>
-          <div class="risk-factors-grid" id="riskFactorsGrid"></div>
-        </div>
-
-        <div class="dashboard-grid">
-          <div class="dash-panel">
-            <div class="panel-label">Patient Progression (Historical)</div>
-            <div class="chart-container"><canvas id="progressionChart"></canvas></div>
-          </div>
-          <div class="dash-panel">
-            <div class="panel-label">Network Telemetry</div>
-            <div class="radial-metrics-wrapper">
-              <div class="radial-item">
-                <div class="svg-wrap">
-                  <svg viewBox="0 0 100 100">
-                    <circle class="ring-bg" cx="50" cy="50" r="42"></circle>
-                    <circle class="ring-fill" id="cert-ring" cx="50" cy="50" r="42" style="stroke:var(--accent);"></circle>
-                  </svg>
-                  <div class="ring-text" id="m-prob">0%</div>
-                </div>
-                <div class="ring-label">Certainty</div>
-              </div>
-              <div class="radial-item">
-                <div class="svg-wrap">
-                  <svg viewBox="0 0 100 100">
-                    <circle class="ring-bg" cx="50" cy="50" r="42"></circle>
-                    <circle class="ring-fill" id="lesion-ring" cx="50" cy="50" r="42" style="stroke:var(--accent2);"></circle>
-                  </svg>
-                  <div class="ring-text" id="m-conf">0</div>
-                </div>
-                <div class="ring-label">Lesion Density</div>
-              </div>
-            </div>
-            <div class="quick-stats">
-              <div class="stat-row"><span>Inference Time:</span><strong id="m-time">0.00s</strong></div>
-              <div class="stat-row"><span>Architecture:</span><strong>EfficientNetB0</strong></div>
-              <div class="stat-row"><span>Image Filter Used:</span><strong id="m-filter">None</strong></div>
-              <div class="stat-row"><span>Brightness:</span><strong id="m-brightness">—</strong></div>
-              <div class="stat-row"><span>Contrast:</span><strong id="m-contrast">—</strong></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- FEATURE MAPS ROW -->
-        <div class="feature-maps-row" id="featureMapsRow">
-          <div class="panel-label" style="margin-bottom:16px;">Image Processing Analysis</div>
-          <div class="feature-maps-grid">
-            <div class="feature-map-item"><canvas id="res-gray" class="feature-canvas"></canvas><span>Grayscale</span></div>
-            <div class="feature-map-item"><canvas id="res-green" class="feature-canvas"></canvas><span>Vessel Map</span></div>
-            <div class="feature-map-item"><canvas id="res-edge" class="feature-canvas"></canvas><span>Edge Detection</span></div>
-            <div class="feature-map-item"><canvas id="res-clahe" class="feature-canvas"></canvas><span>CLAHE Enhanced</span></div>
-            <div class="feature-map-item"><canvas id="res-heat" class="feature-canvas"></canvas><span>Pseudo Heatmap</span></div>
-          </div>
-        </div>
-
-        <!-- XAI CONTROLS -->
-        <div class="xai-controls" id="xai-controls" style="display:none;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;">Grad-CAM Activation Map</span>
-            <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);" id="opacity-val">70%</span>
-          </div>
-          <input type="range" id="heatmapSlider" min="0" max="100" value="70" class="styled-slider">
-        </div>
-
-        <!-- CLINICAL RECOMMENDATION -->
-        <div class="recommendation-panel" id="recommendationPanel"></div>
-
-        <!-- ════════════════════════════════════════════
-             AI CLINICAL NOTES PANEL (NEW)
-        ════════════════════════════════════════════ -->
-        <div class="ai-notes-panel" id="aiNotesPanel">
-          <div class="ai-notes-header" onclick="toggleNotesPanel()">
-            <div style="display:flex;align-items:center;gap:10px;">
-              <div class="ai-sparkle-icon">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                </svg>
-              </div>
-              <span class="ai-notes-title">AI Clinical Notes</span>
-              <span class="ai-notes-badge" id="aiNotesBadge">Powered by Claude</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:10px;">
-              <span class="ai-notes-toggle-hint" id="aiNotesToggleHint">Click to expand</span>
-              <div class="ai-notes-chevron" id="aiNotesChevron">
-                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><polyline points="6 9 12 15 18 9"></polyline></svg>
-              </div>
-            </div>
-          </div>
-          
-          <div class="ai-notes-body" id="aiNotesBody">
-            <!-- No Key State -->
-            <div id="aiNotesNoKey" class="ai-notes-placeholder">
-              <div class="placeholder-icon">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                </svg>
-              </div>
-              <p>Configure your Anthropic API key to enable AI-generated clinical notes for each scan.</p>
-              <button class="btn-primary" style="font-size:11px;padding:8px 18px;" onclick="openApiKeyModal()">Configure API Key</button>
-            </div>
-
-            <!-- Generating State -->
-            <div id="aiNotesGenerating" class="ai-notes-generating" style="display:none;">
-              <div class="ai-typing-indicator">
-                <div class="ai-typing-dot"></div>
-                <div class="ai-typing-dot"></div>
-                <div class="ai-typing-dot"></div>
-              </div>
-              <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);" id="aiGeneratingText">Generating clinical notes...</span>
-            </div>
-
-            <!-- Notes Output -->
-            <div id="aiNotesOutput" style="display:none;">
-              <!-- Note Type Tabs -->
-              <div class="ai-notes-tabs" id="aiNotesTabs">
-                <button class="ai-tab active" data-note="soap" onclick="showNoteTab('soap',this)">SOAP Note</button>
-                <button class="ai-tab" data-note="summary" onclick="showNoteTab('summary',this)">Executive Summary</button>
-                <button class="ai-tab" data-note="followup" onclick="showNoteTab('followup',this)">Follow-up Plan</button>
-                <button class="ai-tab" data-note="referral" onclick="showNoteTab('referral',this)">Referral Letter</button>
-              </div>
-              
-              <div class="ai-note-content" id="aiNoteContent"></div>
-              
-              <div class="ai-notes-actions">
-                <button class="btn-ghost" style="font-size:11px;padding:8px 16px;" onclick="copyNoteToClipboard()">
-                  <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:5px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                  Copy
-                </button>
-                <button class="btn-ghost" style="font-size:11px;padding:8px 16px;" onclick="regenerateNotes()">
-                  <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:5px;"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 .49-3.51"></path></svg>
-                  Regenerate
-                </button>
-                <div style="margin-left:auto;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);" id="aiNoteTimestamp"></div>
-              </div>
-            </div>
-
-            <!-- Error State -->
-            <div id="aiNotesError" class="ai-notes-placeholder" style="display:none;">
-              <div class="placeholder-icon" style="color:#ff4e7e;">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-              </div>
-              <p id="aiNotesErrorMsg">Unable to generate notes. Please check your API key.</p>
-              <button class="btn-ghost" style="font-size:11px;padding:8px 18px;" onclick="regenerateNotes()">Try Again</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="action-buttons">
-          <button class="btn-primary" id="toggleHeatmapBtn">Enable Grad-CAM</button>
-          <button class="btn-ghost" id="generateNotesBtn" onclick="generateClinicalNotes()">
-            <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:5px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-            Generate AI Notes
-          </button>
-          <button class="btn-ghost" id="downloadReportBtn">Export PDF to EHR</button>
-          <button class="btn-ghost" onclick="switchView('image-lab')">Open in Image Lab</button>
-          <button class="btn-ghost" onclick="resetForm()">Scan Next Patient</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ════════════ REGISTRY VIEW ════════════ -->
-    <section id="registry" class="view-section">
-      <div class="section-label">/ Global Telemetry</div>
-      <h2 class="section-title">Cohort Analytics & Registry</h2>
-      <p class="section-desc">Population-level view of all clinical scans this session — enabling epidemiological analysis and pattern detection.</p>
-
-      <div class="registry-kpi-row">
-        <div class="kpi-card">
-          <div class="kpi-val" id="reg-total">0</div>
-          <div class="kpi-label">Total Scans</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-val" id="reg-positive" style="color:#ff4e7e;">0</div>
-          <div class="kpi-label">DR Positive</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-val" id="reg-negative" style="color:var(--accent);">0</div>
-          <div class="kpi-label">DR Negative</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-val" id="reg-avg-certainty">—</div>
-          <div class="kpi-label">Avg Certainty</div>
-        </div>
-      </div>
-
-      <div class="dashboard-grid" style="margin-bottom:32px;">
-        <div class="dash-panel">
-          <div class="panel-label">Severity Distribution</div>
-          <div class="chart-container" style="height:200px;"><canvas id="distributionChart"></canvas></div>
-        </div>
-        <div class="dash-panel">
-          <div class="panel-label">Certainty Timeline</div>
-          <div class="chart-container" style="height:200px;"><canvas id="timelineChart"></canvas></div>
-        </div>
-      </div>
-
-      <!-- COHORT AI SUMMARY (NEW) -->
-      <div class="cohort-ai-bar" id="cohortAiBar" style="display:none;">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-          <div class="ai-sparkle-icon"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></div>
-          <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;">AI Cohort Analysis</span>
-          <button class="btn-ghost" style="font-size:10px;padding:5px 12px;margin-left:auto;" onclick="generateCohortInsights()">Generate Insights</button>
-        </div>
-        <div id="cohortInsightsContent" style="font-size:13px;line-height:1.7;color:var(--muted);"></div>
-      </div>
-
-      <div class="table-container">
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px 0;">
-          <div class="panel-label" style="margin:0;">Session Database</div>
-          <div style="display:flex;gap:10px;align-items:center;">
-            <button class="btn-ghost" style="font-size:10px;padding:6px 14px;" onclick="exportCSV()">
-              <svg viewBox="0 0 24 24" width="11" height="11" stroke="currentColor" stroke-width="2" fill="none" style="margin-right:5px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Export CSV
-            </button>
-            <input type="text" id="searchInput" placeholder="Search by Patient ID..." class="table-search" />
-          </div>
-        </div>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th onclick="sortTable('id')">Patient ID ↕</th>
-              <th onclick="sortTable('age')">Age ↕</th>
-              <th>Eye</th>
-              <th>Diabetes</th>
-              <th onclick="sortTable('stageLevel')">Diagnosis ↕</th>
-              <th onclick="sortTable('certainty')">Certainty ↕</th>
-              <th>AI Notes</th>
-              <th>Timestamp</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="registryTableBody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- ════════════ IMAGE LAB VIEW ════════════ -->
-    <section id="image-lab" class="view-section">
-      <div class="section-label">/ Computer Vision Workbench</div>
-      <h2 class="section-title">Image Processing Lab</h2>
-      <p class="section-desc">Real-time canvas-based image analysis. Upload any fundus image to explore processing algorithms used by the diagnostic pipeline.</p>
-
-      <div class="lab-layout">
-        <div class="lab-upload-zone" id="labUploadZone">
-          <svg viewBox="0 0 24 24" width="32" height="32" stroke="var(--accent)" stroke-width="1.5" fill="none" style="margin-bottom:16px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          <p style="color:var(--muted);font-size:13px;">Drop an image or click to upload</p>
-          <input type="file" id="labFileInput" accept="image/*" style="display:none;" />
-        </div>
-
-        <div class="lab-workspace" id="labWorkspace" style="display:none;">
-          <div class="lab-controls">
-            <div class="lab-control-group"><label>Brightness</label><input type="range" id="ctrl-brightness" min="-100" max="100" value="0" class="styled-slider" /><span id="val-brightness">0</span></div>
-            <div class="lab-control-group"><label>Contrast</label><input type="range" id="ctrl-contrast" min="-100" max="100" value="0" class="styled-slider" /><span id="val-contrast">0</span></div>
-            <div class="lab-control-group"><label>Saturation</label><input type="range" id="ctrl-saturation" min="-100" max="100" value="0" class="styled-slider" /><span id="val-saturation">0</span></div>
-            <div class="lab-control-group"><label>Sharpen</label><input type="range" id="ctrl-sharpen" min="0" max="10" value="0" class="styled-slider" /><span id="val-sharpen">0</span></div>
-            <div class="lab-control-group"><label>Gamma</label><input type="range" id="ctrl-gamma" min="50" max="250" value="100" class="styled-slider" /><span id="val-gamma">1.0</span></div>
-          </div>
-
-          <div class="filter-btn-row">
-            <button class="filter-btn active" data-filter="original" onclick="setLabFilter('original',this)">Original</button>
-            <button class="filter-btn" data-filter="grayscale" onclick="setLabFilter('grayscale',this)">Grayscale</button>
-            <button class="filter-btn" data-filter="green" onclick="setLabFilter('green',this)">Green Channel</button>
-            <button class="filter-btn" data-filter="red" onclick="setLabFilter('red',this)">Red Channel</button>
-            <button class="filter-btn" data-filter="clahe" onclick="setLabFilter('clahe',this)">CLAHE</button>
-            <button class="filter-btn" data-filter="edge" onclick="setLabFilter('edge',this)">Edge Detection</button>
-            <button class="filter-btn" data-filter="vessel" onclick="setLabFilter('vessel',this)">Vessel Enhance</button>
-            <button class="filter-btn" data-filter="pseudocolor" onclick="setLabFilter('pseudocolor',this)">Pseudo-color</button>
-            <button class="filter-btn" data-filter="invert" onclick="setLabFilter('invert',this)">Invert</button>
-            <button class="filter-btn" data-filter="emboss" onclick="setLabFilter('emboss',this)">Emboss</button>
-          </div>
-
-          <div class="lab-canvas-row">
-            <div class="lab-canvas-wrap"><span class="image-panel-label">Input</span><canvas id="labOrigCanvas" class="lab-main-canvas"></canvas></div>
-            <div class="lab-canvas-wrap"><span class="image-panel-label" id="labOutputLabel">Output</span><canvas id="labOutCanvas" class="lab-main-canvas"></canvas></div>
-          </div>
-
-          <div class="histogram-row">
-            <div class="dash-panel" style="flex:1;">
-              <div class="panel-label">RGB Histogram — Input</div>
-              <div class="chart-container" style="height:120px;"><canvas id="histogramChart"></canvas></div>
-            </div>
-            <div class="dash-panel" style="flex:1;">
-              <div class="panel-label">Image Statistics</div>
-              <div class="img-stats-grid" id="labStatsGrid"></div>
-            </div>
-          </div>
-
-          <div style="display:flex;gap:12px;margin-top:16px;">
-            <button class="btn-primary" onclick="downloadLabResult()">Download Result</button>
-            <button class="btn-ghost" onclick="resetLab()">Reset</button>
-            <button class="btn-ghost" onclick="copyLabToScan()">Send to Scan Engine</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- MODEL SECTION -->
-    <section id="model">
-      <div class="section-label reveal">/ Architecture</div>
-      <h2 class="section-title reveal">Model performance<br />& architecture.</h2>
-      <div class="metrics-full-grid">
-        <div class="big-metric-card reveal">
-          <h4>AUC Score</h4>
-          <div class="big-val">0.94+</div>
-          <div class="big-desc">Area under the ROC curve on APTOS validation split. Measures the model's ability to discriminate between DR and non-DR cases at all thresholds.</div>
-        </div>
-        <div class="big-metric-card reveal">
-          <h4>Training Setup</h4>
-          <ul class="arch-list">
-            <li class="arch-item"><div class="arch-dot"></div><div><strong>Backbone</strong><br/><span>EfficientNetB0 — ImageNet pretrained</span></div></li>
-            <li class="arch-item"><div class="arch-dot"></div><div><strong>Phase 1 LR</strong><br/><span>1e-4 Adam — head training, 5 epochs</span></div></li>
-            <li class="arch-item"><div class="arch-dot"></div><div><strong>Phase 2 LR</strong><br/><span>1e-5 Adam — fine-tune top 30 layers, 10 epochs</span></div></li>
-            <li class="arch-item"><div class="arch-dot"></div><div><strong>Regularization</strong><br/><span>Dropout 0.4 before sigmoid head</span></div></li>
-            <li class="arch-item"><div class="arch-dot"></div><div><strong>Dataset</strong><br/><span>APTOS 2019 Blindness Detection</span></div></li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <footer>
-      <div class="copy">RetinaAI — Clinical Research Dashboard. Not a certified medical device.</div>
-      <div class="foot-logo">RetinaAI</div>
-    </footer>
-  </main>
+<div class="stats-strip" id="stats-strip">
+  <div class="stat-item"><div class="stat-num" id="cnt-auc">0</div><div class="stat-label">Validation AUC</div></div>
+  <div class="stat-item"><div class="stat-num" id="cnt-acc">0</div><div class="stat-label">Accuracy</div></div>
+  <div class="stat-item"><div class="stat-num" id="cnt-params">0</div><div class="stat-label">Parameters</div></div>
+  <div class="stat-item"><div class="stat-num" id="cnt-session">0</div><div class="stat-label">Session Scans</div></div>
 </div>
 
-<!-- PROFILE MODAL -->
+<!-- ══════════ DIAGNOSIS ══════════ -->
+<section id="detect" class="view-section active">
+  <div id="upload-flow">
+    <div class="section-label reveal">/ Diagnosis Engine</div>
+    <h2 class="section-title reveal">Upload retinal fundus<br/>for analysis.</h2>
+    <div class="patient-form reveal">
+      <div class="form-grid">
+        <div class="input-group"><label>Patient ID</label><input type="text" id="pat-id" placeholder="P-8472"/></div>
+        <div class="input-group"><label>Age</label><input type="number" id="pat-age" placeholder="54" min="1" max="120"/></div>
+        <div class="input-group"><label>Eye</label><select id="pat-eye"><option value="Left (OS)">Left (OS)</option><option value="Right (OD)">Right (OD)</option></select></div>
+        <div class="input-group"><label>Diabetes Duration (yrs)</label><input type="number" id="pat-diab" placeholder="8" min="0"/></div>
+        <div class="input-group"><label>HbA1c (%)</label><input type="number" id="pat-hba1c" placeholder="7.4" step="0.1" min="4" max="20"/></div>
+        <div class="input-group"><label>Pre-Processing</label>
+          <select id="pat-filter"><option value="none">None</option><option value="clahe">CLAHE</option><option value="green">Green Channel</option><option value="edge">Edge Detection</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="upload-area reveal" id="uploadArea">
+      <div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+      <h3>Drop DICOM, JPG, or PNG here</h3>
+      <p>Standard field-of-view fundus photography. Max 20 MB.</p>
+      <button class="btn-primary" id="chooseFileBtn">Browse Files</button>
+      <input type="file" id="fileInput" accept="image/*"/>
+    </div>
+    <div id="cv-preview-strip" style="display:none;margin-top:24px;">
+      <div class="section-label">/ Pre-Processing Channels</div>
+      <div class="cv-strip-grid">
+        <div class="cv-strip-item"><canvas id="cv-orig" class="cv-canvas"></canvas><span>Original</span></div>
+        <div class="cv-strip-item"><canvas id="cv-gray" class="cv-canvas"></canvas><span>Grayscale</span></div>
+        <div class="cv-strip-item"><canvas id="cv-green" class="cv-canvas"></canvas><span>Green Ch.</span></div>
+        <div class="cv-strip-item"><canvas id="cv-edge" class="cv-canvas"></canvas><span>Edge Map</span></div>
+        <div class="cv-strip-item"><canvas id="cv-clahe" class="cv-canvas"></canvas><span>CLAHE</span></div>
+      </div>
+      <div class="image-stats-bar" id="imageStatsBar"></div>
+      <div style="display:flex;gap:12px;margin-top:16px;justify-content:center;">
+        <button class="btn-primary" id="proceedAnalysisBtn">Proceed to Analysis ›</button>
+        <button class="btn-ghost" onclick="resetForm()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="preview-wrap">
+    <div class="dual-image-container">
+      <div class="image-panel">
+        <span class="image-panel-label">Original Fundus</span>
+        <div class="image-container" id="mainImageContainer">
+          <img id="preview-img" src="" alt="Retina" onclick="openLightbox(this.src)"/>
+          <div id="heatmap-overlay"></div>
+          <div class="crosshair-h"></div><div class="crosshair-v"></div>
+          <canvas id="annotationCanvas" class="annotation-canvas"></canvas>
+        </div>
+        <div class="annotation-toolbar" id="annotationToolbar" style="display:none;">
+          <button class="ann-tool-btn active" data-tool="pen" onclick="setAnnTool('pen',this)" title="Draw">✏️</button>
+          <button class="ann-tool-btn" data-tool="rect" onclick="setAnnTool('rect',this)" title="Rectangle">▭</button>
+          <button class="ann-tool-btn" data-tool="circle" onclick="setAnnTool('circle',this)" title="Circle">◯</button>
+          <button class="ann-tool-btn" data-tool="arrow" onclick="setAnnTool('arrow',this)" title="Arrow">↗</button>
+          <button class="ann-tool-btn" data-tool="text" onclick="setAnnTool('text',this)" title="Label">T</button>
+          <input type="color" id="annColor" value="#ff4e7e" class="ann-color-pick" title="Color"/>
+          <input type="range" id="annSize" min="1" max="12" value="3" class="styled-slider" style="width:56px;" title="Size"/>
+          <button class="ann-tool-btn" onclick="undoAnnotation()" title="Undo">↩</button>
+          <button class="ann-tool-btn" onclick="clearAnnotations()" title="Clear">✕</button>
+          <button class="ann-tool-btn" onclick="downloadAnnotated()" title="Save">⬇</button>
+        </div>
+      </div>
+      <div class="image-panel" id="processedPanel" style="display:none;">
+        <span class="image-panel-label" id="processedLabel">Processed</span>
+        <div class="image-container"><canvas id="processedCanvas"></canvas></div>
+      </div>
+    </div>
+    <div id="loading-overlay">
+      <div class="loading-inner">
+        <div class="spinner"></div>
+        <p class="loading-text" id="loading-text">Initializing engine...</p>
+        <div class="loading-steps">
+          <div class="load-step" id="ls-1">① Image preprocessing</div>
+          <div class="load-step" id="ls-2">② Feature extraction</div>
+          <div class="load-step" id="ls-3">③ Severity grading</div>
+          <div class="load-step" id="ls-4">④ Report generation</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="result-card">
+    <div class="report-header">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <h4>Clinical Analysis Report</h4>
+        <div class="report-id-badge" id="reportIdBadge"></div>
+      </div>
+      <div class="patient-summary" id="patient-summary"></div>
+    </div>
+    <div class="result-header">
+      <div>
+        <div class="result-main-label" id="result-label">—</div>
+        <span class="result-badge" id="result-badge">—</span>
+      </div>
+      <div class="confidence-bar-wrap">
+        <div class="confidence-label"><span>DR Severity Stage</span><span id="severity-val">—</span></div>
+        <div class="severity-spectrum">
+          <div class="stage-marker" id="stage-0">0</div><div class="stage-marker" id="stage-1">1</div>
+          <div class="stage-marker" id="stage-2">2</div><div class="stage-marker" id="stage-3">3</div>
+          <div class="stage-marker" id="stage-4">4</div>
+          <div class="severity-indicator" id="severity-indicator"></div>
+        </div>
+        <div class="spectrum-labels"><span>None</span><span>Mild</span><span>Moderate</span><span>Severe</span><span>Prolif.</span></div>
+      </div>
+    </div>
+
+    <div class="risk-panel">
+      <div class="risk-panel-header"><span class="panel-label">Risk Factor Analysis</span><span class="risk-overall" id="riskOverall"></span></div>
+      <div class="risk-factors-grid" id="riskFactorsGrid"></div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="dash-panel">
+        <div class="panel-label">Patient Progression</div>
+        <div class="chart-container"><canvas id="progressionChart"></canvas></div>
+      </div>
+      <div class="dash-panel">
+        <div class="panel-label">Network Telemetry</div>
+        <div class="radial-metrics-wrapper">
+          <div class="radial-item">
+            <div class="svg-wrap"><svg viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="42"/><circle class="ring-fill" id="cert-ring" cx="50" cy="50" r="42" style="stroke:var(--accent)"/></svg><div class="ring-text" id="m-prob">0%</div></div>
+            <div class="ring-label">Certainty</div>
+          </div>
+          <div class="radial-item">
+            <div class="svg-wrap"><svg viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="42"/><circle class="ring-fill" id="lesion-ring" cx="50" cy="50" r="42" style="stroke:var(--accent2)"/></svg><div class="ring-text" id="m-conf">0</div></div>
+            <div class="ring-label">Lesion Density</div>
+          </div>
+        </div>
+        <div class="quick-stats">
+          <div class="stat-row"><span>Inference:</span><strong id="m-time">—</strong></div>
+          <div class="stat-row"><span>Filter:</span><strong id="m-filter">—</strong></div>
+          <div class="stat-row"><span>Brightness:</span><strong id="m-brightness">—</strong></div>
+          <div class="stat-row"><span>Contrast:</span><strong id="m-contrast">—</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature-maps-row">
+      <div class="panel-label" style="margin-bottom:12px;">CV Analysis Outputs</div>
+      <div class="feature-maps-grid">
+        <div class="feature-map-item"><canvas id="res-gray" class="feature-canvas" onclick="openLightboxCanvas(this)"></canvas><span>Grayscale</span></div>
+        <div class="feature-map-item"><canvas id="res-green" class="feature-canvas" onclick="openLightboxCanvas(this)"></canvas><span>Vessel Map</span></div>
+        <div class="feature-map-item"><canvas id="res-edge" class="feature-canvas" onclick="openLightboxCanvas(this)"></canvas><span>Edge Map</span></div>
+        <div class="feature-map-item"><canvas id="res-clahe" class="feature-canvas" onclick="openLightboxCanvas(this)"></canvas><span>CLAHE</span></div>
+        <div class="feature-map-item"><canvas id="res-heat" class="feature-canvas" onclick="openLightboxCanvas(this)"></canvas><span>Heatmap</span></div>
+      </div>
+    </div>
+
+    <div class="xai-controls" id="xai-controls" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;">Grad-CAM Overlay</span>
+        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);" id="opacity-val">70%</span>
+      </div>
+      <input type="range" id="heatmapSlider" min="0" max="100" value="70" class="styled-slider"/>
+    </div>
+
+    <div class="recommendation-panel" id="recommendationPanel"></div>
+
+    <div class="quick-note-panel">
+      <div class="panel-label" style="margin-bottom:10px;">Quick Clinical Note</div>
+      <textarea id="quickNoteInput" placeholder="Add a clinical observation for this scan..." rows="3"></textarea>
+      <button class="btn-primary" style="margin-top:8px;font-size:12px;" onclick="saveQuickNote()">Save Note</button>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn-primary" id="toggleHeatmapBtn">Enable Grad-CAM</button>
+      <button class="btn-primary" id="toggleAnnotateBtn" onclick="toggleAnnotationMode()">Annotate Image</button>
+      <button class="btn-ghost" id="downloadReportBtn">Export PDF</button>
+      <button class="btn-ghost" onclick="exportScanJSON()">Export JSON</button>
+      <button class="btn-ghost" onclick="switchView('image-lab')">Open in Lab</button>
+      <button class="btn-ghost" onclick="resetForm()">New Scan</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ REGISTRY ══════════ -->
+<section id="registry" class="view-section">
+  <div class="section-label">/ Global Telemetry</div>
+  <h2 class="section-title">Cohort Analytics</h2>
+  <p class="section-desc">Population-level diagnostics and epidemiological pattern analysis.</p>
+  <div class="registry-kpi-row">
+    <div class="kpi-card"><div class="kpi-val" id="reg-total">0</div><div class="kpi-label">Total Scans</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:#ff4e7e;" id="reg-positive">0</div><div class="kpi-label">DR Positive</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:var(--accent);" id="reg-negative">0</div><div class="kpi-label">DR Negative</div></div>
+    <div class="kpi-card"><div class="kpi-val" id="reg-avg-certainty">—</div><div class="kpi-label">Avg Certainty</div></div>
+    <div class="kpi-card"><div class="kpi-val" id="reg-avg-age">—</div><div class="kpi-label">Avg Age</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:#ff8800;" id="reg-high-risk">0</div><div class="kpi-label">High Risk</div></div>
+  </div>
+  <div class="dashboard-grid" style="margin-bottom:20px;">
+    <div class="dash-panel"><div class="panel-label">Severity Distribution</div><div class="chart-container" style="height:200px;"><canvas id="distributionChart"></canvas></div></div>
+    <div class="dash-panel"><div class="panel-label">Certainty Timeline</div><div class="chart-container" style="height:200px;"><canvas id="timelineChart"></canvas></div></div>
+  </div>
+  <div class="dash-panel" style="margin-bottom:20px;">
+    <div class="panel-label">Age vs. Severity Scatter</div>
+    <div class="chart-container" style="height:200px;"><canvas id="scatterChart"></canvas></div>
+  </div>
+  <div class="table-container">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px 0;flex-wrap:wrap;gap:10px;">
+      <div class="panel-label" style="margin:0;">Session Database</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="searchInput" placeholder="Search Patient ID..." class="table-search"/>
+        <select id="filterGrade" class="table-search" style="width:130px;">
+          <option value="">All Grades</option>
+          <option value="0">No DR</option><option value="1">Mild</option>
+          <option value="2">Moderate</option><option value="3">Severe</option><option value="4">Prolif.</option>
+        </select>
+        <button class="btn-ghost" style="padding:7px 12px;font-size:11px;" onclick="exportRegistryCSV()">Export CSV</button>
+      </div>
+    </div>
+    <table class="data-table">
+      <thead><tr>
+        <th onclick="sortTable('id')">Patient ID ↕</th>
+        <th onclick="sortTable('age')">Age ↕</th>
+        <th>Eye</th>
+        <th onclick="sortTable('stageLevel')">Diagnosis ↕</th>
+        <th onclick="sortTable('certainty')">Certainty ↕</th>
+        <th>HbA1c</th>
+        <th>Filter</th>
+        <th>Time</th>
+        <th>Actions</th>
+      </tr></thead>
+      <tbody id="registryTableBody"></tbody>
+    </table>
+    <div class="table-footer" id="tableFooter"></div>
+  </div>
+</section>
+
+<!-- ══════════ IMAGE LAB ══════════ -->
+<section id="image-lab" class="view-section">
+  <div class="section-label">/ CV Workbench</div>
+  <h2 class="section-title">Image Processing Lab</h2>
+  <p class="section-desc">Real-time Canvas API analysis. Apply filters, compare modes, inspect pixel data, and export results.</p>
+  <div class="lab-layout">
+    <div class="lab-upload-zone" id="labUploadZone">
+      <svg viewBox="0 0 24 24" width="32" height="32" stroke="var(--accent)" stroke-width="1.5" fill="none" style="margin-bottom:10px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <p style="color:var(--muted);font-size:13px;">Drop or click to upload</p>
+      <input type="file" id="labFileInput" accept="image/*" style="display:none;"/>
+    </div>
+    <div class="lab-workspace" id="labWorkspace" style="display:none;">
+      <div class="lab-controls">
+        <div class="lab-control-group"><label>Brightness</label><input type="range" id="ctrl-brightness" min="-100" max="100" value="0" class="styled-slider"/><span id="val-brightness">0</span></div>
+        <div class="lab-control-group"><label>Contrast</label><input type="range" id="ctrl-contrast" min="-100" max="100" value="0" class="styled-slider"/><span id="val-contrast">0</span></div>
+        <div class="lab-control-group"><label>Saturation</label><input type="range" id="ctrl-saturation" min="-100" max="100" value="0" class="styled-slider"/><span id="val-saturation">0</span></div>
+        <div class="lab-control-group"><label>Sharpen</label><input type="range" id="ctrl-sharpen" min="0" max="10" value="0" class="styled-slider"/><span id="val-sharpen">0</span></div>
+        <div class="lab-control-group"><label>Gamma</label><input type="range" id="ctrl-gamma" min="50" max="250" value="100" class="styled-slider"/><span id="val-gamma">1.0</span></div>
+        <div class="lab-control-group"><label>Blur Radius</label><input type="range" id="ctrl-blur" min="0" max="10" value="0" class="styled-slider"/><span id="val-blur">0</span></div>
+      </div>
+      <div class="filter-btn-row">
+        <button class="filter-btn active" data-filter="original" onclick="setLabFilter('original',this)">Original</button>
+        <button class="filter-btn" data-filter="grayscale" onclick="setLabFilter('grayscale',this)">Grayscale</button>
+        <button class="filter-btn" data-filter="green" onclick="setLabFilter('green',this)">Green Ch.</button>
+        <button class="filter-btn" data-filter="red" onclick="setLabFilter('red',this)">Red Ch.</button>
+        <button class="filter-btn" data-filter="blue" onclick="setLabFilter('blue',this)">Blue Ch.</button>
+        <button class="filter-btn" data-filter="clahe" onclick="setLabFilter('clahe',this)">CLAHE</button>
+        <button class="filter-btn" data-filter="edge" onclick="setLabFilter('edge',this)">Sobel Edge</button>
+        <button class="filter-btn" data-filter="vessel" onclick="setLabFilter('vessel',this)">Vessels</button>
+        <button class="filter-btn" data-filter="pseudocolor" onclick="setLabFilter('pseudocolor',this)">Pseudo-color</button>
+        <button class="filter-btn" data-filter="invert" onclick="setLabFilter('invert',this)">Invert</button>
+        <button class="filter-btn" data-filter="emboss" onclick="setLabFilter('emboss',this)">Emboss</button>
+        <button class="filter-btn" data-filter="thermal" onclick="setLabFilter('thermal',this)">Thermal</button>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">
+        <label style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">Compare Mode</label>
+        <label class="toggle-switch"><input type="checkbox" id="compareModeToggle" onchange="toggleCompareMode()"/><span class="toggle-slider"></span></label>
+        <span id="compareModeLabel" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">Off</span>
+        <span style="margin-left:auto;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);" id="pixelInfoDisplay"></span>
+      </div>
+      <div class="lab-canvas-row" id="labCanvasRow">
+        <div class="lab-canvas-wrap"><span class="image-panel-label">Input</span><canvas id="labOrigCanvas" class="lab-main-canvas"></canvas></div>
+        <div class="lab-canvas-wrap"><span class="image-panel-label" id="labOutputLabel">Output</span><canvas id="labOutCanvas" class="lab-main-canvas"></canvas></div>
+      </div>
+      <div id="compareSliderWrap" style="display:none;margin-bottom:12px;">
+        <label style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Blend Ratio</label>
+        <input type="range" id="compareSlider" min="0" max="100" value="50" class="styled-slider" style="width:100%;"/>
+      </div>
+      <div class="histogram-row">
+        <div class="dash-panel" style="flex:1;"><div class="panel-label">RGB Histogram</div><div class="chart-container" style="height:120px;"><canvas id="histogramChart"></canvas></div></div>
+        <div class="dash-panel" style="flex:1;"><div class="panel-label">Image Statistics</div><div class="img-stats-grid" id="labStatsGrid"></div></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+        <button class="btn-primary" onclick="downloadLabResult()">Download Result</button>
+        <button class="btn-ghost" onclick="resetLab()">Reset</button>
+        <button class="btn-ghost" onclick="copyLabToScan()">Send to Scan</button>
+        <button class="btn-ghost" onclick="downloadSideBySide()">Export Side-by-Side</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ RISK CALCULATOR ══════════ -->
+<section id="risk-calc" class="view-section">
+  <div class="section-label">/ Clinical Decision Support</div>
+  <h2 class="section-title">DR Risk Calculator</h2>
+  <p class="section-desc">Evidence-based multi-factor risk stratification using validated clinical parameters.</p>
+  <div class="risk-calc-layout">
+    <div class="risk-calc-form dash-panel">
+      <div class="panel-label">Patient Parameters</div>
+      <div class="risk-form-grid">
+        <div class="input-group"><label>Age (years)</label><input type="number" id="rc-age" placeholder="52" min="18" max="100"/></div>
+        <div class="input-group"><label>Diabetes Duration (yrs)</label><input type="number" id="rc-dur" placeholder="8" min="0"/></div>
+        <div class="input-group"><label>HbA1c (%)</label><input type="number" id="rc-hba1c" placeholder="7.5" step="0.1" min="4" max="20"/></div>
+        <div class="input-group"><label>Systolic BP (mmHg)</label><input type="number" id="rc-sbp" placeholder="130" min="80" max="220"/></div>
+        <div class="input-group"><label>BMI (kg/m²)</label><input type="number" id="rc-bmi" placeholder="26.5" step="0.1" min="10" max="60"/></div>
+        <div class="input-group"><label>Total Cholesterol (mg/dL)</label><input type="number" id="rc-chol" placeholder="185" min="100" max="400"/></div>
+        <div class="input-group"><label>eGFR (mL/min/1.73m²)</label><input type="number" id="rc-egfr" placeholder="75" min="5" max="150"/></div>
+        <div class="input-group"><label>Diabetes Type</label><select id="rc-type"><option value="2">Type 2</option><option value="1">Type 1</option></select></div>
+      </div>
+      <div class="risk-binary-grid">
+        <label class="risk-checkbox"><input type="checkbox" id="rc-hyper"/> Hypertension</label>
+        <label class="risk-checkbox"><input type="checkbox" id="rc-smoking"/> Current Smoker</label>
+        <label class="risk-checkbox"><input type="checkbox" id="rc-microalb"/> Microalbuminuria</label>
+        <label class="risk-checkbox"><input type="checkbox" id="rc-neuropathy"/> Neuropathy</label>
+        <label class="risk-checkbox"><input type="checkbox" id="rc-insulin"/> On Insulin</label>
+        <label class="risk-checkbox"><input type="checkbox" id="rc-family"/> Family History DR</label>
+      </div>
+      <button class="btn-primary" style="width:100%;margin-top:20px;" onclick="computeRisk()">Compute Risk Score ›</button>
+    </div>
+    <div class="risk-calc-result">
+      <div class="dash-panel" style="text-align:center;padding:32px 20px;">
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Composite DR Risk Score</div>
+        <div class="big-risk-score" id="riskScoreDisplay">—</div>
+        <div class="risk-gauge-wrap"><canvas id="riskGaugeChart" width="240" height="130"></canvas></div>
+        <div class="risk-category" id="riskCategory"></div>
+      </div>
+      <div class="dash-panel" style="margin-top:14px;"><div class="panel-label">Factor Breakdown</div><div id="riskBreakdownList"></div></div>
+      <div class="dash-panel" style="margin-top:14px;"><div class="panel-label">Clinical Recommendations</div><div id="riskRecommendations" style="font-size:13px;color:var(--muted);line-height:1.8;"></div></div>
+      <div style="margin-top:14px;display:flex;gap:10px;">
+        <button class="btn-ghost" onclick="exportRiskReport()" style="flex:1;">Export Risk Report</button>
+        <button class="btn-ghost" onclick="clearRiskCalc()" style="flex:1;">Clear</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ CLINICAL NOTES ══════════ -->
+<section id="notes" class="view-section">
+  <div class="section-label">/ Documentation</div>
+  <h2 class="section-title">Clinical Notes</h2>
+  <p class="section-desc">Persistent session notes with rich text formatting, tagging, and export.</p>
+  <div class="notes-layout">
+    <div class="notes-sidebar-panel">
+      <div class="panel-label" style="margin-bottom:10px;">Notes</div>
+      <button class="btn-primary" style="width:100%;margin-bottom:12px;" onclick="createNewNote()">+ New Note</button>
+      <ul class="notes-list" id="notesList"></ul>
+    </div>
+    <div class="notes-editor-panel dash-panel">
+      <div id="noteEditorEmpty" style="text-align:center;padding:60px 20px;color:var(--muted);">
+        <div style="font-size:36px;margin-bottom:12px;">📋</div>
+        <div style="font-size:13px;">Select or create a note to begin.</div>
+      </div>
+      <div id="noteEditorContent" style="display:none;flex-direction:column;gap:10px;height:100%;">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input type="text" id="noteTitleInput" placeholder="Note title..." style="flex:1;min-width:120px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-family:'Syne',sans-serif;font-size:15px;font-weight:600;outline:none;"/>
+          <select id="noteTagSelect" class="table-search" style="width:120px;">
+            <option value="general">General</option><option value="finding">Finding</option>
+            <option value="followup">Follow-up</option><option value="urgent">Urgent</option>
+            <option value="research">Research</option>
+          </select>
+          <button class="btn-ghost" style="padding:7px 12px;font-size:11px;" onclick="deleteCurrentNote()">Delete</button>
+        </div>
+        <div class="note-formatting-bar">
+          <button onclick="noteFormat('bold')"><b>B</b></button>
+          <button onclick="noteFormat('italic')"><i>I</i></button>
+          <button onclick="noteFormat('underline')"><u>U</u></button>
+          <button onclick="noteFormat('insertOrderedList')">1.</button>
+          <button onclick="noteFormat('insertUnorderedList')">•</button>
+          <button onclick="noteFormat('formatBlock','H3')">H</button>
+          <span style="flex:1;"></span>
+          <span id="noteWordCount" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">0 words</span>
+        </div>
+        <div id="noteTextArea" contenteditable="true" class="note-textarea"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <span id="noteTimestamp" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);"></span>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-ghost" style="font-size:11px;padding:7px 12px;" onclick="exportNoteAsText()">Export TXT</button>
+            <button class="btn-primary" style="font-size:11px;padding:7px 12px;" onclick="saveCurrentNote()">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ SETTINGS ══════════ -->
+<section id="settings-view" class="view-section">
+  <div class="section-label">/ Configuration</div>
+  <h2 class="section-title">Settings</h2>
+  <p class="section-desc">Customize your workspace, profile, and analysis defaults.</p>
+  <div class="settings-layout">
+    <div class="settings-group dash-panel">
+      <div class="panel-label">Clinician Profile</div>
+      <div class="settings-form">
+        <div class="input-group"><label>Full Name</label><input type="text" id="set-name" placeholder="Dr. Yuvraj Singh"/></div>
+        <div class="input-group"><label>Institution</label><input type="text" id="set-inst" placeholder="Manipal University Jaipur"/></div>
+        <div class="input-group"><label>Specialty</label><input type="text" id="set-spec" placeholder="AI/ML Research"/></div>
+        <div class="input-group"><label>Location</label><input type="text" id="set-loc" placeholder="New Delhi, India"/></div>
+      </div>
+      <button class="btn-primary" style="margin-top:14px;" onclick="saveProfile()">Save Profile</button>
+    </div>
+    <div class="settings-group dash-panel">
+      <div class="panel-label">Display & Effects</div>
+      <div class="settings-row"><span>Dark Mode</span><label class="toggle-switch"><input type="checkbox" id="set-dark" checked onchange="toggleTheme()"/><span class="toggle-slider"></span></label></div>
+      <div class="settings-row"><span>Scan Line Effect</span><label class="toggle-switch"><input type="checkbox" id="set-scanline" checked onchange="toggleScanLine()"/><span class="toggle-slider"></span></label></div>
+      <div class="settings-row"><span>Ambient Blobs</span><label class="toggle-switch"><input type="checkbox" id="set-blobs" checked onchange="toggleBlobs()"/><span class="toggle-slider"></span></label></div>
+    </div>
+    <div class="settings-group dash-panel">
+      <div class="panel-label">Analysis Defaults</div>
+      <div class="settings-form">
+        <div class="input-group"><label>Default Pre-Processing</label>
+          <select id="set-filter"><option value="none">None</option><option value="clahe">CLAHE</option><option value="green">Green Channel</option></select>
+        </div>
+        <div class="input-group"><label>Classification Threshold (0–1)</label><input type="number" id="set-threshold" value="0.5" step="0.05" min="0.1" max="0.9"/></div>
+      </div>
+      <button class="btn-primary" style="margin-top:14px;" onclick="saveAnalysisSettings()">Save Defaults</button>
+    </div>
+    <div class="settings-group dash-panel">
+      <div class="panel-label">Data Management</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn-ghost" onclick="exportAllData()">Export Session Data (JSON)</button>
+        <button class="btn-ghost" onclick="document.getElementById('importFileInput').click()">Import Session Data</button>
+        <button class="btn-ghost" style="color:#ff4e7e;border-color:rgba(255,78,126,0.3);" onclick="clearAllData()">Clear All Data</button>
+      </div>
+      <input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="handleImport(event)"/>
+    </div>
+    <div class="settings-group dash-panel">
+      <div class="panel-label">Model Architecture</div>
+      <ul class="arch-list">
+        <li class="arch-item"><div class="arch-dot"></div><div><strong>Backbone</strong><br/><span>EfficientNetB0 — ImageNet pretrained</span></div></li>
+        <li class="arch-item"><div class="arch-dot"></div><div><strong>Phase 1</strong><br/><span>1e-4 Adam, 5 epochs, head only</span></div></li>
+        <li class="arch-item"><div class="arch-dot"></div><div><strong>Phase 2</strong><br/><span>1e-5 Adam, 10 epochs, top 30 layers</span></div></li>
+        <li class="arch-item"><div class="arch-dot"></div><div><strong>Validation AUC</strong><br/><span>0.952 on APTOS 2019</span></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer><div class="copy">RetinaAI v2.0 — Research use only. Not a certified medical device.</div><div class="foot-logo">RetinaAI</div></footer>
+</main>
+</div>
+
+<!-- MODALS -->
 <div class="modal-overlay" id="profileModal">
   <div class="modal-content">
-    <button class="modal-close" onclick="closeProfileModal()">
-      <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-    </button>
+    <button class="modal-close" onclick="closeProfileModal()"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     <div class="modal-header">
-      <div class="modal-avatar">YS</div>
+      <div class="modal-avatar" id="modalAvatar">YS</div>
       <div class="modal-title-group">
-        <h3 class="modal-name">Yuvraj Singh</h3>
-        <span class="modal-role">AI/ML Researcher & Clinician</span>
-        <span class="modal-location">
-          <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-          New Delhi, India
-        </span>
+        <h3 class="modal-name" id="modalName">Yuvraj Singh</h3>
+        <span class="modal-role" id="modalRole">AI/ML Researcher & Clinician</span>
+        <span class="modal-location"><svg viewBox="0 0 24 24" width="11" height="11" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> New Delhi, India</span>
       </div>
     </div>
     <div class="modal-body">
-      <p>Yuvraj Singh is a clinical AI researcher and software engineer based in New Delhi, India. Currently pursuing a B.Tech in Computer Science and Engineering at Manipal University Jaipur, his work focuses on bridging the gap between deep learning and medical diagnostics.</p>
-      <p>Specializing in image classification, neural networks, and Explainable AI (XAI), he architected this RetinaAI diagnostic engine utilizing EfficientNetB0 and Grad-CAM interpretability to assist ophthalmologists in early disease detection.</p>
+      <p>Yuvraj Singh is a clinical AI researcher at Manipal University Jaipur, bridging deep learning and medical diagnostics with EfficientNetB0 and Grad-CAM interpretability.</p>
     </div>
   </div>
 </div>
 
-<!-- KEYBOARD SHORTCUTS MODAL -->
 <div class="modal-overlay" id="shortcutsModal">
-  <div class="modal-content" style="max-width:400px;">
-    <button class="modal-close" onclick="document.getElementById('shortcutsModal').classList.remove('active')">
-      <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-    </button>
-    <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:24px;color:var(--accent);">Keyboard Shortcuts</h3>
+  <div class="modal-content" style="max-width:420px;">
+    <button class="modal-close" onclick="document.getElementById('shortcutsModal').classList.remove('active')"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:20px;color:var(--accent);">Keyboard Shortcuts</h3>
     <div class="shortcut-list">
       <div class="shortcut-item"><kbd>N</kbd><span>New Scan</span></div>
-      <div class="shortcut-item"><kbd>1</kbd><span>Diagnosis Engine</span></div>
-      <div class="shortcut-item"><kbd>2</kbd><span>Cohort Registry</span></div>
-      <div class="shortcut-item"><kbd>3</kbd><span>Image Lab</span></div>
-      <div class="shortcut-item"><kbd>A</kbd><span>Generate AI Notes</span></div>
+      <div class="shortcut-item"><kbd>1–6</kbd><span>Switch views</span></div>
       <div class="shortcut-item"><kbd>E</kbd><span>Toggle Grad-CAM</span></div>
-      <div class="shortcut-item"><kbd>P</kbd><span>Print / Export PDF</span></div>
-      <div class="shortcut-item"><kbd>?</kbd><span>Show this menu</span></div>
+      <div class="shortcut-item"><kbd>A</kbd><span>Toggle Annotation mode</span></div>
+      <div class="shortcut-item"><kbd>P</kbd><span>Export PDF</span></div>
+      <div class="shortcut-item"><kbd>T</kbd><span>Toggle dark/light theme</span></div>
+      <div class="shortcut-item"><kbd>R</kbd><span>Open Risk Calculator</span></div>
+      <div class="shortcut-item"><kbd>Esc</kbd><span>Close modals</span></div>
+      <div class="shortcut-item"><kbd>?</kbd><span>Show shortcuts</span></div>
     </div>
   </div>
 </div>
 
-<!-- NOTE FULLSCREEN VIEWER (NEW) -->
-<div class="modal-overlay" id="noteFullscreenModal">
-  <div class="modal-content" style="max-width:680px;max-height:80vh;overflow-y:auto;">
-    <button class="modal-close" onclick="document.getElementById('noteFullscreenModal').classList.remove('active')">
-      <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-    </button>
-    <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:20px;color:var(--accent);" id="noteFullscreenTitle">Clinical Note</h3>
-    <div id="noteFullscreenContent" style="font-size:14px;line-height:1.8;color:var(--text);white-space:pre-wrap;"></div>
+<div class="modal-overlay" id="lightboxModal" onclick="this.classList.remove('active')">
+  <div style="max-width:90vw;max-height:90vh;position:relative;" onclick="event.stopPropagation()">
+    <img id="lightboxImg" style="max-width:90vw;max-height:88vh;border-radius:10px;border:1px solid var(--border);display:block;"/>
+    <button class="modal-close" style="top:8px;right:8px;" onclick="document.getElementById('lightboxModal').classList.remove('active')"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   </div>
 </div>
 
