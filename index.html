@@ -25,7 +25,7 @@
   </ul>
   <div class="nav-right">
     <div class="live-clock" id="liveClock"></div>
-    <button class="nav-icon-btn" onclick="toggleTheme()" title="Toggle Theme">◑</button>
+    <button class="nav-icon-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Cycle Theme">🎨</button>
     <button class="nav-icon-btn" onclick="document.getElementById('shortcutsModal').classList.add('active')" title="Shortcuts">?</button>
     <span class="nav-tag">● Live</span>
   </div>
@@ -514,7 +514,7 @@
     </div>
     <div class="settings-group dash-panel">
       <div class="panel-label">Display & Effects</div>
-      <div class="settings-row"><span>Dark Mode</span><label class="toggle-switch"><input type="checkbox" id="set-dark" checked onchange="toggleTheme()"/><span class="toggle-slider"></span></label></div>
+      <div class="settings-row"><span>Theme</span><select id="set-theme" class="theme-picker" onchange="applyTheme(this.value, true)"><option value="midnight">Midnight</option><option value="light">Breeze</option><option value="sunset">Sunset</option></select></div>
       <div class="settings-row"><span>Scan Line Effect</span><label class="toggle-switch"><input type="checkbox" id="set-scanline" checked onchange="toggleScanLine()"/><span class="toggle-slider"></span></label></div>
       <div class="settings-row"><span>Ambient Blobs</span><label class="toggle-switch"><input type="checkbox" id="set-blobs" checked onchange="toggleBlobs()"/><span class="toggle-slider"></span></label></div>
     </div>
@@ -581,7 +581,7 @@
       <div class="shortcut-item"><kbd>E</kbd><span>Toggle Grad-CAM</span></div>
       <div class="shortcut-item"><kbd>A</kbd><span>Toggle Annotation mode</span></div>
       <div class="shortcut-item"><kbd>P</kbd><span>Export PDF</span></div>
-      <div class="shortcut-item"><kbd>T</kbd><span>Toggle dark/light theme</span></div>
+      <div class="shortcut-item"><kbd>T</kbd><span>Cycle visual themes</span></div>
       <div class="shortcut-item"><kbd>R</kbd><span>Open Risk Calculator</span></div>
       <div class="shortcut-item"><kbd>Esc</kbd><span>Close modals</span></div>
       <div class="shortcut-item"><kbd>?</kbd><span>Show shortcuts</span></div>

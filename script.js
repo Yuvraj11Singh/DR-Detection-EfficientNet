@@ -16,6 +16,8 @@ let annStart = { x: 0, y: 0 };
 let notes = [];
 let currentNoteId = null;
 let appSettings = { filter: 'none', threshold: 0.5, profile: { name: 'Dr. Yuvraj', inst: 'Manipal University Jaipur', spec: 'AI/ML Research', loc: 'New Delhi, India' } };
+const THEME_ORDER = ['midnight', 'light', 'sunset'];
+const THEME_LABELS = { midnight: 'Midnight', light: 'Breeze', sunset: 'Sunset' };
 
 // ═══════════════════════════════════════════════
 // CLOCK
@@ -43,13 +45,36 @@ function showToast(msg, type = 'info', ms = 3500) {
 // ═══════════════════════════════════════════════
 // THEME TOGGLE
 // ═══════════════════════════════════════════════
-function toggleTheme() {
-  const on = document.documentElement.getAttribute('data-theme') === 'light';
-  document.documentElement.setAttribute('data-theme', on ? '' : 'light');
-  const cb = document.getElementById('set-dark');
-  if (cb) cb.checked = !on;
-  showToast(on ? 'Dark mode enabled.' : 'Light mode enabled.', 'info');
+function currentTheme() {
+  return document.documentElement.getAttribute('data-theme') || 'midnight';
 }
+
+function syncThemeControls(theme) {
+  const selector = document.getElementById('set-theme');
+  if (selector) selector.value = theme;
+  const btn = document.getElementById('themeToggleBtn');
+  if (btn) btn.title = `Theme: ${THEME_LABELS[theme] || theme}`;
+}
+
+function applyTheme(theme = 'midnight', notify = false) {
+  const nextTheme = THEME_ORDER.includes(theme) ? theme : 'midnight';
+  document.documentElement.setAttribute('data-theme', nextTheme);
+  localStorage.setItem('retinaai-theme', nextTheme);
+  syncThemeControls(nextTheme);
+  if (notify) showToast(`${THEME_LABELS[nextTheme] || nextTheme} theme enabled.`, 'info');
+}
+
+function toggleTheme() {
+  const now = currentTheme();
+  const i = THEME_ORDER.indexOf(now);
+  const next = THEME_ORDER[(i + 1) % THEME_ORDER.length];
+  applyTheme(next, true);
+}
+
+const savedTheme = localStorage.getItem('retinaai-theme');
+if (savedTheme) applyTheme(savedTheme);
+else applyTheme('midnight');
+
 function toggleScanLine() {
   const sl = document.getElementById('scanLine');
   const cb = document.getElementById('set-scanline');
@@ -549,8 +574,10 @@ function loadSettingsUI() {
   ['name','inst','spec','loc'].forEach(k=>{const el=document.getElementById(`set-${k}`);if(el)el.value=appSettings.profile[k]||'';});
   const filter = document.getElementById('set-filter');
   const threshold = document.getElementById('set-threshold');
+  const theme = document.getElementById('set-theme');
   if (filter) filter.value = appSettings.filter || 'none';
   if (threshold) threshold.value = appSettings.threshold ?? 0.5;
+  if (theme) theme.value = currentTheme();
 }
 
 function applyProfileUI() {
