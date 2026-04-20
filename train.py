@@ -182,3 +182,8 @@ print(f"\n[train] FINAL AUC: {roc_auc:.3f}")
 
 model.save(OUTPUT_PATH)
 print(f"[train] Model saved to: {OUTPUT_PATH}")
+
+print("\n[train] Training complete!") 
+print("You can now use the saved model for inference or further evaluation.")
+print("Example usage:")
+print(f"  python predict.py --model {OUTPUT_PATH} --image_path ./test_image.jpg")
