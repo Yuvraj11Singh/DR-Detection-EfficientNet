@@ -231,24 +231,24 @@ function renderDashboard(patient){
   renderRecommendation(patient);
   const ctx=document.getElementById('progressionChart').getContext('2d');
   if(patientChart) patientChart.destroy();
-  patientChart=new Chart(ctx,{type:'line',data:{labels:['Jan','Apr','Jul','Oct','Current'],datasets:[{label:'Severity',data:patient.history,borderColor:'#00ddb4',backgroundColor:'rgba(0,221,180,0.08)',borderWidth:2,pointBackgroundColor:'#030a0e',pointBorderColor:'#00aaff',pointBorderWidth:2,pointRadius:4,fill:true,tension:0.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:4,ticks:{stepSize:1,color:'#6b8f9e',font:{family:'DM Mono,monospace',size:9}},grid:{color:'rgba(0,220,180,0.05)'}},x:{ticks:{color:'#6b8f9e',font:{family:'DM Mono,monospace',size:9}},grid:{display:false}}}}});
+  patientChart=new Chart(ctx,{type:'line',data:{labels:['Jan','Apr','Jul','Oct','Current'],datasets:[{label:'Severity',data:patient.history,borderColor:'#e2876d',backgroundColor:'rgba(226,135,109,0.14)',borderWidth:2,pointBackgroundColor:'#030a0e',pointBorderColor:'#6f948f',pointBorderWidth:2,pointRadius:4,fill:true,tension:0.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:4,ticks:{stepSize:1,color:'#6b8f9e',font:{family:'DM Mono,monospace',size:9}},grid:{color:'rgba(226,135,109,0.12)'}},x:{ticks:{color:'#6b8f9e',font:{family:'DM Mono,monospace',size:9}},grid:{display:false}}}}});
   resultCard.style.display='block';
   resultCard.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 function renderRiskPanel(patient){
-  const factors=[{name:'Vascular Abnormality',val:Math.min(100,patient.stageLevel*22+Math.random()*15),color:'#ff4e7e'},{name:'Microaneurysm Score',val:Math.min(100,patient.stageLevel*18+Math.random()*20),color:'#ff8800'},{name:'Hemorrhage Risk',val:Math.min(100,patient.stageLevel*15+Math.random()*18),color:'#ffdd00'},{name:'Exudate Presence',val:Math.min(100,patient.stageLevel*12+Math.random()*22),color:'#00aaff'},{name:'Neovascularization',val:patient.stageLevel===4?80+Math.random()*15:Math.random()*20,color:'#ff4e7e'},{name:'Optic Disc Integrity',val:100-(patient.stageLevel*15+Math.random()*10),color:'#00ddb4'}];
+  const factors=[{name:'Vascular Abnormality',val:Math.min(100,patient.stageLevel*22+Math.random()*15),color:'#b35f6f'},{name:'Microaneurysm Score',val:Math.min(100,patient.stageLevel*18+Math.random()*20),color:'#c08a56'},{name:'Hemorrhage Risk',val:Math.min(100,patient.stageLevel*15+Math.random()*18),color:'#d7b36a'},{name:'Exudate Presence',val:Math.min(100,patient.stageLevel*12+Math.random()*22),color:'#6f948f'},{name:'Neovascularization',val:patient.stageLevel===4?80+Math.random()*15:Math.random()*20,color:'#b35f6f'},{name:'Optic Disc Integrity',val:100-(patient.stageLevel*15+Math.random()*10),color:'#e2876d'}];
   const overall=patient.stageLevel===0?'Low Risk':patient.stageLevel<=2?'Moderate Risk':'High Risk';
-  const oc={'Low Risk':'#00ddb4','Moderate Risk':'#ffdd00','High Risk':'#ff4e7e'}[overall];
+  const oc={'Low Risk':'#e2876d','Moderate Risk':'#d7b36a','High Risk':'#b35f6f'}[overall];
   const el=document.getElementById('riskOverall'); el.textContent=overall; el.style.background=oc+'22'; el.style.color=oc; el.style.border=`1px solid ${oc}44`;
   document.getElementById('riskFactorsGrid').innerHTML=factors.map(f=>`<div class="risk-factor-item"><div class="risk-factor-info"><div class="risk-factor-name">${f.name}</div><div class="risk-factor-bar-bg"><div class="risk-factor-bar-fill" style="width:0%;background:${f.color};" data-w="${f.val.toFixed(0)}"></div></div></div><div class="risk-factor-val">${f.val.toFixed(0)}%</div></div>`).join('');
   setTimeout(()=>{document.querySelectorAll('.risk-factor-bar-fill').forEach(b=>{b.style.width=b.dataset.w+'%';});},150);
 }
 
 function renderRecommendation(patient){
-  const recs=[{color:'#00ddb4',bg:'rgba(0,221,180,0.05)',border:'rgba(0,221,180,0.2)',text:'No DR detected. Annual screening recommended. Continue glycaemic and BP management.'},{color:'#aacc00',bg:'rgba(170,204,0,0.05)',border:'rgba(170,204,0,0.2)',text:'Mild NPDR. Follow-up in 12 months. Optimize HbA1c below 7%.'},{color:'#ffdd00',bg:'rgba(255,221,0,0.05)',border:'rgba(255,221,0,0.2)',text:'Moderate NPDR. Ophthalmology referral within 3–6 months. Enhanced glycaemic control critical.'},{color:'#ff8800',bg:'rgba(255,136,0,0.05)',border:'rgba(255,136,0,0.2)',text:'Severe NPDR. Urgent referral within 1 month. Laser photocoagulation may be indicated.'},{color:'#ff4e7e',bg:'rgba(255,78,126,0.05)',border:'rgba(255,78,126,0.2)',text:'Proliferative DR. URGENT referral within 1 week. Anti-VEGF or pan-retinal photocoagulation required.'}];
+  const recs=[{color:'#e2876d',bg:'rgba(0,221,180,0.05)',border:'rgba(0,221,180,0.2)',text:'No DR detected. Annual screening recommended. Continue glycaemic and BP management.'},{color:'#9da85f',bg:'rgba(170,204,0,0.05)',border:'rgba(170,204,0,0.2)',text:'Mild NPDR. Follow-up in 12 months. Optimize HbA1c below 7%.'},{color:'#d7b36a',bg:'rgba(255,221,0,0.05)',border:'rgba(255,221,0,0.2)',text:'Moderate NPDR. Ophthalmology referral within 3–6 months. Enhanced glycaemic control critical.'},{color:'#c08a56',bg:'rgba(255,136,0,0.05)',border:'rgba(255,136,0,0.2)',text:'Severe NPDR. Urgent referral within 1 month. Laser photocoagulation may be indicated.'},{color:'#b35f6f',bg:'rgba(255,78,126,0.05)',border:'rgba(255,78,126,0.2)',text:'Proliferative DR. URGENT referral within 1 week. Anti-VEGF or pan-retinal photocoagulation required.'}];
   const r=recs[patient.stageLevel],p=document.getElementById('recommendationPanel');
-  p.style.background=r.bg; p.style.borderColor=r.border; p.style.color='#9bb8c9';
+  p.style.background=r.bg; p.style.borderColor=r.border; p.style.color='#cdb8aa';
   p.innerHTML=`<span style="font-family:'DM Mono',monospace;font-size:9px;color:${r.color};text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:7px;">Clinical Recommendation</span>${r.text}`;
 }
 
@@ -318,20 +318,20 @@ function updateRegistryView(){
   const sc=[0,0,0,0,0];
   sessionHistory.forEach(p=>sc[p.stageLevel]++);
   const monoFont="'DM Mono',monospace";
-  const gridColor='rgba(0,220,180,0.05)';
+  const gridColor='rgba(226,135,109,0.12)';
   const tickColor='#6b8f9e';
 
   const ctxD=document.getElementById('distributionChart').getContext('2d');
   if(distChart) distChart.destroy();
-  distChart=new Chart(ctxD,{type:'doughnut',data:{labels:['None','Mild','Moderate','Severe','Prolif.'],datasets:[{data:sc,backgroundColor:['#00ddb4','#aacc00','#ffdd00','#ff8800','#ff4e7e'],borderWidth:0,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{position:'right',labels:{color:tickColor,font:{family:monoFont,size:9},boxWidth:8,padding:8}}}}});
+  distChart=new Chart(ctxD,{type:'doughnut',data:{labels:['None','Mild','Moderate','Severe','Prolif.'],datasets:[{data:sc,backgroundColor:['#e2876d','#9da85f','#d7b36a','#c08a56','#b35f6f'],borderWidth:0,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{position:'right',labels:{color:tickColor,font:{family:monoFont,size:9},boxWidth:8,padding:8}}}}});
 
   const ctxT=document.getElementById('timelineChart').getContext('2d');
   if(timelineChart) timelineChart.destroy();
-  timelineChart=new Chart(ctxT,{type:'line',data:{labels:sessionHistory.map(p=>p.id).reverse(),datasets:[{label:'Certainty',data:sessionHistory.map(p=>+p.certainty).reverse(),borderColor:'#00aaff',backgroundColor:'rgba(0,170,255,0.08)',borderWidth:2,pointRadius:3,fill:true,tension:0.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:80,max:100,ticks:{color:tickColor,font:{family:monoFont,size:9}},grid:{color:gridColor}},x:{ticks:{color:tickColor,font:{family:monoFont,size:9},maxRotation:0},grid:{display:false}}}}});
+  timelineChart=new Chart(ctxT,{type:'line',data:{labels:sessionHistory.map(p=>p.id).reverse(),datasets:[{label:'Certainty',data:sessionHistory.map(p=>+p.certainty).reverse(),borderColor:'#6f948f',backgroundColor:'rgba(111,148,143,0.14)',borderWidth:2,pointRadius:3,fill:true,tension:0.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:80,max:100,ticks:{color:tickColor,font:{family:monoFont,size:9}},grid:{color:gridColor}},x:{ticks:{color:tickColor,font:{family:monoFont,size:9},maxRotation:0},grid:{display:false}}}}});
 
   const ctxS=document.getElementById('scatterChart').getContext('2d');
   if(scatterChart) scatterChart.destroy();
-  const colors=['#00ddb4','#aacc00','#ffdd00','#ff8800','#ff4e7e'];
+  const colors=['#e2876d','#9da85f','#d7b36a','#c08a56','#b35f6f'];
   scatterChart=new Chart(ctxS,{type:'scatter',data:{datasets:[{label:'Patients',data:sessionHistory.map(p=>({x:+p.age||50,y:p.stageLevel})),backgroundColor:sessionHistory.map(p=>colors[p.stageLevel]+'cc'),pointRadius:6,pointHoverRadius:9}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return 'Age:'+ctx.raw.x+', Stage:'+ctx.raw.y;}}}},scales:{x:{title:{display:true,text:'Age',color:tickColor,font:{family:monoFont,size:9}},ticks:{color:tickColor},grid:{color:gridColor}},y:{min:-0.5,max:4.5,title:{display:true,text:'Stage',color:tickColor,font:{family:monoFont,size:9}},ticks:{stepSize:1,color:tickColor},grid:{color:gridColor}}}}});
 }
 
@@ -392,27 +392,27 @@ function computeRisk() {
 
   // Evidence-based scoring (each factor weighted)
   const factors = [
-    { name:'Diabetes Duration', score: Math.min(30, dur * 2.5), max:30, color:'#ff8800' },
-    { name:'HbA1c Level',       score: Math.min(25, Math.max(0,(hba1c-6)*6)), max:25, color:'#ff4e7e' },
-    { name:'Age Factor',        score: Math.min(15, Math.max(0,(age-30)*0.4)), max:15, color:'#ffdd00' },
-    { name:'Systolic BP',       score: Math.min(10, Math.max(0,(sbp-120)*0.25)), max:10, color:'#00aaff' },
-    { name:'BMI',               score: Math.min(5,  Math.max(0,(bmi-25)*0.4)), max:5, color:'#aacc00' },
-    { name:'Cholesterol',       score: Math.min(5,  Math.max(0,(chol-170)*0.05)), max:5, color:'#ff8800' },
-    { name:'Reduced eGFR',      score: Math.min(10, Math.max(0,(90-egfr)*0.15)), max:10, color:'#ff4e7e' },
-    { name:'Type 1 Diabetes',   score: type1?5:0, max:5, color:'#ffdd00' },
-    { name:'Hypertension',      score: hyper?6:0, max:6, color:'#ff4e7e' },
-    { name:'Smoking',           score: smoking?5:0, max:5, color:'#ff8800' },
-    { name:'Microalbuminuria',  score: microalb?8:0, max:8, color:'#ff4e7e' },
-    { name:'Neuropathy',        score: neuro?5:0, max:5, color:'#ffdd00' },
-    { name:'On Insulin',        score: insulin?3:0, max:3, color:'#00aaff' },
-    { name:'Family History',    score: family?4:0, max:4, color:'#aacc00' },
+    { name:'Diabetes Duration', score: Math.min(30, dur * 2.5), max:30, color:'#c08a56' },
+    { name:'HbA1c Level',       score: Math.min(25, Math.max(0,(hba1c-6)*6)), max:25, color:'#b35f6f' },
+    { name:'Age Factor',        score: Math.min(15, Math.max(0,(age-30)*0.4)), max:15, color:'#d7b36a' },
+    { name:'Systolic BP',       score: Math.min(10, Math.max(0,(sbp-120)*0.25)), max:10, color:'#6f948f' },
+    { name:'BMI',               score: Math.min(5,  Math.max(0,(bmi-25)*0.4)), max:5, color:'#9da85f' },
+    { name:'Cholesterol',       score: Math.min(5,  Math.max(0,(chol-170)*0.05)), max:5, color:'#c08a56' },
+    { name:'Reduced eGFR',      score: Math.min(10, Math.max(0,(90-egfr)*0.15)), max:10, color:'#b35f6f' },
+    { name:'Type 1 Diabetes',   score: type1?5:0, max:5, color:'#d7b36a' },
+    { name:'Hypertension',      score: hyper?6:0, max:6, color:'#b35f6f' },
+    { name:'Smoking',           score: smoking?5:0, max:5, color:'#c08a56' },
+    { name:'Microalbuminuria',  score: microalb?8:0, max:8, color:'#b35f6f' },
+    { name:'Neuropathy',        score: neuro?5:0, max:5, color:'#d7b36a' },
+    { name:'On Insulin',        score: insulin?3:0, max:3, color:'#6f948f' },
+    { name:'Family History',    score: family?4:0, max:4, color:'#9da85f' },
   ];
 
   const totalMax   = factors.reduce((s,f)=>s+f.max,0);
   const totalScore = factors.reduce((s,f)=>s+f.score,0);
   const pct = Math.round((totalScore/totalMax)*100);
 
-  const category = pct<25?{label:'Low Risk',color:'#00ddb4'}:pct<50?{label:'Moderate Risk',color:'#ffdd00'}:pct<75?{label:'High Risk',color:'#ff8800'}:{label:'Very High Risk',color:'#ff4e7e'};
+  const category = pct<25?{label:'Low Risk',color:'#e2876d'}:pct<50?{label:'Moderate Risk',color:'#d7b36a'}:pct<75?{label:'High Risk',color:'#c08a56'}:{label:'Very High Risk',color:'#b35f6f'};
 
   document.getElementById('riskScoreDisplay').textContent = pct+'%';
   document.getElementById('riskScoreDisplay').style.color = category.color;
@@ -427,7 +427,7 @@ function computeRisk() {
   if (riskGaugeChart) riskGaugeChart.destroy();
   riskGaugeChart = new Chart(gCtx, {
     type:'doughnut',
-    data:{ datasets:[{ data:[pct, 100-pct], backgroundColor:[category.color, 'rgba(255,255,255,0.05)'], borderWidth:0, circumference:180, rotation:270 }] },
+    data:{ datasets:[{ data:[pct, 100-pct], backgroundColor:[category.color, 'rgba(255,242,232,0.08)'], borderWidth:0, circumference:180, rotation:270 }] },
     options:{ responsive:false, cutout:'78%', plugins:{legend:{display:false},tooltip:{enabled:false}} }
   });
 

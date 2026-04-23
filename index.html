@@ -63,7 +63,7 @@
 
   <div class="sidebar-quick-stats">
     <div class="qs-item"><span class="qs-val" id="qs-total">0</span><span class="qs-label">Scans</span></div>
-    <div class="qs-item"><span class="qs-val" style="color:#ff4e7e;" id="qs-pos">0</span><span class="qs-label">DR+</span></div>
+    <div class="qs-item"><span class="qs-val" style="color:var(--accent3);" id="qs-pos">0</span><span class="qs-label">DR+</span></div>
     <div class="qs-item"><span class="qs-val" style="color:var(--accent);" id="qs-neg">0</span><span class="qs-label">Clear</span></div>
   </div>
 
@@ -92,7 +92,7 @@
   <div class="retina-visual">
     <div class="retina-ring"></div><div class="retina-ring"></div><div class="retina-ring"></div>
     <div class="retina-core">
-      <svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="10" stroke="#00ddb4" stroke-width="1.5"/><circle cx="24" cy="24" r="4" fill="#00ddb4" opacity="0.6"/><line x1="24" y1="4" x2="24" y2="12" stroke="#00ddb4" stroke-width="1.5" stroke-linecap="round"/><line x1="24" y1="36" x2="24" y2="44" stroke="#00ddb4" stroke-width="1.5" stroke-linecap="round"/><line x1="4" y1="24" x2="12" y2="24" stroke="#00ddb4" stroke-width="1.5" stroke-linecap="round"/><line x1="36" y1="24" x2="44" y2="24" stroke="#00ddb4" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="10" stroke="var(--accent)" stroke-width="1.5"/><circle cx="24" cy="24" r="4" fill="var(--accent)" opacity="0.6"/><line x1="24" y1="4" x2="24" y2="12" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/><line x1="24" y1="36" x2="24" y2="44" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/><line x1="4" y1="24" x2="12" y2="24" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/><line x1="36" y1="24" x2="44" y2="24" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/></svg>
     </div>
   </div>
   <h1>Detect <span class="accent">Diabetic Retinopathy</span> with Clinical Precision.</h1>
@@ -168,7 +168,7 @@
           <button class="ann-tool-btn" data-tool="circle" onclick="setAnnTool('circle',this)" title="Circle">◯</button>
           <button class="ann-tool-btn" data-tool="arrow" onclick="setAnnTool('arrow',this)" title="Arrow">↗</button>
           <button class="ann-tool-btn" data-tool="text" onclick="setAnnTool('text',this)" title="Label">T</button>
-          <input type="color" id="annColor" value="#ff4e7e" class="ann-color-pick" title="Color"/>
+          <input type="color" id="annColor" value="#b35f6f" class="ann-color-pick" title="Color"/>
           <input type="range" id="annSize" min="1" max="12" value="3" class="styled-slider" style="width:56px;" title="Size"/>
           <button class="ann-tool-btn" onclick="undoAnnotation()" title="Undo">↩</button>
           <button class="ann-tool-btn" onclick="clearAnnotations()" title="Clear">✕</button>
@@ -295,7 +295,7 @@
   <p class="section-desc">Population-level diagnostics and epidemiological pattern analysis.</p>
   <div class="registry-kpi-row">
     <div class="kpi-card"><div class="kpi-val" id="reg-total">0</div><div class="kpi-label">Total Scans</div></div>
-    <div class="kpi-card"><div class="kpi-val" style="color:#ff4e7e;" id="reg-positive">0</div><div class="kpi-label">DR Positive</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:var(--accent3);" id="reg-positive">0</div><div class="kpi-label">DR Positive</div></div>
     <div class="kpi-card"><div class="kpi-val" style="color:var(--accent);" id="reg-negative">0</div><div class="kpi-label">DR Negative</div></div>
     <div class="kpi-card"><div class="kpi-val" id="reg-avg-certainty">—</div><div class="kpi-label">Avg Certainty</div></div>
     <div class="kpi-card"><div class="kpi-val" id="reg-avg-age">—</div><div class="kpi-label">Avg Age</div></div>
@@ -533,7 +533,7 @@
       <div style="display:flex;flex-direction:column;gap:10px;">
         <button class="btn-ghost" onclick="exportAllData()">Export Session Data (JSON)</button>
         <button class="btn-ghost" onclick="document.getElementById('importFileInput').click()">Import Session Data</button>
-        <button class="btn-ghost" style="color:#ff4e7e;border-color:rgba(255,78,126,0.3);" onclick="clearAllData()">Clear All Data</button>
+        <button class="btn-ghost" style="color:var(--accent3);border-color:rgba(var(--accent3-rgb),0.35);" onclick="clearAllData()">Clear All Data</button>
       </div>
       <input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="handleImport(event)"/>
     </div>
