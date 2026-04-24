@@ -582,3 +582,285 @@ kbd { font-family:'DM Mono',monospace; font-size:11px; padding:3px 9px; backgrou
   .registry-kpi-row { grid-template-columns:repeat(2,1fr); }
   .risk-binary-grid { grid-template-columns:1fr 1fr; }
 }
+
+/* ═══ LIGHT THEME: NEO DASHBOARD OVERRIDES ═══ */
+[data-theme="light"] {
+  --bg: #ecf0fb;
+  --surface: #dfe7ff;
+  --surface2: #e8eeff;
+  --card: #dbe4ff;
+  --text: #243063;
+  --muted: #5d6ba1;
+  --border: rgba(117, 132, 201, 0.34);
+  --accent: #f79c7f;
+  --accent2: #6f7dff;
+  --accent3: #9b69df;
+  --accent-rgb: 247, 156, 127;
+  --accent2-rgb: 111, 125, 255;
+  --accent3-rgb: 155, 105, 223;
+}
+
+[data-theme="light"] body {
+  background:
+    radial-gradient(900px 620px at -8% -14%, rgba(255, 255, 255, 0.95), transparent 62%),
+    radial-gradient(760px 460px at 108% 2%, rgba(111, 125, 255, 0.23), transparent 70%),
+    linear-gradient(145deg, #eaf0ff 0%, #e1e9ff 52%, #d6e1ff 100%);
+}
+
+[data-theme="light"] body::before {
+  background-image:
+    linear-gradient(rgba(139, 154, 214, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 154, 214, 0.2) 1px, transparent 1px);
+  background-size: 56px 56px;
+  opacity: 0.35;
+}
+
+[data-theme="light"] nav {
+  background: linear-gradient(180deg, rgba(229, 237, 255, 0.93), rgba(225, 233, 255, 0.89));
+  border-bottom: 1px solid rgba(117, 132, 201, 0.3);
+  box-shadow: 0 18px 34px rgba(63, 84, 170, 0.18);
+}
+
+[data-theme="light"] .nav-icon-btn,
+[data-theme="light"] .diag-status,
+[data-theme="light"] .filter-btn,
+[data-theme="light"] .note-formatting-bar button {
+  background: linear-gradient(145deg, #eaf0ff, #d4deff);
+  border-color: rgba(117, 132, 201, 0.34);
+  color: var(--muted);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.88), 0 8px 18px rgba(87, 106, 185, 0.2);
+}
+
+[data-theme="light"] .nav-icon-btn:hover,
+[data-theme="light"] .filter-btn:hover,
+[data-theme="light"] .note-formatting-bar button:hover {
+  color: var(--accent2);
+  border-color: rgba(111, 125, 255, 0.5);
+}
+
+[data-theme="light"] .clinical-sidebar {
+  background: linear-gradient(180deg, rgba(225, 234, 255, 0.92), rgba(218, 228, 255, 0.86));
+  border-right-color: rgba(117, 132, 201, 0.28);
+  box-shadow: 14px 0 28px rgba(63, 84, 170, 0.16);
+  border-radius: 0 26px 26px 0;
+}
+
+[data-theme="light"] .sidebar-quick-stats,
+[data-theme="light"] .patient-list li,
+[data-theme="light"] .doc-profile,
+[data-theme="light"] .table-container,
+[data-theme="light"] #result-card,
+[data-theme="light"] .kpi-card,
+[data-theme="light"] .dash-panel,
+[data-theme="light"] .risk-panel,
+[data-theme="light"] .feature-maps-row,
+[data-theme="light"] .quick-note-panel,
+[data-theme="light"] .patient-form,
+[data-theme="light"] .lab-controls,
+[data-theme="light"] .lab-upload-zone,
+[data-theme="light"] .note-item,
+[data-theme="light"] .modal-content,
+[data-theme="light"] .upload-area {
+  background: linear-gradient(145deg, #eaf0ff, #d5dfff);
+  border: 1px solid rgba(117, 132, 201, 0.34);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.86), 0 18px 30px rgba(76, 96, 180, 0.2);
+}
+
+[data-theme="light"] .sidebar-nav li,
+[data-theme="light"] .patient-list li,
+[data-theme="light"] .note-item {
+  color: var(--muted);
+}
+
+[data-theme="light"] .sidebar-nav li:hover,
+[data-theme="light"] .patient-list li:hover,
+[data-theme="light"] .note-item:hover,
+[data-theme="light"] .doc-profile:hover {
+  background: linear-gradient(145deg, #eff4ff, #dbe5ff);
+  border-color: rgba(111, 125, 255, 0.36);
+}
+
+[data-theme="light"] .sidebar-nav li.active,
+[data-theme="light"] .patient-list li.active,
+[data-theme="light"] .note-item.active {
+  color: #eef3ff;
+  background: linear-gradient(145deg, #6d7dff, #5e70f0);
+  border-color: rgba(93, 110, 218, 0.75);
+  box-shadow: 0 12px 24px rgba(72, 94, 193, 0.34);
+}
+
+[data-theme="light"] .hero {
+  text-align: left;
+  align-items: flex-start;
+  min-height: 72vh;
+}
+
+[data-theme="light"] .hero-tag {
+  background: linear-gradient(145deg, #ecf2ff, #dbe4ff);
+  border-color: rgba(111, 125, 255, 0.32);
+  color: #5063c9;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 8px 16px rgba(86, 106, 191, 0.2);
+}
+
+[data-theme="light"] h1 {
+  color: #27336a;
+  max-width: 620px;
+  margin: 0 0 14px;
+}
+
+[data-theme="light"] h1 .accent {
+  color: #6c7afd;
+}
+
+[data-theme="light"] .hero p {
+  color: #4f5f94;
+  margin: 0 0 28px;
+}
+
+[data-theme="light"] .cta-row {
+  justify-content: flex-start;
+}
+
+[data-theme="light"] .btn-primary {
+  color: #fff;
+  border: 1px solid rgba(247, 156, 127, 0.66);
+  background: linear-gradient(135deg, #f8b38f, #f57a87);
+  box-shadow: 0 14px 22px rgba(213, 119, 124, 0.32);
+}
+
+[data-theme="light"] .btn-primary:hover {
+  background: linear-gradient(135deg, #ffc098, #f98e98);
+  box-shadow: 0 16px 28px rgba(213, 119, 124, 0.38);
+}
+
+[data-theme="light"] .btn-ghost {
+  background: linear-gradient(145deg, #ecf2ff, #d8e2ff);
+  border-color: rgba(117, 132, 201, 0.36);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.82), 0 10px 18px rgba(88, 109, 190, 0.18);
+}
+
+[data-theme="light"] .btn-ghost:hover {
+  border-color: rgba(111, 125, 255, 0.52);
+  color: #5f71ef;
+}
+
+[data-theme="light"] .stats-strip {
+  margin: 12px 14px 24px;
+  padding: 12px;
+  gap: 10px;
+  border: 1px solid rgba(117, 132, 201, 0.3);
+  border-radius: 22px;
+  background: linear-gradient(145deg, #e6edff, #d3ddff);
+}
+
+[data-theme="light"] .stat-item {
+  border: 1px solid rgba(117, 132, 201, 0.28);
+  border-radius: 16px;
+  background: linear-gradient(145deg, #edf2ff, #d9e2ff);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86), 0 10px 18px rgba(89, 110, 192, 0.18);
+}
+
+[data-theme="light"] .stat-item:first-child {
+  background: linear-gradient(145deg, #6f7dff, #6473ed);
+  border-color: rgba(99, 115, 237, 0.75);
+}
+
+[data-theme="light"] .stat-item:first-child .stat-num,
+[data-theme="light"] .stat-item:first-child .stat-label {
+  color: #f8fbff;
+}
+
+[data-theme="light"] .stat-num,
+[data-theme="light"] .section-title,
+[data-theme="light"] .note-item-title,
+[data-theme="light"] .modal-name,
+[data-theme="light"] .risk-factor-name,
+[data-theme="light"] .data-table td,
+[data-theme="light"] .doc-name,
+[data-theme="light"] .arch-item strong {
+  color: #27356e;
+}
+
+[data-theme="light"] .section-desc,
+[data-theme="light"] .kpi-label,
+[data-theme="light"] .img-stat-label,
+[data-theme="light"] .table-footer,
+[data-theme="light"] .shortcut-item span,
+[data-theme="light"] .modal-location,
+[data-theme="light"] .modal-body p,
+[data-theme="light"] .risk-checkbox {
+  color: #5a6a9c;
+}
+
+[data-theme="light"] .input-group input,
+[data-theme="light"] .input-group select,
+[data-theme="light"] .table-search,
+[data-theme="light"] .quick-note-panel textarea,
+[data-theme="light"] .note-textarea,
+[data-theme="light"] .lab-main-canvas,
+[data-theme="light"] .cv-canvas,
+[data-theme="light"] .feature-canvas,
+[data-theme="light"] kbd {
+  background: linear-gradient(145deg, #eef3ff, #dbe5ff);
+  border-color: rgba(117, 132, 201, 0.34);
+  color: #2b3972;
+}
+
+[data-theme="light"] .input-group input:focus,
+[data-theme="light"] .input-group select:focus,
+[data-theme="light"] .table-search:focus,
+[data-theme="light"] .quick-note-panel textarea:focus {
+  border-color: rgba(111, 125, 255, 0.66);
+  box-shadow: 0 0 0 3px rgba(111, 125, 255, 0.17);
+}
+
+[data-theme="light"] .upload-area::before {
+  background: radial-gradient(ellipse at center, rgba(111, 125, 255, 0.14) 0%, transparent 72%);
+}
+
+[data-theme="light"] .data-table th {
+  background: linear-gradient(145deg, #ecf2ff, #dbe5ff);
+  color: #5c6da4;
+}
+
+[data-theme="light"] .data-table tbody tr:hover {
+  background: rgba(111, 125, 255, 0.08);
+}
+
+[data-theme="light"] .load-step.active,
+[data-theme="light"] .xai-controls {
+  border-color: rgba(111, 125, 255, 0.34);
+  background: rgba(111, 125, 255, 0.12);
+  color: #4155be;
+}
+
+[data-theme="light"] .toast {
+  background: linear-gradient(145deg, #eef3ff, #dbe4ff);
+  border-color: rgba(117, 132, 201, 0.4);
+  box-shadow: 0 16px 28px rgba(84, 104, 188, 0.2);
+}
+
+[data-theme="light"] .modal-overlay {
+  background: rgba(131, 147, 213, 0.28);
+}
+
+[data-theme="light"] footer {
+  border-top-color: rgba(117, 132, 201, 0.3);
+}
+
+@media (max-width: 768px) {
+  [data-theme="light"] .hero {
+    text-align: center;
+    align-items: center;
+    padding: 78px 20px 46px;
+  }
+
+  [data-theme="light"] .cta-row {
+    justify-content: center;
+  }
+
+  [data-theme="light"] .stats-strip {
+    margin: 10px 10px 18px;
+    padding: 10px;
+  }
+}
