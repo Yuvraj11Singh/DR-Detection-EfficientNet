@@ -1123,3 +1123,212 @@ footer {
     border-radius: 0;
   }
 }
+
+/* Light theme refinement pass */
+[data-theme="light"] {
+  --bg: #f5f1ea;
+  --surface: #fffdf9;
+  --surface2: #f7f1e8;
+  --card: #fffdfa;
+  --text: #2b231c;
+  --muted: #756457;
+  --border: rgba(120, 96, 74, 0.2);
+  --accent: #c55d31;
+  --accent2: #4f6f65;
+  --accent3: #ad4f46;
+  --accent-rgb: 197, 93, 49;
+  --accent2-rgb: 79, 111, 101;
+  --accent3-rgb: 173, 79, 70;
+}
+
+[data-theme="light"] body {
+  background:
+    radial-gradient(1100px 640px at -8% -12%, rgba(197, 93, 49, 0.1), transparent 66%),
+    radial-gradient(900px 620px at 110% -6%, rgba(79, 111, 101, 0.14), transparent 70%),
+    linear-gradient(180deg, #f8f4ee 0%, #f2ebe1 100%);
+}
+
+[data-theme="light"] nav {
+  background: rgba(255, 252, 246, 0.9);
+  border-bottom-color: rgba(120, 96, 74, 0.18);
+  box-shadow: 0 12px 28px rgba(103, 79, 58, 0.12);
+}
+
+[data-theme="light"] .clinical-sidebar {
+  background: rgba(255, 251, 245, 0.86);
+  border-right-color: rgba(120, 96, 74, 0.18);
+  box-shadow: 10px 0 26px rgba(103, 79, 58, 0.1);
+}
+
+[data-theme="light"] .hero {
+  text-align: left;
+  align-items: flex-start;
+}
+
+[data-theme="light"] h1 {
+  color: #2c241c;
+  max-width: 650px;
+}
+
+[data-theme="light"] h1 .accent {
+  color: #b3522b;
+}
+
+[data-theme="light"] .hero p {
+  color: #68594d;
+  max-width: 560px;
+}
+
+[data-theme="light"] .hero-tag {
+  color: #9c4b28;
+  border-color: rgba(181, 82, 43, 0.32);
+  background: rgba(255, 255, 255, 0.64);
+}
+
+[data-theme="light"] .hero-metric {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(120, 96, 74, 0.2);
+}
+
+[data-theme="light"] .dash-panel,
+[data-theme="light"] .risk-panel,
+[data-theme="light"] .feature-maps-row,
+[data-theme="light"] .patient-form,
+[data-theme="light"] .table-container,
+[data-theme="light"] .kpi-card,
+[data-theme="light"] .quick-note-panel,
+[data-theme="light"] .lab-controls,
+[data-theme="light"] .lab-upload-zone,
+[data-theme="light"] #result-card,
+[data-theme="light"] .modal-content,
+[data-theme="light"] .sidebar-quick-stats,
+[data-theme="light"] .patient-list li,
+[data-theme="light"] .doc-profile,
+[data-theme="light"] .note-item {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(252, 246, 239, 0.92));
+  border-color: rgba(120, 96, 74, 0.2);
+  box-shadow: 0 12px 24px rgba(103, 79, 58, 0.1);
+}
+
+[data-theme="light"] .sidebar-nav li:hover,
+[data-theme="light"] .patient-list li:hover,
+[data-theme="light"] .note-item:hover,
+[data-theme="light"] .doc-profile:hover {
+  background: linear-gradient(145deg, #fffaf4, #f7eee4);
+  border-color: rgba(181, 82, 43, 0.28);
+}
+
+[data-theme="light"] .sidebar-nav li.active,
+[data-theme="light"] .patient-list li.active,
+[data-theme="light"] .note-item.active {
+  color: #fff9f4;
+  background: linear-gradient(140deg, #be5830, #d27647);
+  border-color: rgba(160, 70, 35, 0.7);
+  box-shadow: 0 10px 20px rgba(169, 80, 44, 0.24);
+}
+
+[data-theme="light"] .input-group input,
+[data-theme="light"] .input-group select,
+[data-theme="light"] .table-search,
+[data-theme="light"] .quick-note-panel textarea,
+[data-theme="light"] #noteTitleInput,
+[data-theme="light"] .note-textarea,
+[data-theme="light"] .cv-canvas,
+[data-theme="light"] .feature-canvas,
+[data-theme="light"] .lab-main-canvas,
+[data-theme="light"] .diag-status,
+[data-theme="light"] .nav-icon-btn,
+[data-theme="light"] .filter-btn,
+[data-theme="light"] .note-formatting-bar button,
+[data-theme="light"] kbd {
+  background: #fffaf4;
+  border-color: rgba(120, 96, 74, 0.24);
+  color: #54463a;
+  box-shadow: none;
+}
+
+[data-theme="light"] .btn-primary {
+  background: linear-gradient(135deg, #be5830, #d57b4c);
+  border-color: rgba(172, 77, 39, 0.62);
+  box-shadow: 0 10px 20px rgba(169, 80, 44, 0.22);
+}
+
+[data-theme="light"] .btn-primary:hover {
+  background: linear-gradient(135deg, #c8653c, #df8a5a);
+  box-shadow: 0 12px 24px rgba(169, 80, 44, 0.28);
+}
+
+[data-theme="light"] .btn-ghost {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(120, 96, 74, 0.24);
+  color: #4d3f33;
+}
+
+[data-theme="light"] .btn-ghost:hover {
+  border-color: rgba(181, 82, 43, 0.45);
+  color: #a44b29;
+}
+
+[data-theme="light"] .stats-strip {
+  background: linear-gradient(145deg, #fbf7f0, #f2e9de);
+  border-color: rgba(120, 96, 74, 0.2);
+}
+
+[data-theme="light"] .stat-item {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(251, 243, 235, 0.86));
+  border-color: rgba(120, 96, 74, 0.18);
+  box-shadow: none;
+}
+
+[data-theme="light"] .stat-item:first-child {
+  background: linear-gradient(145deg, #ba5530, #cf7346);
+  border-color: rgba(167, 74, 38, 0.65);
+}
+
+[data-theme="light"] .stat-num,
+[data-theme="light"] .section-title,
+[data-theme="light"] .note-item-title,
+[data-theme="light"] .modal-name,
+[data-theme="light"] .risk-factor-name,
+[data-theme="light"] .data-table td,
+[data-theme="light"] .doc-name,
+[data-theme="light"] .arch-item strong {
+  color: #2b231c;
+}
+
+[data-theme="light"] .section-desc,
+[data-theme="light"] .kpi-label,
+[data-theme="light"] .img-stat-label,
+[data-theme="light"] .table-footer,
+[data-theme="light"] .shortcut-item span,
+[data-theme="light"] .modal-location,
+[data-theme="light"] .modal-body p,
+[data-theme="light"] .risk-checkbox,
+[data-theme="light"] .doc-title,
+[data-theme="light"] .sidebar-heading,
+[data-theme="light"] .pat-list-details span,
+[data-theme="light"] .pat-list-time,
+[data-theme="light"] .diagnostic-item {
+  color: #746457;
+}
+
+[data-theme="light"] .toast {
+  background: linear-gradient(180deg, #fffdf8, #f7eee3);
+  border-color: rgba(120, 96, 74, 0.24);
+  box-shadow: 0 12px 24px rgba(103, 79, 58, 0.14);
+}
+
+[data-theme="light"] .modal-overlay {
+  background: rgba(90, 70, 52, 0.26);
+}
+
+@media (max-width: 768px) {
+  [data-theme="light"] .hero {
+    text-align: center;
+    align-items: center;
+  }
+
+  [data-theme="light"] .cta-row {
+    justify-content: center;
+  }
+}
