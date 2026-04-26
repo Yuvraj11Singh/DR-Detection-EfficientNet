@@ -31,13 +31,7 @@ function showToast(msg,type='info',ms=3500) {
 }
 
 // ═══ THEME ═══
-function toggleTheme() {
-  // Only light theme styles exist in the current stylesheet; keep UI visible.
-  document.documentElement.setAttribute('data-theme', 'light');
-  const el=document.getElementById('set-dark');
-  if(el) el.checked=false;
-  showToast('Light theme active.','info');
-}
+function toggleTheme() { const on=document.documentElement.getAttribute('data-theme')==='light'; document.documentElement.setAttribute('data-theme',on?'':'light'); const el=document.getElementById('set-dark'); if(el) el.checked=!on; showToast(on?'Dark mode.':'Light mode.','info'); }
 function toggleScanLine() { const sl=document.getElementById('scanLine'); if(sl){ const cb=document.getElementById('set-scanline'); sl.style.display=(cb&&cb.checked)?'':'none'; } }
 function toggleBlobs() { const cb=document.getElementById('set-blobs'); document.querySelectorAll('.blob1,.blob2').forEach(b=>b.style.display=(cb&&cb.checked)?'':'none'); }
 
