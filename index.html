@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>RetinaAI — Clinical Intelligence Platform</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="style.css"/>
 </head>
@@ -13,8 +13,11 @@
 <div class="scan-line" id="scanLine"></div>
 <div id="toastContainer" class="toast-container"></div>
 
+<!-- NAV -->
 <nav id="mainNav">
-  <div class="logo"><div class="logo-dot"></div>RetinaAI<span class="logo-version">v2.0</span></div>
+  <div class="logo">
+    <div class="logo-dot"></div>RetinaAI<span class="logo-version">v2.0</span>
+  </div>
   <ul class="nav-links">
     <li><a href="#" onclick="switchView('detect')">Diagnosis</a></li>
     <li><a href="#" onclick="switchView('registry')">Registry</a></li>
@@ -32,6 +35,8 @@
 </nav>
 
 <div class="app-layout">
+
+<!-- SIDEBAR -->
 <aside class="clinical-sidebar" id="sidebar">
   <div class="doc-profile" onclick="openProfileModal()">
     <div class="doc-avatar" id="avatarInitials">YS</div>
@@ -45,37 +50,37 @@
   <div class="sidebar-section">
     <ul class="sidebar-nav" id="sidebarNav">
       <li class="active" data-target="detect" onclick="switchView('detect')">
-        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" style="flex-shrink:0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Diagnosis Engine</li>
+        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Diagnosis Engine</li>
       <li data-target="registry" onclick="switchView('registry')">
-        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" style="flex-shrink:0"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Cohort Registry</li>
+        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Cohort Registry</li>
       <li data-target="image-lab" onclick="switchView('image-lab')">
-        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" style="flex-shrink:0"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>Image Lab</li>
+        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>Image Lab</li>
       <li data-target="risk-calc" onclick="switchView('risk-calc')">
-        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" style="flex-shrink:0"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Risk Calculator</li>
+        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Risk Calculator</li>
       <li data-target="notes" onclick="switchView('notes')">
-        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" style="flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Clinical Notes</li>
+        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Clinical Notes</li>
       <li data-target="settings-view" onclick="switchView('settings-view')">
-        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" style="flex-shrink:0"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</li>
+        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</li>
     </ul>
   </div>
 
-  <button class="btn-primary" style="width:100%;margin-bottom:16px;" onclick="switchView('detect');resetForm();">+ New Scan</button>
+  <button class="btn-primary" style="width:100%;margin-bottom:14px;" onclick="switchView('detect');resetForm();">+ New Scan</button>
 
   <div class="sidebar-quick-stats">
     <div class="qs-item"><span class="qs-val" id="qs-total">0</span><span class="qs-label">Scans</span></div>
-    <div class="qs-item"><span class="qs-val" style="color:var(--accent3);" id="qs-pos">0</span><span class="qs-label">DR+</span></div>
-    <div class="qs-item"><span class="qs-val" style="color:var(--accent);" id="qs-neg">0</span><span class="qs-label">Clear</span></div>
+    <div class="qs-item"><span class="qs-val" style="color:var(--vermillion);" id="qs-pos">0</span><span class="qs-label">DR+</span></div>
+    <div class="qs-item"><span class="qs-val" style="color:var(--emerald);" id="qs-neg">0</span><span class="qs-label">Clear</span></div>
   </div>
 
   <div class="sidebar-section" style="flex-grow:1;overflow-y:auto;min-height:0;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
       <h4 class="sidebar-heading" style="margin:0;">Recent Scans</h4>
       <span id="historyCount" class="count-pill">0</span>
     </div>
     <ul class="patient-list" id="historyList"><li class="empty-history">No scans yet.</li></ul>
   </div>
 
-  <div class="sidebar-section" style="margin-top:12px;">
+  <div class="sidebar-section" style="margin-top:10px;">
     <h4 class="sidebar-heading">System</h4>
     <div class="diagnostic-item"><span>ML Engine</span><span class="diag-status green">● Online</span></div>
     <div class="diagnostic-item"><span>CV Pipeline</span><span class="diag-status green">● Active</span></div>
@@ -86,49 +91,65 @@
 
 <main class="main-content">
 
-<!-- HERO -->
+<!-- ══ HERO ══ -->
 <div class="hero" id="hero-section">
-  <div class="hero-tag">AI-Powered Clinical Intelligence</div>
-  <div class="retina-visual">
-    <div class="retina-ring"></div><div class="retina-ring"></div><div class="retina-ring"></div>
-    <div class="retina-core">
-      <svg viewBox="0 0 48 48" width="36" height="36" fill="none" style="display:block">
-        <circle cx="24" cy="24" r="10" stroke="var(--accent)" stroke-width="1.5"/>
-        <circle cx="24" cy="24" r="4" fill="var(--accent)" opacity="0.6"/>
-        <line x1="24" y1="4" x2="24" y2="12" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/>
-        <line x1="24" y1="36" x2="24" y2="44" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/>
-        <line x1="4" y1="24" x2="12" y2="24" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/>
-        <line x1="36" y1="24" x2="44" y2="24" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
+  <!-- Left column -->
+  <div class="hero-left">
+    <div class="hero-tag">AI-Powered Clinical Intelligence</div>
+    <h1>Detect <span class="accent">Diabetic<br/>Retinopathy</span><br/>with Precision.</h1>
+    <p>Upload retinal fundus images, compute risk scores, annotate findings, and track patient cohorts — in one offline-capable platform.</p>
+
+    <div class="hero-metrics">
+      <div class="hero-metric">
+        <span class="hero-metric-label">Inference Time</span>
+        <strong>&lt; 0.5s</strong>
+      </div>
+      <div class="hero-metric">
+        <span class="hero-metric-label">Validation AUC</span>
+        <strong>0.94</strong>
+      </div>
+      <div class="hero-metric">
+        <span class="hero-metric-label">Explainability</span>
+        <strong>Grad-CAM</strong>
+      </div>
+      <div class="hero-metric">
+        <span class="hero-metric-label">Pipeline</span>
+        <strong>Offline Ready</strong>
+      </div>
+    </div>
+
+    <div class="cta-row">
+      <a href="#" class="btn-primary" onclick="resetForm()">Initiate Scan</a>
+      <a href="#" class="btn-ghost" onclick="switchView('risk-calc')">Risk Calculator</a>
+      <a href="#" class="btn-ghost" onclick="switchView('image-lab')">Image Lab</a>
     </div>
   </div>
-  <h1>Detect <span class="accent">Diabetic Retinopathy</span> with Clinical Precision.</h1>
-  <p>Upload retinal fundus images, compute risk scores, annotate findings, and track cohorts — all in one offline-capable platform.</p>
-  <div class="hero-metrics" aria-label="Platform capabilities">
-    <div class="hero-metric">
-      <span class="hero-metric-label">Inference</span>
-      <strong>&lt; 0.5s</strong>
+
+  <!-- Right column — visual -->
+  <div class="hero-right">
+    <div class="retina-visual">
+      <div class="retina-ring"></div>
+      <div class="retina-ring"></div>
+      <div class="retina-ring"></div>
+      <div class="retina-core">
+        <svg viewBox="0 0 48 48" width="40" height="40" fill="none">
+          <circle cx="24" cy="24" r="10" stroke="var(--indigo)" stroke-width="1.5"/>
+          <circle cx="24" cy="24" r="4" fill="var(--indigo)" opacity="0.5"/>
+          <line x1="24" y1="4" x2="24" y2="12" stroke="var(--indigo)" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="24" y1="36" x2="24" y2="44" stroke="var(--indigo)" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="4" y1="24" x2="12" y2="24" stroke="var(--indigo)" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="36" y1="24" x2="44" y2="24" stroke="var(--indigo)" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="retina-data">AUC · 0.94</div>
+      <div class="retina-data">Grad-CAM ✓</div>
+      <div class="retina-data">EfficientNet-B0</div>
+      <div class="retina-data">APTOS 2019</div>
     </div>
-    <div class="hero-metric">
-      <span class="hero-metric-label">Validation AUC</span>
-      <strong>0.94</strong>
-    </div>
-    <div class="hero-metric">
-      <span class="hero-metric-label">Explainability</span>
-      <strong>Grad-CAM</strong>
-    </div>
-    <div class="hero-metric">
-      <span class="hero-metric-label">Pipeline</span>
-      <strong>Offline Ready</strong>
-    </div>
-  </div>
-  <div class="cta-row">
-    <a href="#" class="btn-primary" onclick="resetForm()">Initiate Scan</a>
-    <a href="#" class="btn-ghost" onclick="switchView('risk-calc')">Risk Calculator</a>
-    <a href="#" class="btn-ghost" onclick="switchView('image-lab')">Image Lab</a>
   </div>
 </div>
 
+<!-- Stats strip -->
 <div class="stats-strip" id="stats-strip">
   <div class="stat-item"><div class="stat-num" id="cnt-auc">0</div><div class="stat-label">Validation AUC</div></div>
   <div class="stat-item"><div class="stat-num" id="cnt-acc">0</div><div class="stat-label">Accuracy</div></div>
@@ -136,7 +157,7 @@
   <div class="stat-item"><div class="stat-num" id="cnt-session">0</div><div class="stat-label">Session Scans</div></div>
 </div>
 
-<!-- DIAGNOSIS -->
+<!-- ══ DIAGNOSIS ══ -->
 <section id="detect" class="view-section active">
   <div id="upload-flow">
     <div class="section-label reveal">/ Diagnosis Engine</div>
@@ -155,8 +176,7 @@
     </div>
     <div class="upload-area reveal" id="uploadArea">
       <div class="upload-icon">
-        <!-- Fixed SVG: explicit fill=none, no inherited fill -->
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex-shrink:0">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--indigo)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="17 8 12 3 7 8"/>
           <line x1="12" y1="3" x2="12" y2="15"/>
@@ -167,6 +187,7 @@
       <button class="btn-primary" id="chooseFileBtn">Browse Files</button>
       <input type="file" id="fileInput" accept="image/*"/>
     </div>
+
     <div id="cv-preview-strip" style="display:none;margin-top:24px;">
       <div class="section-label">/ Pre-Processing Channels</div>
       <div class="cv-strip-grid">
@@ -200,7 +221,7 @@
           <button class="ann-tool-btn" data-tool="circle" onclick="setAnnTool('circle',this)" title="Circle">◯</button>
           <button class="ann-tool-btn" data-tool="arrow" onclick="setAnnTool('arrow',this)" title="Arrow">↗</button>
           <button class="ann-tool-btn" data-tool="text" onclick="setAnnTool('text',this)" title="Label">T</button>
-          <input type="color" id="annColor" value="#b35f6f" class="ann-color-pick" title="Color"/>
+          <input type="color" id="annColor" value="#6366f1" class="ann-color-pick" title="Color"/>
           <input type="range" id="annSize" min="1" max="12" value="3" class="styled-slider" style="width:56px;" title="Size"/>
           <button class="ann-tool-btn" onclick="undoAnnotation()" title="Undo">↩</button>
           <button class="ann-tool-btn" onclick="clearAnnotations()" title="Clear">✕</button>
@@ -242,8 +263,10 @@
       <div class="confidence-bar-wrap">
         <div class="confidence-label"><span>DR Severity Stage</span><span id="severity-val">—</span></div>
         <div class="severity-spectrum">
-          <div class="stage-marker" id="stage-0">0</div><div class="stage-marker" id="stage-1">1</div>
-          <div class="stage-marker" id="stage-2">2</div><div class="stage-marker" id="stage-3">3</div>
+          <div class="stage-marker" id="stage-0">0</div>
+          <div class="stage-marker" id="stage-1">1</div>
+          <div class="stage-marker" id="stage-2">2</div>
+          <div class="stage-marker" id="stage-3">3</div>
           <div class="stage-marker" id="stage-4">4</div>
           <div class="severity-indicator" id="severity-indicator"></div>
         </div>
@@ -265,11 +288,11 @@
         <div class="panel-label">Network Telemetry</div>
         <div class="radial-metrics-wrapper">
           <div class="radial-item">
-            <div class="svg-wrap"><svg viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="42"/><circle class="ring-fill" id="cert-ring" cx="50" cy="50" r="42" style="stroke:var(--accent)"/></svg><div class="ring-text" id="m-prob">0%</div></div>
+            <div class="svg-wrap"><svg viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="42"/><circle class="ring-fill" id="cert-ring" cx="50" cy="50" r="42" style="stroke:var(--indigo)"/></svg><div class="ring-text" id="m-prob">0%</div></div>
             <div class="ring-label">Certainty</div>
           </div>
           <div class="radial-item">
-            <div class="svg-wrap"><svg viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="42"/><circle class="ring-fill" id="lesion-ring" cx="50" cy="50" r="42" style="stroke:var(--accent2)"/></svg><div class="ring-text" id="m-conf">0</div></div>
+            <div class="svg-wrap"><svg viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="42"/><circle class="ring-fill" id="lesion-ring" cx="50" cy="50" r="42" style="stroke:var(--emerald)"/></svg><div class="ring-text" id="m-conf">0</div></div>
             <div class="ring-label">Lesion Density</div>
           </div>
         </div>
@@ -295,8 +318,8 @@
 
     <div class="xai-controls" id="xai-controls" style="display:none;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;">Grad-CAM Overlay</span>
-        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);" id="opacity-val">70%</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--indigo);text-transform:uppercase;letter-spacing:1px;">Grad-CAM Overlay</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);" id="opacity-val">70%</span>
       </div>
       <input type="range" id="heatmapSlider" min="0" max="100" value="70" class="styled-slider"/>
     </div>
@@ -320,18 +343,18 @@
   </div>
 </section>
 
-<!-- REGISTRY -->
+<!-- ══ REGISTRY ══ -->
 <section id="registry" class="view-section">
   <div class="section-label">/ Global Telemetry</div>
   <h2 class="section-title">Cohort Analytics</h2>
   <p class="section-desc">Population-level diagnostics and epidemiological pattern analysis.</p>
   <div class="registry-kpi-row">
     <div class="kpi-card"><div class="kpi-val" id="reg-total">0</div><div class="kpi-label">Total Scans</div></div>
-    <div class="kpi-card"><div class="kpi-val" style="color:var(--accent3);" id="reg-positive">0</div><div class="kpi-label">DR Positive</div></div>
-    <div class="kpi-card"><div class="kpi-val" style="color:var(--accent);" id="reg-negative">0</div><div class="kpi-label">DR Negative</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:var(--vermillion);" id="reg-positive">0</div><div class="kpi-label">DR Positive</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:var(--emerald);" id="reg-negative">0</div><div class="kpi-label">DR Negative</div></div>
     <div class="kpi-card"><div class="kpi-val" id="reg-avg-certainty">—</div><div class="kpi-label">Avg Certainty</div></div>
     <div class="kpi-card"><div class="kpi-val" id="reg-avg-age">—</div><div class="kpi-label">Avg Age</div></div>
-    <div class="kpi-card"><div class="kpi-val" style="color:#ff8800;" id="reg-high-risk">0</div><div class="kpi-label">High Risk</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:var(--amber);" id="reg-high-risk">0</div><div class="kpi-label">High Risk</div></div>
   </div>
   <div class="dashboard-grid" style="margin-bottom:20px;">
     <div class="dash-panel"><div class="panel-label">Severity Distribution</div><div class="chart-container" style="height:200px;"><canvas id="distributionChart"></canvas></div></div>
@@ -361,10 +384,7 @@
         <th>Eye</th>
         <th onclick="sortTable('stageLevel')">Diagnosis ↕</th>
         <th onclick="sortTable('certainty')">Certainty ↕</th>
-        <th>HbA1c</th>
-        <th>Filter</th>
-        <th>Time</th>
-        <th>Actions</th>
+        <th>HbA1c</th><th>Filter</th><th>Time</th><th>Actions</th>
       </tr></thead>
       <tbody id="registryTableBody"></tbody>
     </table>
@@ -372,19 +392,19 @@
   </div>
 </section>
 
-<!-- IMAGE LAB -->
+<!-- ══ IMAGE LAB ══ -->
 <section id="image-lab" class="view-section">
   <div class="section-label">/ CV Workbench</div>
   <h2 class="section-title">Image Processing Lab</h2>
   <p class="section-desc">Real-time Canvas API analysis. Apply filters, compare modes, inspect pixel data, and export results.</p>
   <div class="lab-layout">
     <div class="lab-upload-zone" id="labUploadZone">
-      <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin-bottom:10px;flex-shrink:0">
+      <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="var(--indigo)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="3" width="18" height="18" rx="2"/>
         <circle cx="8.5" cy="8.5" r="1.5"/>
         <polyline points="21 15 16 10 5 21"/>
       </svg>
-      <p style="color:var(--muted);font-size:13px;">Drop or click to upload</p>
+      <p>Drop or click to upload an image</p>
       <input type="file" id="labFileInput" accept="image/*" style="display:none;"/>
     </div>
     <div class="lab-workspace" id="labWorkspace" style="display:none;">
@@ -394,7 +414,7 @@
         <div class="lab-control-group"><label>Saturation</label><input type="range" id="ctrl-saturation" min="-100" max="100" value="0" class="styled-slider"/><span id="val-saturation">0</span></div>
         <div class="lab-control-group"><label>Sharpen</label><input type="range" id="ctrl-sharpen" min="0" max="10" value="0" class="styled-slider"/><span id="val-sharpen">0</span></div>
         <div class="lab-control-group"><label>Gamma</label><input type="range" id="ctrl-gamma" min="50" max="250" value="100" class="styled-slider"/><span id="val-gamma">1.0</span></div>
-        <div class="lab-control-group"><label>Blur Radius</label><input type="range" id="ctrl-blur" min="0" max="10" value="0" class="styled-slider"/><span id="val-blur">0</span></div>
+        <div class="lab-control-group"><label>Blur</label><input type="range" id="ctrl-blur" min="0" max="10" value="0" class="styled-slider"/><span id="val-blur">0</span></div>
       </div>
       <div class="filter-btn-row">
         <button class="filter-btn active" data-filter="original" onclick="setLabFilter('original',this)">Original</button>
@@ -411,17 +431,17 @@
         <button class="filter-btn" data-filter="thermal" onclick="setLabFilter('thermal',this)">Thermal</button>
       </div>
       <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">
-        <label style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">Compare Mode</label>
+        <label style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);">Compare Mode</label>
         <label class="toggle-switch"><input type="checkbox" id="compareModeToggle" onchange="toggleCompareMode()"/><span class="toggle-slider"></span></label>
-        <span id="compareModeLabel" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">Off</span>
-        <span style="margin-left:auto;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);" id="pixelInfoDisplay"></span>
+        <span id="compareModeLabel" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);">Off</span>
+        <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--indigo);" id="pixelInfoDisplay"></span>
       </div>
       <div class="lab-canvas-row" id="labCanvasRow">
         <div class="lab-canvas-wrap"><span class="image-panel-label">Input</span><canvas id="labOrigCanvas" class="lab-main-canvas"></canvas></div>
         <div class="lab-canvas-wrap"><span class="image-panel-label" id="labOutputLabel">Output</span><canvas id="labOutCanvas" class="lab-main-canvas"></canvas></div>
       </div>
       <div id="compareSliderWrap" style="display:none;margin-bottom:12px;">
-        <label style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Blend Ratio</label>
+        <label style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Blend Ratio</label>
         <input type="range" id="compareSlider" min="0" max="100" value="50" class="styled-slider" style="width:100%;"/>
       </div>
       <div class="histogram-row">
@@ -438,7 +458,7 @@
   </div>
 </section>
 
-<!-- RISK CALCULATOR -->
+<!-- ══ RISK CALCULATOR ══ -->
 <section id="risk-calc" class="view-section">
   <div class="section-label">/ Clinical Decision Support</div>
   <h2 class="section-title">DR Risk Calculator</h2>
@@ -468,13 +488,13 @@
     </div>
     <div class="risk-calc-result">
       <div class="dash-panel" style="text-align:center;padding:32px 20px;">
-        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Composite DR Risk Score</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Composite DR Risk Score</div>
         <div class="big-risk-score" id="riskScoreDisplay">—</div>
         <div class="risk-gauge-wrap"><canvas id="riskGaugeChart" width="240" height="130"></canvas></div>
         <div class="risk-category" id="riskCategory"></div>
       </div>
       <div class="dash-panel" style="margin-top:14px;"><div class="panel-label">Factor Breakdown</div><div id="riskBreakdownList"></div></div>
-      <div class="dash-panel" style="margin-top:14px;"><div class="panel-label">Clinical Recommendations</div><div id="riskRecommendations" style="font-size:13px;color:var(--muted);line-height:1.8;"></div></div>
+      <div class="dash-panel" style="margin-top:14px;"><div class="panel-label">Clinical Recommendations</div><div id="riskRecommendations" style="font-size:13px;color:var(--text2);line-height:1.8;"></div></div>
       <div style="margin-top:14px;display:flex;gap:10px;">
         <button class="btn-ghost" onclick="exportRiskReport()" style="flex:1;">Export Risk Report</button>
         <button class="btn-ghost" onclick="clearRiskCalc()" style="flex:1;">Clear</button>
@@ -483,7 +503,7 @@
   </div>
 </section>
 
-<!-- CLINICAL NOTES -->
+<!-- ══ NOTES ══ -->
 <section id="notes" class="view-section">
   <div class="section-label">/ Documentation</div>
   <h2 class="section-title">Clinical Notes</h2>
@@ -495,13 +515,13 @@
       <ul class="notes-list" id="notesList"></ul>
     </div>
     <div class="notes-editor-panel dash-panel">
-      <div id="noteEditorEmpty" style="text-align:center;padding:60px 20px;color:var(--muted);">
+      <div id="noteEditorEmpty" style="text-align:center;padding:60px 20px;color:var(--text3);">
         <div style="font-size:36px;margin-bottom:12px;">📋</div>
         <div style="font-size:13px;">Select or create a note to begin.</div>
       </div>
       <div id="noteEditorContent" style="display:none;flex-direction:column;gap:10px;height:100%;">
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <input type="text" id="noteTitleInput" placeholder="Note title..." style="flex:1;min-width:120px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-family:'Syne',sans-serif;font-size:15px;font-weight:600;outline:none;"/>
+          <input type="text" id="noteTitleInput" placeholder="Note title..." style="flex:1;min-width:120px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;outline:none;"/>
           <select id="noteTagSelect" class="table-search" style="width:120px;">
             <option value="general">General</option><option value="finding">Finding</option>
             <option value="followup">Follow-up</option><option value="urgent">Urgent</option>
@@ -517,11 +537,11 @@
           <button onclick="noteFormat('insertUnorderedList')">•</button>
           <button onclick="noteFormat('formatBlock','H3')">H</button>
           <span style="flex:1;"></span>
-          <span id="noteWordCount" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">0 words</span>
+          <span id="noteWordCount" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);">0 words</span>
         </div>
         <div id="noteTextArea" contenteditable="true" class="note-textarea"></div>
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-          <span id="noteTimestamp" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);"></span>
+          <span id="noteTimestamp" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);"></span>
           <div style="display:flex;gap:8px;">
             <button class="btn-ghost" style="font-size:11px;padding:7px 12px;" onclick="exportNoteAsText()">Export TXT</button>
             <button class="btn-primary" style="font-size:11px;padding:7px 12px;" onclick="saveCurrentNote()">Save</button>
@@ -532,7 +552,7 @@
   </div>
 </section>
 
-<!-- SETTINGS -->
+<!-- ══ SETTINGS ══ -->
 <section id="settings-view" class="view-section">
   <div class="section-label">/ Configuration</div>
   <h2 class="section-title">Settings</h2>
@@ -569,23 +589,26 @@
       <div style="display:flex;flex-direction:column;gap:10px;">
         <button class="btn-ghost" onclick="exportAllData()">Export Session Data (JSON)</button>
         <button class="btn-ghost" onclick="document.getElementById('importFileInput').click()">Import Session Data</button>
-        <button class="btn-ghost" style="color:var(--accent3);border-color:rgba(var(--accent3-rgb),0.35);" onclick="clearAllData()">Clear All Data</button>
+        <button class="btn-ghost" style="color:var(--vermillion);border-color:rgba(var(--accent3-rgb),0.35);" onclick="clearAllData()">Clear All Data</button>
       </div>
       <input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="handleImport(event)"/>
     </div>
     <div class="settings-group dash-panel">
       <div class="panel-label">Model Architecture</div>
       <ul class="arch-list">
-        <li class="arch-item"><div class="arch-dot"></div><div><strong>Backbone</strong><br/><span>EfficientNetB0 — ImageNet pretrained</span></div></li>
-        <li class="arch-item"><div class="arch-dot"></div><div><strong>Phase 1</strong><br/><span>1e-4 Adam, 5 epochs, head only</span></div></li>
-        <li class="arch-item"><div class="arch-dot"></div><div><strong>Phase 2</strong><br/><span>1e-5 Adam, 10 epochs, top 30 layers</span></div></li>
-        <li class="arch-item"><div class="arch-dot"></div><div><strong>Validation AUC</strong><br/><span>0.952 on APTOS 2019</span></div></li>
+        <li class="arch-item"><div class="arch-dot"></div><div><strong>Backbone</strong><span>EfficientNetB0 — ImageNet pretrained</span></div></li>
+        <li class="arch-item"><div class="arch-dot"></div><div><strong>Phase 1</strong><span>1e-4 Adam, 5 epochs, head only</span></div></li>
+        <li class="arch-item"><div class="arch-dot"></div><div><strong>Phase 2</strong><span>1e-5 Adam, 10 epochs, top 30 layers</span></div></li>
+        <li class="arch-item"><div class="arch-dot"></div><div><strong>Validation AUC</strong><span>0.952 on APTOS 2019</span></div></li>
       </ul>
     </div>
   </div>
 </section>
 
-<footer><div class="copy">RetinaAI v2.0 — Research use only. Not a certified medical device.</div><div class="foot-logo">RetinaAI</div></footer>
+<footer>
+  <div class="copy">RetinaAI v2.0 — Research use only. Not a certified medical device.</div>
+  <div class="foot-logo">RetinaAI</div>
+</footer>
 </main>
 </div>
 
@@ -593,9 +616,7 @@
 <div class="modal-overlay" id="profileModal">
   <div class="modal-content">
     <button class="modal-close" onclick="closeProfileModal()">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="display:block">
-        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
     <div class="modal-header">
       <div class="modal-avatar" id="modalAvatar">YS</div>
@@ -603,9 +624,8 @@
         <h3 class="modal-name" id="modalName">Yuvraj Singh</h3>
         <span class="modal-role" id="modalRole">AI/ML Researcher &amp; Clinician</span>
         <span class="modal-location">
-          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-          </svg> New Delhi, India
+          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:middle"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          New Delhi, India
         </span>
       </div>
     </div>
@@ -618,32 +638,27 @@
 <div class="modal-overlay" id="shortcutsModal">
   <div class="modal-content" style="max-width:420px;">
     <button class="modal-close" onclick="document.getElementById('shortcutsModal').classList.remove('active')">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="display:block">
-        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
-    <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:20px;color:var(--accent);">Keyboard Shortcuts</h3>
+    <h3 style="font-family:'Outfit',sans-serif;font-weight:700;margin-bottom:20px;color:var(--indigo);">Keyboard Shortcuts</h3>
     <div class="shortcut-list">
       <div class="shortcut-item"><kbd>N</kbd><span>New Scan</span></div>
       <div class="shortcut-item"><kbd>1–6</kbd><span>Switch views</span></div>
       <div class="shortcut-item"><kbd>E</kbd><span>Toggle Grad-CAM</span></div>
-      <div class="shortcut-item"><kbd>A</kbd><span>Toggle Annotation mode</span></div>
+      <div class="shortcut-item"><kbd>A</kbd><span>Toggle Annotation</span></div>
       <div class="shortcut-item"><kbd>P</kbd><span>Export PDF</span></div>
-      <div class="shortcut-item"><kbd>T</kbd><span>Toggle dark/light theme</span></div>
-      <div class="shortcut-item"><kbd>R</kbd><span>Open Risk Calculator</span></div>
+      <div class="shortcut-item"><kbd>T</kbd><span>Toggle theme</span></div>
+      <div class="shortcut-item"><kbd>R</kbd><span>Risk Calculator</span></div>
       <div class="shortcut-item"><kbd>Esc</kbd><span>Close modals</span></div>
-      <div class="shortcut-item"><kbd>?</kbd><span>Show shortcuts</span></div>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="lightboxModal" onclick="this.classList.remove('active')">
   <div style="max-width:90vw;max-height:90vh;position:relative;" onclick="event.stopPropagation()">
-    <img id="lightboxImg" style="max-width:90vw;max-height:88vh;border-radius:10px;border:1px solid var(--border);display:block;"/>
+    <img id="lightboxImg" style="max-width:90vw;max-height:88vh;border-radius:12px;border:1px solid var(--border);display:block;"/>
     <button class="modal-close" style="top:8px;right:8px;" onclick="document.getElementById('lightboxModal').classList.remove('active')">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="display:block">
-        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
   </div>
 </div>
