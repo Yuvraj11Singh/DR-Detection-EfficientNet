@@ -20,6 +20,8 @@
   </div>
   <ul class="nav-links">
     <li><a href="#" onclick="switchView('detect')">Diagnosis</a></li>
+    <li><a href="#" onclick="switchView('batch-upload')">Batch</a></li>
+    <li><a href="#" onclick="switchView('scan-comparison')">Compare</a></li>
     <li><a href="#" onclick="switchView('registry')">Registry</a></li>
     <li><a href="#" onclick="switchView('image-lab')">Image Lab</a></li>
     <li><a href="#" onclick="switchView('risk-calc')">Risk Calc</a></li>
@@ -51,6 +53,10 @@
     <ul class="sidebar-nav" id="sidebarNav">
       <li class="active" data-target="detect" onclick="switchView('detect')">
         <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Diagnosis Engine</li>
+      <li data-target="batch-upload" onclick="switchView('batch-upload')">
+        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Batch Upload</li>
+      <li data-target="scan-comparison" onclick="switchView('scan-comparison')">
+        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Progression</li>
       <li data-target="registry" onclick="switchView('registry')">
         <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Cohort Registry</li>
       <li data-target="image-lab" onclick="switchView('image-lab')">
@@ -601,6 +607,122 @@
         <li class="arch-item"><div class="arch-dot"></div><div><strong>Phase 2</strong><span>1e-5 Adam, 10 epochs, top 30 layers</span></div></li>
         <li class="arch-item"><div class="arch-dot"></div><div><strong>Validation AUC</strong><span>0.952 on APTOS 2019</span></div></li>
       </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══ BATCH UPLOAD ══ -->
+<section id="batch-upload" class="view-section">
+  <div class="section-label">/ Bulk Processing</div>
+  <h2 class="section-title">Batch Image Analysis</h2>
+  <p class="section-desc">Process multiple retinal images simultaneously and generate comprehensive cohort reports.</p>
+  <div class="batch-layout">
+    <div class="batch-upload-panel dash-panel">
+      <div class="panel-label">Upload Images</div>
+      <div class="batch-upload-area" id="batchUploadArea">
+        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="var(--indigo)" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <h3>Drop multiple images here</h3>
+        <p>JPG, PNG, BMP, TIFF accepted. Process up to 50 images at once.</p>
+        <button class="btn-primary" id="batchChooseBtn">Select Files</button>
+        <input type="file" id="batchFileInput" accept="image/*" multiple style="display:none;"/>
+      </div>
+      <div id="batchFileList" style="display:none;margin-top:16px;max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:12px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Selected Files</div>
+        <ul id="batchFileListItems" style="list-style:none;padding:0;margin:0;"></ul>
+      </div>
+      <button class="btn-primary" id="batchProcessBtn" style="width:100%;margin-top:16px;display:none;">Process Batch ›</button>
+    </div>
+    <div class="batch-progress-panel dash-panel" id="batchProgressPanel" style="display:none;">
+      <div class="panel-label">Processing Progress</div>
+      <div id="batchProgressBar" class="progress-bar"><div class="progress-fill"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-top:8px;">
+        <span id="batchProgressText">Initializing...</span>
+        <span id="batchProgressCount">0/0</span>
+      </div>
+    </div>
+    <div class="batch-results-panel" id="batchResultsPanel" style="display:none;">
+      <div class="dash-panel">
+        <div class="panel-label">Batch Summary Report</div>
+        <div class="batch-summary-grid">
+          <div class="summary-card"><div class="summary-val" id="batch-total">0</div><div class="summary-label">Total Processed</div></div>
+          <div class="summary-card"><div class="summary-val" style="color:var(--vermillion);" id="batch-dr">0</div><div class="summary-label">DR Detected</div></div>
+          <div class="summary-card"><div class="summary-val" style="color:var(--emerald);" id="batch-clear">0</div><div class="summary-label">Clear</div></div>
+          <div class="summary-card"><div class="summary-val" id="batch-avg-conf">0%</div><div class="summary-label">Avg Confidence</div></div>
+        </div>
+        <div class="chart-container" style="margin-top:16px;height:200px;"><canvas id="batchDistChart"></canvas></div>
+      </div>
+      <div class="dash-panel" style="margin-top:14px;">
+        <div class="panel-label">Detailed Results</div>
+        <div class="batch-results-table" id="batchResultsTable"></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:14px;">
+        <button class="btn-primary" onclick="exportBatchCSV()" style="flex:1;">Export CSV</button>
+        <button class="btn-ghost" onclick="downloadBatchJSON()" style="flex:1;">Export JSON</button>
+        <button class="btn-ghost" onclick="resetBatch()" style="flex:1;">Process New Batch</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SCAN COMPARISON ══ -->
+<section id="scan-comparison" class="view-section">
+  <div class="section-label">/ Longitudinal Analysis</div>
+  <h2 class="section-title">Progression Tracking</h2>
+  <p class="section-desc">Compare current and previous scans to monitor disease progression and treatment efficacy.</p>
+  <div class="comparison-layout">
+    <div class="comparison-selector-panel dash-panel">
+      <div class="panel-label">Select Scans</div>
+      <div class="comparison-form">
+        <div class="input-group">
+          <label>Previous Scan</label>
+          <select id="prevScanSelect" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;">
+            <option value="">No previous scans</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Current Scan</label>
+          <select id="currScanSelect" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;">
+            <option value="">Select a scan</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-primary" id="runComparisonBtn" style="width:100%;margin-top:16px;">Compare Scans ›</button>
+    </div>
+    <div class="comparison-results-panel" id="comparisonResultsPanel" style="display:none;">
+      <div class="dash-panel">
+        <div class="panel-label">Progression Analysis</div>
+        <div class="comparison-metric-grid">
+          <div class="comp-metric"><span class="comp-metric-label">Previous DR Probability</span><span class="comp-metric-val" id="comp-prev-prob">—</span></div>
+          <div class="comp-metric"><span class="comp-metric-label">Current DR Probability</span><span class="comp-metric-val" id="comp-curr-prob">—</span></div>
+          <div class="comp-metric"><span class="comp-metric-label">Change</span><span class="comp-metric-val" id="comp-change">—</span></div>
+          <div class="comp-metric"><span class="comp-metric-label">Trend</span><span class="comp-metric-val" id="comp-trend">—</span></div>
+        </div>
+      </div>
+      <div class="dash-panel" style="margin-top:14px;">
+        <div class="panel-label">Clinical Recommendation</div>
+        <div class="recommendation-box" id="compRecommendation"></div>
+      </div>
+      <div class="dash-panel" style="margin-top:14px;">
+        <div class="panel-label">Visual Comparison</div>
+        <div class="dual-image-container">
+          <div class="image-panel">
+            <span class="image-panel-label">Previous Scan</span>
+            <div class="image-container"><canvas id="compPrevCanvas" style="width:100%;height:auto;"></canvas></div>
+          </div>
+          <div class="image-panel">
+            <span class="image-panel-label">Current Scan</span>
+            <div class="image-container"><canvas id="compCurrCanvas" style="width:100%;height:auto;"></canvas></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:14px;">
+        <button class="btn-primary" onclick="exportComparisonReport()" style="flex:1;">Export Report</button>
+        <button class="btn-ghost" onclick="clearComparison()" style="flex:1;">New Comparison</button>
+      </div>
+    </div>
+    <div id="comparisonEmpty" style="text-align:center;padding:60px 20px;color:var(--text3);">
+      <div style="font-size:36px;margin-bottom:12px;">📊</div>
+      <div style="font-size:13px;">Load scan history to begin progression tracking.</div>
     </div>
   </div>
 </section>

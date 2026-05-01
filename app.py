@@ -8,9 +8,12 @@ from flask_cors import CORS
 import os
 import time
 import base64
-from io import BytesIO
+import json
+from io import BytesIO, StringIO
 from PIL import Image
 import numpy as np
+from datetime import datetime
+import csv
 from predict import load_model, predict_image
 
 app = Flask(__name__, static_folder=".", static_url_path="")

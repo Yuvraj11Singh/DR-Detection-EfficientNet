@@ -732,21 +732,38 @@ kbd { font-family:'JetBrains Mono',monospace; font-size:11px; padding:3px 10px; 
   .hero-metrics { grid-template-columns:1fr 1fr; }
 }
 @media(max-width:768px) {
-  .clinical-sidebar { display:none; }
-  .main-content { margin-left:0; width:100%; }
-  nav .nav-links { display:none; }
-  nav .logo-wrapper { position:static; width:auto; border:none; }
-  nav { padding:0 16px; gap:12px; }
-  .logo { position:static; width:auto; border:none; height:auto; padding:0; }
-  .hero { grid-template-columns:1fr; }
-  .hero-left { padding:60px 20px 40px; }
-  .stats-strip { grid-template-columns:1fr 1fr; }
-  section { padding:36px 16px; }
-  .result-header { flex-direction:column; }
-  .confidence-bar-wrap { width:100%; }
-  .lab-canvas-row { grid-template-columns:1fr; }
-  .histogram-row { flex-direction:column; }
-  .dual-image-container { flex-direction:column; align-items:center; }
-  .registry-kpi-row { grid-template-columns:repeat(2,1fr); }
-  .risk-binary-grid { grid-template-columns:1fr 1fr; }
-}
+
+/* ── BATCH UPLOAD STYLES ────────────────────────────── */
+.batch-layout { display:flex; flex-direction:column; gap:20px; }
+.batch-upload-panel { position:relative; }
+.batch-upload-area { border:2px dashed var(--border); border-radius:12px; padding:40px 20px; text-align:center; cursor:pointer; transition:all 0.3s ease; }
+.batch-upload-area:hover { border-color:var(--indigo); background:rgba(99,102,241,0.05); }
+.batch-upload-area svg { margin-bottom:16px; }
+.batch-upload-area h3 { color:var(--text); margin:0 0 8px; font-size:16px; }
+.batch-upload-area p { color:var(--text2); margin:0 0 16px; font-size:13px; }
+.batch-file-list { list-style:none; padding:0; margin:0; }
+.batch-summary-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:16px 0; }
+.summary-card { background:var(--surface2); padding:16px; border-radius:8px; text-align:center; border-left:3px solid var(--indigo); }
+.summary-val { font-size:24px; font-weight:700; color:var(--indigo); }
+.summary-label { font-size:11px; color:var(--text2); margin-top:8px; text-transform:uppercase; letter-spacing:0.5px; }
+.progress-bar { width:100%; height:6px; background:var(--border); border-radius:3px; overflow:hidden; margin:12px 0; }
+.progress-fill { height:100%; background:linear-gradient(90deg, var(--indigo), var(--emerald)); width:0%; transition:width 0.3s ease; }
+.batch-results-table { width:100%; font-size:12px; }
+
+/* ── COMPARISON STYLES ────────────────────────────── */
+.comparison-layout { display:flex; flex-direction:column; gap:20px; }
+.comparison-selector-panel { max-width:400px; }
+.comparison-form { display:flex; flex-direction:column; gap:12px; }
+.comparison-results-panel { display:none; }
+.comparison-metric-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin:16px 0; }
+.comp-metric { background:var(--surface2); padding:16px; border-radius:8px; border-left:3px solid var(--indigo); }
+.comp-metric-label { font-size:11px; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:8px; }
+.comp-metric-val { font-size:18px; font-weight:700; color:var(--indigo); }
+.recommendation-box { padding:16px; border-radius:8px; background:rgba(99,102,241,0.1); border-left:4px solid var(--indigo); }
+.recommendation-box strong { color:var(--indigo); display:block; margin-bottom:8px; }
+.recommendation-box span { font-size:12px; color:var(--text2); line-height:1.6; }
+
+@media(max-width:1024px) {
+  .batch-summary-grid { grid-template-columns:repeat(2,1fr); }
+  .comparison-metric-grid { grid-template-columns:1fr; }
+}   }

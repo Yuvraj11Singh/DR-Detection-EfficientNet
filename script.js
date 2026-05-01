@@ -118,6 +118,8 @@ function switchView(id) {
   if (id === 'image-lab') initLabUpload();
   if (id === 'notes') renderNotesList();
   if (id === 'settings-view') loadSettingsUI();
+  if (id === 'batch-upload') resetBatch();
+  if (id === 'scan-comparison') updateComparisonSelects();
 }
 
 // ═══ COUNTERS ═══
@@ -923,6 +925,177 @@ function clearAllData() {
   sessionHistory = []; notes = [];
   updateSessionCounts(); updateSidebar(null); resetForm(); renderNotesList();
   showToast('All data cleared.', 'info');
+}
+
+// ═══════════════════════════════════════════════
+// BATCH UPLOAD FEATURE
+// ═══════════════════════════════════════════════
+let batchFiles = [];
+let batchResults = [];
+document.getElementById('batchChooseBtn').addEventListener('click', () => document.getElementById('batchFileInput').click());
+document.getElementById('batchFileInput').addEventListener('change', e => {
+  batchFiles = Array.from(e.target.files);
+  updateBatchFileList();
+  if (batchFiles.length > 0) document.getElementById('batchProcessBtn').style.display = 'block';
+});
+const batchUploadArea = document.getElementById('batchUploadArea');
+['dragover', 'dragleave', 'drop'].forEach(ev => batchUploadArea.addEventListener(ev, e => e.preventDefault()));
+batchUploadArea.addEventListener('dragover', () => batchUploadArea.style.borderColor = 'var(--indigo)');
+batchUploadArea.addEventListener('dragleave', () => batchUploadArea.style.borderColor = '');
+batchUploadArea.addEventListener('drop', e => {
+  batchFiles = Array.from(e.dataTransfer.files);
+  updateBatchFileList();
+  if (batchFiles.length > 0) document.getElementById('batchProcessBtn').style.display = 'block';
+});
+
+function updateBatchFileList() {
+  const list = document.getElementById('batchFileListItems');
+  list.innerHTML = batchFiles.map((f, i) => `<li style="padding:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;"><span>${f.name}</span><button class="btn-ghost" style="font-size:10px;padding:4px 8px;" onclick="batchFiles.splice(${i},1);updateBatchFileList();if(batchFiles.length===0){document.getElementById('batchFileList').style.display='none';document.getElementById('batchProcessBtn').style.display='none';}" title="Remove">✕</button></li>`).join('');
+  document.getElementById('batchFileList').style.display = batchFiles.length > 0 ? 'block' : 'none';
+}
+
+document.getElementById('batchProcessBtn').addEventListener('click', async () => {
+  if (batchFiles.length === 0) { showToast('No files selected.', 'error'); return; }
+  const formData = new FormData();
+  batchFiles.forEach(f => formData.append('images', f));
+  
+  document.getElementById('batchUploadArea').style.display = 'none';
+  document.getElementById('batchProgressPanel').style.display = 'block';
+  document.getElementById('batchResultsPanel').style.display = 'none';
+  
+  try {
+    const res = await fetch('/batch-predict', { method: 'POST', body: formData });
+    const data = await res.json();
+    batchResults = data.batch_results;
+    displayBatchResults(data.summary);
+    showToast(`Processed ${data.summary.processed} images.`, 'success');
+  } catch (err) {
+    showToast('Batch processing failed: ' + err.message, 'error');
+  }
+  document.getElementById('batchProgressPanel').style.display = 'none';
+});
+
+function displayBatchResults(summary) {
+  document.getElementById('batch-total').textContent = summary.processed;
+  document.getElementById('batch-dr').textContent = summary.dr_detected;
+  document.getElementById('batch-clear').textContent = summary.processed - summary.dr_detected;
+  document.getElementById('batch-avg-conf').textContent = (summary.average_confidence * 100).toFixed(1) + '%';
+  
+  const table = document.getElementById('batchResultsTable');
+  table.innerHTML = '<table class="data-table" style="width:100;"><thead><tr><th>File</th><th>Status</th><th>Prediction</th><th>Confidence</th><th>Time</th></tr></thead><tbody>' + 
+    batchResults.map(r => `<tr><td>${r.filename}</td><td style="color:${r.status==='success'?'var(--emerald)':'var(--vermillion)'};">${r.status}</td><td>${r.prediction||'—'}</td><td>${r.confidence_pct||'—'}</td><td>${r.inference_time_s?r.inference_time_s+'s':'—'}</td></tr>`).join('') + 
+    '</tbody></table>';
+  
+  if (window.batchDistChart) window.batchDistChart.destroy();
+  const ctx = document.getElementById('batchDistChart').getContext('2d');
+  window.batchDistChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels: ['DR Detected', 'No DR'], datasets: [{ data: [summary.dr_detected, summary.processed - summary.dr_detected], backgroundColor: ['#ff4d00', '#10b981'], borderColor: 'var(--bg)', borderWidth: 2 }] },
+    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
+  });
+  
+  document.getElementById('batchResultsPanel').style.display = 'block';
+}
+
+function exportBatchCSV() {
+  const csv = 'filename,status,prediction,confidence,inference_time\n' + batchResults.map(r => `"${r.filename}",${r.status},"${r.prediction||''}",${r.confidence_pct||''},"${r.inference_time_s||''}"` ).join('\n');
+  const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = `batch_results_${Date.now()}.csv`; a.click();
+  showToast('Batch CSV exported.', 'success');
+}
+
+function downloadBatchJSON() {
+  const a = document.createElement('a'); a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(batchResults, null, 2)); a.download = `batch_results_${Date.now()}.json`; a.click();
+  showToast('Batch JSON exported.', 'success');
+}
+
+function resetBatch() {
+  batchFiles = [];
+  batchResults = [];
+  document.getElementById('batchFileInput').value = '';
+  document.getElementById('batchUploadArea').style.display = 'block';
+  document.getElementById('batchProgressPanel').style.display = 'none';
+  document.getElementById('batchResultsPanel').style.display = 'none';
+  document.getElementById('batchFileList').style.display = 'none';
+  document.getElementById('batchProcessBtn').style.display = 'none';
+  updateBatchFileList();
+}
+
+// ═══════════════════════════════════════════════
+// SCAN COMPARISON / PROGRESSION TRACKING
+// ═══════════════════════════════════════════════
+let comparisonData = null;
+
+function updateComparisonSelects() {
+  const prevSelect = document.getElementById('prevScanSelect');
+  const currSelect = document.getElementById('currScanSelect');
+  const opts = sessionHistory.map((s, i) => `<option value="${i}">${s.id || 'Patient ' + (i+1)} - ${s.date || 'Unknown date'} (${s.stageName})</option>`).join('');
+  prevSelect.innerHTML = '<option value="">No previous scans</option>' + opts;
+  currSelect.innerHTML = '<option value="">Select a scan</option>' + opts;
+}
+
+document.getElementById('runComparisonBtn').addEventListener('click', async () => {
+  const prevIdx = +document.getElementById('prevScanSelect').value;
+  const currIdx = +document.getElementById('currScanSelect').value;
+  
+  if (isNaN(prevIdx) || isNaN(currIdx)) { showToast('Select both scans.', 'error'); return; }
+  if (prevIdx === currIdx) { showToast('Select different scans.', 'error'); return; }
+  
+  const prevScan = sessionHistory[prevIdx];
+  const currScan = sessionHistory[currIdx];
+  
+  try {
+    const res = await fetch('/comparison', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        previous_scan: { dr_probability: prevScan.dr_prob || 0.5, timestamp: prevScan.date },
+        current_scan: { dr_probability: currScan.dr_prob || 0.5, timestamp: currScan.date },
+        days_since_previous: Math.ceil((new Date(currScan.date) - new Date(prevScan.date)) / (1000 * 60 * 60 * 24))
+      })
+    });
+    const data = await res.json();
+    displayComparisonResults(data.comparison);
+    showToast('Comparison complete.', 'success');
+  } catch (err) {
+    showToast('Comparison failed: ' + err.message, 'error');
+  }
+});
+
+function displayComparisonResults(comp) {
+  comparisonData = comp;
+  document.getElementById('comp-prev-prob').textContent = (comp.previous_dr_probability * 100).toFixed(1) + '%';
+  document.getElementById('comp-curr-prob').textContent = (comp.current_dr_probability * 100).toFixed(1) + '%';
+  document.getElementById('comp-change').textContent = (comp.probability_change > 0 ? '+' : '') + (comp.probability_change * 100).toFixed(1) + '%';
+  document.getElementById('comp-trend').textContent = comp.trend;
+  
+  const rec = document.getElementById('compRecommendation');
+  rec.innerHTML = `<div style="padding:12px;border-radius:8px;background:rgba(99,102,241,0.1);border-left:3px solid var(--indigo);"><strong>${comp.recommendation}</strong><br/><span style="font-size:12px;color:var(--text2);">${comp.trend === 'Deteriorating' ? 'Disease progression detected. Urgent review required.' : comp.trend === 'Improving' ? 'Positive response to treatment observed.' : 'Stable condition. Continue current management.'}</span></div>`;
+  
+  document.getElementById('comparisonResultsPanel').style.display = 'block';
+  document.getElementById('comparisonEmpty').style.display = 'none';
+}
+
+function exportComparisonReport() {
+  if (!comparisonData) { showToast('No comparison data.', 'error'); return; }
+  const report = `SCAN PROGRESSION REPORT\n\nPrevious DR Probability: ${(comparisonData.previous_dr_probability * 100).toFixed(1)}%\nCurrent DR Probability: ${(comparisonData.current_dr_probability * 100).toFixed(1)}%\nChange: ${(comparisonData.probability_change > 0 ? '+' : '') + (comparisonData.probability_change * 100).toFixed(1)}%\nTrend: ${comparisonData.trend}\n\nRecommendation: ${comparisonData.recommendation}\n\nGenerated: ${new Date().toISOString()}`;
+  const a = document.createElement('a'); a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(report); a.download = `comparison_${Date.now()}.txt`; a.click();
+  showToast('Report exported.', 'success');
+}
+
+function clearComparison() {
+  document.getElementById('prevScanSelect').value = '';
+  document.getElementById('currScanSelect').value = '';
+  document.getElementById('comparisonResultsPanel').style.display = 'none';
+  comparisonData = null;
+}
+
+// ═══ ENHANCED EXPORT REGISTRY CSV ═══
+function exportRegistryCSV() {
+  if (sessionHistory.length === 0) { showToast('No data to export.', 'error'); return; }
+  const csv = 'Patient ID,Age,Eye,Diagnosis,Certainty,HbA1c,Filter,Time (s)\n' + 
+    sessionHistory.map(r => `"${r.id||'—'}",${r.age||'—'},"${r.eye||'—'}","${r.stageName||'—'}",${r.certainty||'—'},${r.hba1c||'—'},"${r.filterUsed||'—'}",${r.time||'—'}`).join('\n');
+  const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = `registry_${Date.now()}.csv`; a.click();
+  showToast('Registry exported.', 'success');
 }
 
 // ═══ SMOOTH SCROLL ═══
