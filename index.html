@@ -20,13 +20,13 @@
   </div>
   <ul class="nav-links">
     <li><a href="#" onclick="switchView('detect')">Diagnosis</a></li>
-    <li><a href="#" onclick="switchView('batch-upload')">Batch</a></li>
-    <li><a href="#" onclick="switchView('scan-comparison')">Compare</a></li>
     <li><a href="#" onclick="switchView('registry')">Registry</a></li>
     <li><a href="#" onclick="switchView('image-lab')">Image Lab</a></li>
     <li><a href="#" onclick="switchView('risk-calc')">Risk Calc</a></li>
     <li><a href="#" onclick="switchView('notes')">Notes</a></li>
     <li><a href="#" onclick="switchView('settings-view')">Settings</a></li>
+    <li><a href="#" onclick="switchView('ai-chat')">AI Chat</a></li>
+    <li><a href="#" onclick="switchView('timeline')">Timeline</a></li>
   </ul>
   <div class="nav-right">
     <div class="live-clock" id="liveClock"></div>
@@ -53,10 +53,6 @@
     <ul class="sidebar-nav" id="sidebarNav">
       <li class="active" data-target="detect" onclick="switchView('detect')">
         <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Diagnosis Engine</li>
-      <li data-target="batch-upload" onclick="switchView('batch-upload')">
-        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Batch Upload</li>
-      <li data-target="scan-comparison" onclick="switchView('scan-comparison')">
-        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Progression</li>
       <li data-target="registry" onclick="switchView('registry')">
         <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Cohort Registry</li>
       <li data-target="image-lab" onclick="switchView('image-lab')">
@@ -65,6 +61,10 @@
         <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Risk Calculator</li>
       <li data-target="notes" onclick="switchView('notes')">
         <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Clinical Notes</li>
+      <li data-target="ai-chat" onclick="switchView('ai-chat')">
+        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>AI Assistant</li>
+      <li data-target="timeline" onclick="switchView('timeline')">
+        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><circle cx="12" cy="12" r="4"/></svg>Timeline</li>
       <li data-target="settings-view" onclick="switchView('settings-view')">
         <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</li>
     </ul>
@@ -611,119 +611,74 @@
   </div>
 </section>
 
-<!-- ══ BATCH UPLOAD ══ -->
-<section id="batch-upload" class="view-section">
-  <div class="section-label">/ Bulk Processing</div>
-  <h2 class="section-title">Batch Image Analysis</h2>
-  <p class="section-desc">Process multiple retinal images simultaneously and generate comprehensive cohort reports.</p>
-  <div class="batch-layout">
-    <div class="batch-upload-panel dash-panel">
-      <div class="panel-label">Upload Images</div>
-      <div class="batch-upload-area" id="batchUploadArea">
-        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="var(--indigo)" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        <h3>Drop multiple images here</h3>
-        <p>JPG, PNG, BMP, TIFF accepted. Process up to 50 images at once.</p>
-        <button class="btn-primary" id="batchChooseBtn">Select Files</button>
-        <input type="file" id="batchFileInput" accept="image/*" multiple style="display:none;"/>
-      </div>
-      <div id="batchFileList" style="display:none;margin-top:16px;max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:12px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Selected Files</div>
-        <ul id="batchFileListItems" style="list-style:none;padding:0;margin:0;"></ul>
-      </div>
-      <button class="btn-primary" id="batchProcessBtn" style="width:100%;margin-top:16px;display:none;">Process Batch ›</button>
-    </div>
-    <div class="batch-progress-panel dash-panel" id="batchProgressPanel" style="display:none;">
-      <div class="panel-label">Processing Progress</div>
-      <div id="batchProgressBar" class="progress-bar"><div class="progress-fill"></div></div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-top:8px;">
-        <span id="batchProgressText">Initializing...</span>
-        <span id="batchProgressCount">0/0</span>
-      </div>
-    </div>
-    <div class="batch-results-panel" id="batchResultsPanel" style="display:none;">
-      <div class="dash-panel">
-        <div class="panel-label">Batch Summary Report</div>
-        <div class="batch-summary-grid">
-          <div class="summary-card"><div class="summary-val" id="batch-total">0</div><div class="summary-label">Total Processed</div></div>
-          <div class="summary-card"><div class="summary-val" style="color:var(--vermillion);" id="batch-dr">0</div><div class="summary-label">DR Detected</div></div>
-          <div class="summary-card"><div class="summary-val" style="color:var(--emerald);" id="batch-clear">0</div><div class="summary-label">Clear</div></div>
-          <div class="summary-card"><div class="summary-val" id="batch-avg-conf">0%</div><div class="summary-label">Avg Confidence</div></div>
+
+<!-- ══ AI ASSISTANT ══ -->
+<section id="ai-chat" class="view-section">
+  <div class="section-label">/ Clinical Intelligence</div>
+  <h2 class="section-title">AI Scan Assistant</h2>
+  <p class="section-desc">Ask questions about your scan results, get clinical explanations, and request differential diagnoses — powered by Claude AI.</p>
+  <div class="ai-chat-layout">
+    <div class="ai-chat-sidebar dash-panel">
+      <div class="panel-label">Context</div>
+      <div id="aiContextInfo" style="font-size:12px;color:var(--text2);line-height:1.7;">
+        <div style="padding:14px;background:var(--surface3);border-radius:var(--r);border:1px solid var(--border);margin-bottom:10px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Active Scan</div>
+          <div id="aiScanContext" style="color:var(--text2);font-size:12px;">No scan loaded. Run a diagnosis first.</div>
         </div>
-        <div class="chart-container" style="margin-top:16px;height:200px;"><canvas id="batchDistChart"></canvas></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Suggested Questions</div>
+        <div class="ai-suggestion" onclick="askAI(this.innerText)">What does this severity stage mean?</div>
+        <div class="ai-suggestion" onclick="askAI(this.innerText)">Explain the risk factors present.</div>
+        <div class="ai-suggestion" onclick="askAI(this.innerText)">What follow-up is recommended?</div>
+        <div class="ai-suggestion" onclick="askAI(this.innerText)">Compare to typical DR progression.</div>
+        <div class="ai-suggestion" onclick="askAI(this.innerText)">Explain Grad-CAM findings.</div>
+        <div class="ai-suggestion" onclick="askAI(this.innerText)">What lifestyle changes are advised?</div>
       </div>
-      <div class="dash-panel" style="margin-top:14px;">
-        <div class="panel-label">Detailed Results</div>
-        <div class="batch-results-table" id="batchResultsTable"></div>
+    </div>
+    <div class="ai-chat-main">
+      <div class="ai-messages" id="aiMessages">
+        <div class="ai-msg ai-msg-bot">
+          <div class="ai-msg-avatar">AI</div>
+          <div class="ai-msg-bubble">Hello! I'm your clinical AI assistant. Run a retinal scan in the Diagnosis Engine, then come back here to ask me anything about the results — severity interpretation, clinical recommendations, risk analysis, or treatment pathways.</div>
+        </div>
       </div>
-      <div style="display:flex;gap:10px;margin-top:14px;">
-        <button class="btn-primary" onclick="exportBatchCSV()" style="flex:1;">Export CSV</button>
-        <button class="btn-ghost" onclick="downloadBatchJSON()" style="flex:1;">Export JSON</button>
-        <button class="btn-ghost" onclick="resetBatch()" style="flex:1;">Process New Batch</button>
+      <div class="ai-input-row">
+        <input type="text" id="aiInputBox" placeholder="Ask about your scan results..." class="ai-input" onkeydown="if(event.key==='Enter')sendAIMessage()"/>
+        <button class="btn-primary" onclick="sendAIMessage()" id="aiSendBtn">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Send
+        </button>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══ SCAN COMPARISON ══ -->
-<section id="scan-comparison" class="view-section">
+<!-- ══ TIMELINE ══ -->
+<section id="timeline" class="view-section">
   <div class="section-label">/ Longitudinal Analysis</div>
-  <h2 class="section-title">Progression Tracking</h2>
-  <p class="section-desc">Compare current and previous scans to monitor disease progression and treatment efficacy.</p>
-  <div class="comparison-layout">
-    <div class="comparison-selector-panel dash-panel">
-      <div class="panel-label">Select Scans</div>
-      <div class="comparison-form">
-        <div class="input-group">
-          <label>Previous Scan</label>
-          <select id="prevScanSelect" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;">
-            <option value="">No previous scans</option>
-          </select>
-        </div>
-        <div class="input-group">
-          <label>Current Scan</label>
-          <select id="currScanSelect" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;">
-            <option value="">Select a scan</option>
-          </select>
-        </div>
-      </div>
-      <button class="btn-primary" id="runComparisonBtn" style="width:100%;margin-top:16px;">Compare Scans ›</button>
-    </div>
-    <div class="comparison-results-panel" id="comparisonResultsPanel" style="display:none;">
-      <div class="dash-panel">
-        <div class="panel-label">Progression Analysis</div>
-        <div class="comparison-metric-grid">
-          <div class="comp-metric"><span class="comp-metric-label">Previous DR Probability</span><span class="comp-metric-val" id="comp-prev-prob">—</span></div>
-          <div class="comp-metric"><span class="comp-metric-label">Current DR Probability</span><span class="comp-metric-val" id="comp-curr-prob">—</span></div>
-          <div class="comp-metric"><span class="comp-metric-label">Change</span><span class="comp-metric-val" id="comp-change">—</span></div>
-          <div class="comp-metric"><span class="comp-metric-label">Trend</span><span class="comp-metric-val" id="comp-trend">—</span></div>
-        </div>
-      </div>
-      <div class="dash-panel" style="margin-top:14px;">
-        <div class="panel-label">Clinical Recommendation</div>
-        <div class="recommendation-box" id="compRecommendation"></div>
-      </div>
-      <div class="dash-panel" style="margin-top:14px;">
-        <div class="panel-label">Visual Comparison</div>
-        <div class="dual-image-container">
-          <div class="image-panel">
-            <span class="image-panel-label">Previous Scan</span>
-            <div class="image-container"><canvas id="compPrevCanvas" style="width:100%;height:auto;"></canvas></div>
-          </div>
-          <div class="image-panel">
-            <span class="image-panel-label">Current Scan</span>
-            <div class="image-container"><canvas id="compCurrCanvas" style="width:100%;height:auto;"></canvas></div>
-          </div>
-        </div>
-      </div>
-      <div style="display:flex;gap:10px;margin-top:14px;">
-        <button class="btn-primary" onclick="exportComparisonReport()" style="flex:1;">Export Report</button>
-        <button class="btn-ghost" onclick="clearComparison()" style="flex:1;">New Comparison</button>
+  <h2 class="section-title">Patient Timeline</h2>
+  <p class="section-desc">Visual history of all scans this session — compare severity progression, certainty trends, and clinical outcomes across patients.</p>
+
+  <div id="timelineEmpty" style="text-align:center;padding:80px 20px;color:var(--text3);">
+    <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1" style="margin:0 auto 16px;opacity:0.3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:13px;margin-bottom:8px;">No scans recorded yet</div>
+    <div style="font-size:13px;">Run some diagnoses to see your timeline here.</div>
+  </div>
+
+  <div id="timelineContent" style="display:none;">
+    <div class="timeline-controls">
+      <select id="timelinePatientFilter" class="table-search" style="width:200px;" onchange="renderTimeline()">
+        <option value="">All Patients</option>
+      </select>
+      <div style="display:flex;gap:8px;margin-left:auto;">
+        <button class="btn-ghost" onclick="exportTimelineCSV()" style="font-size:12px;">Export CSV</button>
+        <button class="btn-ghost" onclick="printTimeline()" style="font-size:12px;">Print</button>
       </div>
     </div>
-    <div id="comparisonEmpty" style="text-align:center;padding:60px 20px;color:var(--text3);">
-      <div style="font-size:36px;margin-bottom:12px;">📊</div>
-      <div style="font-size:13px;">Load scan history to begin progression tracking.</div>
+    <div class="timeline-chart-wrap dash-panel" style="margin-bottom:16px;">
+      <div class="panel-label">Severity &amp; Certainty Over Time</div>
+      <div class="chart-container" style="height:220px;"><canvas id="timelineBigChart"></canvas></div>
     </div>
+    <div class="timeline-list" id="timelineList"></div>
   </div>
 </section>
 
