@@ -766,4 +766,24 @@ kbd { font-family:'JetBrains Mono',monospace; font-size:11px; padding:3px 10px; 
 @media(max-width:1024px) {
   .batch-summary-grid { grid-template-columns:repeat(2,1fr); }
   .comparison-metric-grid { grid-template-columns:1fr; }
-}   }
+}   
+
+@media(max-width:768px) {
+  .clinical-sidebar { display:none; }
+  .main-content { margin-left:0; width:100%; }
+  nav .nav-links { display:none; }
+  nav .logo-wrapper { position:static; width:auto; border:none; }
+  nav { padding:0 16px; gap:12px; }
+  .logo { position:static; width:auto; border:none; height:auto; padding:0; }
+  .hero { grid-template-columns:1fr; }
+  .hero-left { padding:60px 20px 40px; }
+  .stats-strip { grid-template-columns:1fr 1fr; }
+  section { padding:36px 16px; }
+  .result-header { flex-direction:column; }
+  .confidence-bar-wrap { width:100%; }
+  .lab-canvas-row { grid-template-columns:1fr; }
+  .histogram-row { flex-direction:column; }
+  .dual-image-container { flex-direction:column; align-items:center; }
+  .registry-kpi-row { grid-template-columns:repeat(2,1fr); }
+  .risk-binary-grid { grid-template-columns:1fr 1fr; }
+} }
