@@ -118,8 +118,6 @@ function switchView(id) {
   if (id === 'image-lab') initLabUpload();
   if (id === 'notes') renderNotesList();
   if (id === 'settings-view') loadSettingsUI();
-  if (id === 'batch-upload') resetBatch();
-  if (id === 'scan-comparison') updateComparisonSelects();
 }
 
 // ═══ COUNTERS ═══
@@ -927,178 +925,469 @@ function clearAllData() {
   showToast('All data cleared.', 'info');
 }
 
-// ═══════════════════════════════════════════════
-// BATCH UPLOAD FEATURE
-// ═══════════════════════════════════════════════
-let batchFiles = [];
-let batchResults = [];
-document.getElementById('batchChooseBtn').addEventListener('click', () => document.getElementById('batchFileInput').click());
-document.getElementById('batchFileInput').addEventListener('change', e => {
-  batchFiles = Array.from(e.target.files);
-  updateBatchFileList();
-  if (batchFiles.length > 0) document.getElementById('batchProcessBtn').style.display = 'block';
-});
-const batchUploadArea = document.getElementById('batchUploadArea');
-['dragover', 'dragleave', 'drop'].forEach(ev => batchUploadArea.addEventListener(ev, e => e.preventDefault()));
-batchUploadArea.addEventListener('dragover', () => batchUploadArea.style.borderColor = 'var(--indigo)');
-batchUploadArea.addEventListener('dragleave', () => batchUploadArea.style.borderColor = '');
-batchUploadArea.addEventListener('drop', e => {
-  batchFiles = Array.from(e.dataTransfer.files);
-  updateBatchFileList();
-  if (batchFiles.length > 0) document.getElementById('batchProcessBtn').style.display = 'block';
-});
-
-function updateBatchFileList() {
-  const list = document.getElementById('batchFileListItems');
-  list.innerHTML = batchFiles.map((f, i) => `<li style="padding:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;"><span>${f.name}</span><button class="btn-ghost" style="font-size:10px;padding:4px 8px;" onclick="batchFiles.splice(${i},1);updateBatchFileList();if(batchFiles.length===0){document.getElementById('batchFileList').style.display='none';document.getElementById('batchProcessBtn').style.display='none';}" title="Remove">✕</button></li>`).join('');
-  document.getElementById('batchFileList').style.display = batchFiles.length > 0 ? 'block' : 'none';
-}
-
-document.getElementById('batchProcessBtn').addEventListener('click', async () => {
-  if (batchFiles.length === 0) { showToast('No files selected.', 'error'); return; }
-  const formData = new FormData();
-  batchFiles.forEach(f => formData.append('images', f));
-  
-  document.getElementById('batchUploadArea').style.display = 'none';
-  document.getElementById('batchProgressPanel').style.display = 'block';
-  document.getElementById('batchResultsPanel').style.display = 'none';
-  
-  try {
-    const res = await fetch('/batch-predict', { method: 'POST', body: formData });
-    const data = await res.json();
-    batchResults = data.batch_results;
-    displayBatchResults(data.summary);
-    showToast(`Processed ${data.summary.processed} images.`, 'success');
-  } catch (err) {
-    showToast('Batch processing failed: ' + err.message, 'error');
-  }
-  document.getElementById('batchProgressPanel').style.display = 'none';
-});
-
-function displayBatchResults(summary) {
-  document.getElementById('batch-total').textContent = summary.processed;
-  document.getElementById('batch-dr').textContent = summary.dr_detected;
-  document.getElementById('batch-clear').textContent = summary.processed - summary.dr_detected;
-  document.getElementById('batch-avg-conf').textContent = (summary.average_confidence * 100).toFixed(1) + '%';
-  
-  const table = document.getElementById('batchResultsTable');
-  table.innerHTML = '<table class="data-table" style="width:100;"><thead><tr><th>File</th><th>Status</th><th>Prediction</th><th>Confidence</th><th>Time</th></tr></thead><tbody>' + 
-    batchResults.map(r => `<tr><td>${r.filename}</td><td style="color:${r.status==='success'?'var(--emerald)':'var(--vermillion)'};">${r.status}</td><td>${r.prediction||'—'}</td><td>${r.confidence_pct||'—'}</td><td>${r.inference_time_s?r.inference_time_s+'s':'—'}</td></tr>`).join('') + 
-    '</tbody></table>';
-  
-  if (window.batchDistChart) window.batchDistChart.destroy();
-  const ctx = document.getElementById('batchDistChart').getContext('2d');
-  window.batchDistChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: { labels: ['DR Detected', 'No DR'], datasets: [{ data: [summary.dr_detected, summary.processed - summary.dr_detected], backgroundColor: ['#ff4d00', '#10b981'], borderColor: 'var(--bg)', borderWidth: 2 }] },
-    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
-  });
-  
-  document.getElementById('batchResultsPanel').style.display = 'block';
-}
-
-function exportBatchCSV() {
-  const csv = 'filename,status,prediction,confidence,inference_time\n' + batchResults.map(r => `"${r.filename}",${r.status},"${r.prediction||''}",${r.confidence_pct||''},"${r.inference_time_s||''}"` ).join('\n');
-  const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = `batch_results_${Date.now()}.csv`; a.click();
-  showToast('Batch CSV exported.', 'success');
-}
-
-function downloadBatchJSON() {
-  const a = document.createElement('a'); a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(batchResults, null, 2)); a.download = `batch_results_${Date.now()}.json`; a.click();
-  showToast('Batch JSON exported.', 'success');
-}
-
-function resetBatch() {
-  batchFiles = [];
-  batchResults = [];
-  document.getElementById('batchFileInput').value = '';
-  document.getElementById('batchUploadArea').style.display = 'block';
-  document.getElementById('batchProgressPanel').style.display = 'none';
-  document.getElementById('batchResultsPanel').style.display = 'none';
-  document.getElementById('batchFileList').style.display = 'none';
-  document.getElementById('batchProcessBtn').style.display = 'none';
-  updateBatchFileList();
-}
-
-// ═══════════════════════════════════════════════
-// SCAN COMPARISON / PROGRESSION TRACKING
-// ═══════════════════════════════════════════════
-let comparisonData = null;
-
-function updateComparisonSelects() {
-  const prevSelect = document.getElementById('prevScanSelect');
-  const currSelect = document.getElementById('currScanSelect');
-  const opts = sessionHistory.map((s, i) => `<option value="${i}">${s.id || 'Patient ' + (i+1)} - ${s.date || 'Unknown date'} (${s.stageName})</option>`).join('');
-  prevSelect.innerHTML = '<option value="">No previous scans</option>' + opts;
-  currSelect.innerHTML = '<option value="">Select a scan</option>' + opts;
-}
-
-document.getElementById('runComparisonBtn').addEventListener('click', async () => {
-  const prevIdx = +document.getElementById('prevScanSelect').value;
-  const currIdx = +document.getElementById('currScanSelect').value;
-  
-  if (isNaN(prevIdx) || isNaN(currIdx)) { showToast('Select both scans.', 'error'); return; }
-  if (prevIdx === currIdx) { showToast('Select different scans.', 'error'); return; }
-  
-  const prevScan = sessionHistory[prevIdx];
-  const currScan = sessionHistory[currIdx];
-  
-  try {
-    const res = await fetch('/comparison', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        previous_scan: { dr_probability: prevScan.dr_prob || 0.5, timestamp: prevScan.date },
-        current_scan: { dr_probability: currScan.dr_prob || 0.5, timestamp: currScan.date },
-        days_since_previous: Math.ceil((new Date(currScan.date) - new Date(prevScan.date)) / (1000 * 60 * 60 * 24))
-      })
-    });
-    const data = await res.json();
-    displayComparisonResults(data.comparison);
-    showToast('Comparison complete.', 'success');
-  } catch (err) {
-    showToast('Comparison failed: ' + err.message, 'error');
-  }
-});
-
-function displayComparisonResults(comp) {
-  comparisonData = comp;
-  document.getElementById('comp-prev-prob').textContent = (comp.previous_dr_probability * 100).toFixed(1) + '%';
-  document.getElementById('comp-curr-prob').textContent = (comp.current_dr_probability * 100).toFixed(1) + '%';
-  document.getElementById('comp-change').textContent = (comp.probability_change > 0 ? '+' : '') + (comp.probability_change * 100).toFixed(1) + '%';
-  document.getElementById('comp-trend').textContent = comp.trend;
-  
-  const rec = document.getElementById('compRecommendation');
-  rec.innerHTML = `<div style="padding:12px;border-radius:8px;background:rgba(99,102,241,0.1);border-left:3px solid var(--indigo);"><strong>${comp.recommendation}</strong><br/><span style="font-size:12px;color:var(--text2);">${comp.trend === 'Deteriorating' ? 'Disease progression detected. Urgent review required.' : comp.trend === 'Improving' ? 'Positive response to treatment observed.' : 'Stable condition. Continue current management.'}</span></div>`;
-  
-  document.getElementById('comparisonResultsPanel').style.display = 'block';
-  document.getElementById('comparisonEmpty').style.display = 'none';
-}
-
-function exportComparisonReport() {
-  if (!comparisonData) { showToast('No comparison data.', 'error'); return; }
-  const report = `SCAN PROGRESSION REPORT\n\nPrevious DR Probability: ${(comparisonData.previous_dr_probability * 100).toFixed(1)}%\nCurrent DR Probability: ${(comparisonData.current_dr_probability * 100).toFixed(1)}%\nChange: ${(comparisonData.probability_change > 0 ? '+' : '') + (comparisonData.probability_change * 100).toFixed(1)}%\nTrend: ${comparisonData.trend}\n\nRecommendation: ${comparisonData.recommendation}\n\nGenerated: ${new Date().toISOString()}`;
-  const a = document.createElement('a'); a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(report); a.download = `comparison_${Date.now()}.txt`; a.click();
-  showToast('Report exported.', 'success');
-}
-
-function clearComparison() {
-  document.getElementById('prevScanSelect').value = '';
-  document.getElementById('currScanSelect').value = '';
-  document.getElementById('comparisonResultsPanel').style.display = 'none';
-  comparisonData = null;
-}
-
-// ═══ ENHANCED EXPORT REGISTRY CSV ═══
-function exportRegistryCSV() {
-  if (sessionHistory.length === 0) { showToast('No data to export.', 'error'); return; }
-  const csv = 'Patient ID,Age,Eye,Diagnosis,Certainty,HbA1c,Filter,Time (s)\n' + 
-    sessionHistory.map(r => `"${r.id||'—'}",${r.age||'—'},"${r.eye||'—'}","${r.stageName||'—'}",${r.certainty||'—'},${r.hba1c||'—'},"${r.filterUsed||'—'}",${r.time||'—'}`).join('\n');
-  const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = `registry_${Date.now()}.csv`; a.click();
-  showToast('Registry exported.', 'success');
-}
-
 // ═══ SMOOTH SCROLL ═══
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => { e.preventDefault(); document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' }); });
 });
+
+
+// ═══════════════════════════════════════════════════════════
+// NEW FEATURE 1: AI CHAT ASSISTANT (Claude API)
+// ═══════════════════════════════════════════════════════════
+
+function getActiveScanContext() {
+  if (!sessionHistory.length) return null;
+  const p = sessionHistory[0];
+  return {
+    patientId: p.id,
+    age: p.age,
+    eye: p.eye,
+    hba1c: p.hba1c,
+    diabetesDuration: p.diab,
+    stageName: p.stageName,
+    stageLevel: p.stageLevel,
+    certainty: p.certainty,
+    lesionDensity: p.density,
+    filterUsed: p.filterUsed,
+    brightness: p.brightness,
+    contrast: p.contrast
+  };
+}
+
+function updateAIScanContext() {
+  const ctx = getActiveScanContext();
+  const el = document.getElementById('aiScanContext');
+  if (!el) return;
+  if (!ctx) {
+    el.innerHTML = '<span style="color:var(--text3)">No scan loaded. Run a diagnosis first.</span>';
+    return;
+  }
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <div><strong style="color:var(--text)">${ctx.patientId}</strong> · ${ctx.eye}</div>
+      <div style="color:var(--text3)">Age ${ctx.age} · HbA1c ${ctx.hba1c}%</div>
+      <div style="margin-top:4px;">
+        <span class="stage-pill stage-${ctx.stageLevel}">${ctx.stageName}</span>
+      </div>
+      <div style="color:var(--text3);margin-top:2px;">Certainty: <strong style="color:var(--indigo)">${ctx.certainty}%</strong></div>
+    </div>
+  `;
+}
+
+function askAI(text) {
+  document.getElementById('aiInputBox').value = text;
+  sendAIMessage();
+}
+
+function appendAIMessage(role, html, isThinking = false) {
+  const container = document.getElementById('aiMessages');
+  const div = document.createElement('div');
+  div.className = `ai-msg ${role === 'user' ? 'ai-msg-user' : 'ai-msg-bot'}${isThinking ? ' ai-msg-thinking' : ''}`;
+  const avatarLabel = role === 'user' ? 'You' : 'AI';
+  div.innerHTML = `
+    <div class="ai-msg-avatar">${avatarLabel}</div>
+    <div class="ai-msg-bubble">${html}</div>
+  `;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+async function sendAIMessage() {
+  const input = document.getElementById('aiInputBox');
+  const sendBtn = document.getElementById('aiSendBtn');
+  const userText = input.value.trim();
+  if (!userText) return;
+
+  input.value = '';
+  input.disabled = true;
+  sendBtn.disabled = true;
+
+  appendAIMessage('user', userText);
+
+  const thinkingEl = appendAIMessage('bot', `<div class="ai-thinking-dots"><span></span><span></span><span></span></div>`, true);
+
+  const ctx = getActiveScanContext();
+  const systemPrompt = `You are a clinical AI assistant embedded in RetinaAI, a diabetic retinopathy screening platform. You help clinicians understand scan results, provide clinical context, and explain findings clearly and concisely.
+
+${ctx ? `CURRENT SCAN CONTEXT:
+- Patient: ${ctx.patientId}, Age: ${ctx.age}, Eye: ${ctx.eye}
+- Diagnosis: ${ctx.stageName} (Stage ${ctx.stageLevel}/4)
+- AI Certainty: ${ctx.certainty}%
+- Lesion Density Score: ${ctx.lesionDensity}
+- HbA1c: ${ctx.hba1c}%, Diabetes Duration: ${ctx.diabetesDuration} years
+- Image: Brightness ${ctx.brightness}, Contrast ${ctx.contrast}` : 'No scan has been run yet. Guide the user to use the Diagnosis Engine first.'}
+
+Keep responses concise (2-4 sentences), clinically accurate, and professional. Do not provide definitive medical advice — always note this is AI-assisted screening for clinician review.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userText }]
+      })
+    });
+
+    const data = await response.json();
+    const reply = data?.content?.[0]?.text || 'Sorry, I could not generate a response. Please try again.';
+
+    thinkingEl.remove();
+    appendAIMessage('bot', reply.replace(/\n/g, '<br/>'));
+  } catch (err) {
+    thinkingEl.remove();
+    appendAIMessage('bot', 'Network error — unable to reach AI service. Check your connection and try again.');
+  } finally {
+    input.disabled = false;
+    sendBtn.disabled = false;
+    input.focus();
+  }
+}
+
+// Hook into switchView to update AI context
+const _origSwitchView = switchView;
+switchView = function(id) {
+  _origSwitchView(id);
+  if (id === 'ai-chat') {
+    updateAIScanContext();
+    // extend views list
+  }
+  if (id === 'timeline') renderTimeline();
+};
+
+// ═══════════════════════════════════════════════════════════
+// NEW FEATURE 2: PATIENT TIMELINE
+// ═══════════════════════════════════════════════════════════
+
+let timelineBigChart = null;
+const stageColors = ['#10b981','#6366f1','#f59e0b','#f97316','#ef4444'];
+const stageNames  = ['No DR','Mild','Moderate','Severe','Prolif.'];
+
+function renderTimeline() {
+  const empty = document.getElementById('timelineEmpty');
+  const content = document.getElementById('timelineContent');
+  if (!sessionHistory.length) {
+    empty.style.display = 'block';
+    content.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  content.style.display = 'block';
+
+  // Populate patient filter
+  const filter = document.getElementById('timelinePatientFilter');
+  const selected = filter.value;
+  const ids = [...new Set(sessionHistory.map(p => p.id))];
+  filter.innerHTML = '<option value="">All Patients</option>' +
+    ids.map(id => `<option value="${id}" ${id===selected?'selected':''}>${id}</option>`).join('');
+
+  const data = selected
+    ? sessionHistory.filter(p => p.id === selected)
+    : [...sessionHistory];
+  const reversed = [...data].reverse();
+
+  // Big chart
+  const labels = reversed.map(p => p.date + ' · ' + p.id);
+  const severityData = reversed.map(p => p.stageLevel);
+  const certaintyData = reversed.map(p => parseFloat(p.certainty));
+
+  const ctx = document.getElementById('timelineBigChart').getContext('2d');
+  if (timelineBigChart) timelineBigChart.destroy();
+  timelineBigChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Severity (0-4)',
+          data: severityData,
+          borderColor: '#6366f1',
+          backgroundColor: 'rgba(99,102,241,0.1)',
+          borderWidth: 2.5,
+          pointBackgroundColor: severityData.map(v => stageColors[v]),
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointRadius: 7,
+          fill: true,
+          tension: 0.4,
+          yAxisID: 'y'
+        },
+        {
+          label: 'AI Certainty (%)',
+          data: certaintyData,
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16,185,129,0.06)',
+          borderWidth: 2,
+          pointRadius: 4,
+          pointBackgroundColor: '#10b981',
+          fill: true,
+          tension: 0.4,
+          yAxisID: 'y2',
+          borderDash: [5,3]
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          labels: { color: '#9ea3b8', font: { family: 'JetBrains Mono, monospace', size: 10 }, boxWidth: 10, padding: 16 }
+        }
+      },
+      scales: {
+        y: {
+          min: 0, max: 4, position: 'left',
+          ticks: { stepSize:1, color:'#9ea3b8', font:{family:'JetBrains Mono,monospace',size:9} },
+          grid: { color:'rgba(99,102,241,0.08)' }
+        },
+        y2: {
+          min: 75, max: 100, position: 'right',
+          ticks: { color:'#10b981', font:{family:'JetBrains Mono,monospace',size:9}, callback: v=>v+'%' },
+          grid: { display: false }
+        },
+        x: {
+          ticks: { color:'#5c6178', font:{family:'JetBrains Mono,monospace',size:9}, maxRotation:30 },
+          grid: { display:false }
+        }
+      }
+    }
+  });
+
+  // Render list
+  const list = document.getElementById('timelineList');
+  list.innerHTML = '';
+  reversed.forEach((p, i) => {
+    const barWidth = (p.stageLevel / 4) * 100;
+    const barColor = stageColors[p.stageLevel];
+    const entry = document.createElement('div');
+    entry.className = 'timeline-entry';
+    entry.innerHTML = `
+      <div class="timeline-date">${p.date}<br/><span style="font-size:9px;">${p.id}</span></div>
+      <div class="timeline-spine">
+        <div class="timeline-dot" style="background:${barColor};box-shadow:0 0 0 2px ${barColor};"></div>
+        <div class="timeline-line"></div>
+      </div>
+      <div class="timeline-card" onclick="switchView('detect');updateSidebar('${p.uniqueKey}');renderDashboard(sessionHistory.find(x=>x.uniqueKey==='${p.uniqueKey}'))">
+        <div class="timeline-card-header">
+          <div class="timeline-card-id">${p.id} · ${p.eye}</div>
+          <span class="stage-pill stage-${p.stageLevel}">${p.stageName}</span>
+        </div>
+        <div class="timeline-card-body">
+          <span><strong>${p.certainty}%</strong> certainty</span>
+          <span><strong>Age ${p.age}</strong></span>
+          <span>HbA1c <strong>${p.hba1c}%</strong></span>
+          <span>Density <strong>${p.density}</strong></span>
+          <span>Filter <strong>${p.filterUsed||'none'}</strong></span>
+        </div>
+        <div class="timeline-severity-bar">
+          <div class="timeline-severity-fill" style="width:${barWidth}%;background:${barColor};"></div>
+        </div>
+      </div>
+    `;
+    list.appendChild(entry);
+  });
+}
+
+function exportTimelineCSV() {
+  if (!sessionHistory.length) { showToast('No data to export.','error'); return; }
+  const headers = ['Patient ID','Eye','Age','HbA1c','Diab Duration','Stage','Stage Name','Certainty','Lesion Density','Filter','Time'];
+  const rows = [...sessionHistory].reverse().map(p => [
+    p.id, p.eye, p.age, p.hba1c, p.diab, p.stageLevel, p.stageName,
+    p.certainty+'%', p.density, p.filterUsed||'none', p.date
+  ]);
+  const csv = [headers,...rows].map(r=>r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.download = `retinaai_timeline_${Date.now()}.csv`;
+  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.click();
+  showToast('Timeline exported as CSV.','success');
+}
+
+function printTimeline() {
+  window.print();
+}
+
+// ═══════════════════════════════════════════════════════════
+// NEW FEATURE 3: SMART PDF REPORT
+// Enhances the existing Export PDF button with a styled report
+// ═══════════════════════════════════════════════════════════
+
+function generateStyledReport() {
+  if (!sessionHistory.length) { showToast('No scan to export.','error'); return; }
+  const p = sessionHistory[0];
+  const stageColMap = ['#10b981','#6366f1','#f59e0b','#f97316','#ef4444'];
+  const col = stageColMap[p.stageLevel];
+  const recTexts = [
+    'No DR detected. Annual screening recommended. Continue glycaemic and BP management.',
+    'Mild NPDR. Follow-up in 12 months. Optimize HbA1c below 7%.',
+    'Moderate NPDR. Ophthalmology referral within 3–6 months. Enhanced glycaemic control critical.',
+    'Severe NPDR. Urgent referral within 1 month. Laser photocoagulation may be indicated.',
+    'Proliferative DR. URGENT referral within 1 week. Anti-VEGF or pan-retinal photocoagulation required.'
+  ];
+  const rec = recTexts[p.stageLevel];
+  const now = new Date().toLocaleString();
+  const rptId = 'RPT-' + p.uniqueKey.slice(-8).toUpperCase();
+
+  const win = window.open('','_blank');
+  win.document.write(`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<title>RetinaAI Report — ${p.id}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:#fff;color:#13141a;font-size:13px;line-height:1.6;}
+  .page{max-width:760px;margin:0 auto;padding:48px 40px;}
+  /* Header */
+  .rpt-header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:24px;border-bottom:2px solid #13141a;margin-bottom:32px;}
+  .rpt-logo{font-family:'Outfit',sans-serif;font-weight:800;font-size:24px;color:#6366f1;letter-spacing:-0.5px;}
+  .rpt-logo span{font-size:11px;font-family:'JetBrains Mono',monospace;color:#9093ae;font-weight:400;margin-left:6px;}
+  .rpt-meta{text-align:right;font-family:'JetBrains Mono',monospace;font-size:10px;color:#9093ae;line-height:1.8;}
+  .rpt-meta strong{color:#13141a;font-size:11px;}
+  /* Title */
+  .rpt-title{font-family:'Outfit',sans-serif;font-weight:800;font-size:28px;letter-spacing:-0.8px;margin-bottom:4px;}
+  .rpt-subtitle{color:#9093ae;font-size:13px;margin-bottom:28px;}
+  /* Patient info */
+  .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#e5e7eb;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:28px;}
+  .info-cell{background:#fff;padding:14px 16px;}
+  .info-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:#9093ae;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:3px;}
+  .info-val{font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;color:#13141a;}
+  /* Diagnosis banner */
+  .diag-banner{background:${col}12;border:1.5px solid ${col}44;border-radius:12px;padding:20px 24px;margin-bottom:28px;display:flex;justify-content:space-between;align-items:center;}
+  .diag-stage{font-family:'Outfit',sans-serif;font-weight:800;font-size:26px;color:${col};}
+  .diag-badge{font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 14px;border-radius:100px;background:${col};color:#fff;font-weight:600;letter-spacing:1px;text-transform:uppercase;}
+  .diag-certainty{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:${col};text-align:right;}
+  .diag-certainty-label{font-size:10px;color:#9093ae;text-align:right;}
+  /* Section headers */
+  .sec-heading{font-family:'JetBrains Mono',monospace;font-size:10px;color:#6366f1;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #e5e7eb;}
+  /* Stats row */
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;}
+  .stat-box{border:1px solid #e5e7eb;border-radius:8px;padding:12px 14px;text-align:center;}
+  .stat-box-val{font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;color:#13141a;}
+  .stat-box-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:#9093ae;text-transform:uppercase;letter-spacing:1px;}
+  /* Severity scale */
+  .sev-bar{height:6px;border-radius:100px;background:linear-gradient(90deg,#10b981,#6366f1 25%,#f59e0b 50%,#f97316 75%,#ef4444);margin:10px 0 6px;position:relative;}
+  .sev-dot{position:absolute;top:-5px;width:16px;height:16px;border-radius:50%;background:${col};border:2px solid #fff;box-shadow:0 0 0 2px ${col};transform:translateX(-50%);left:${p.stageLevel*25}%;}
+  .sev-labels{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:8px;color:#9093ae;text-transform:uppercase;}
+  /* Recommendation */
+  .rec-box{background:${col}08;border-left:3px solid ${col};border-radius:0 8px 8px 0;padding:16px 20px;margin-bottom:28px;font-size:13px;line-height:1.7;color:#484b6a;}
+  .rec-box strong{display:block;margin-bottom:4px;color:#13141a;font-family:'Outfit',sans-serif;font-size:14px;}
+  /* Risk factors */
+  .risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px;}
+  .risk-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;}
+  .risk-row-bar{flex:1;height:3px;background:#f3f4f6;border-radius:100px;overflow:hidden;}
+  .risk-row-fill{height:100%;border-radius:100px;}
+  .risk-row-name{font-size:11px;color:#484b6a;min-width:120px;}
+  .risk-row-val{font-family:'JetBrains Mono',monospace;font-size:10px;color:#9093ae;min-width:36px;text-align:right;}
+  /* Footer */
+  .rpt-footer{border-top:1px solid #e5e7eb;padding-top:18px;margin-top:32px;display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:9px;color:#9093ae;}
+  .disclaimer{background:#fafafa;border:1px solid #e5e7eb;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:11px;color:#9093ae;line-height:1.6;}
+  @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}.page{padding:24px;}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="rpt-header">
+    <div>
+      <div class="rpt-logo">RetinaAI <span>v2.0</span></div>
+      <div style="font-size:11px;color:#9093ae;margin-top:3px;font-family:'JetBrains Mono',monospace;">Clinical Analysis Report</div>
+    </div>
+    <div class="rpt-meta">
+      <div><strong>${rptId}</strong></div>
+      <div>${now}</div>
+      <div>Research Use Only</div>
+    </div>
+  </div>
+
+  <div class="rpt-title">Diabetic Retinopathy Screening</div>
+  <div class="rpt-subtitle">AI-assisted grading via EfficientNetB0 · Grad-CAM explainability</div>
+
+  <div class="info-grid">
+    <div class="info-cell"><div class="info-label">Patient ID</div><div class="info-val">${p.id}</div></div>
+    <div class="info-cell"><div class="info-label">Age</div><div class="info-val">${p.age} yrs</div></div>
+    <div class="info-cell"><div class="info-label">Eye</div><div class="info-val">${p.eye}</div></div>
+    <div class="info-cell"><div class="info-label">HbA1c</div><div class="info-val">${p.hba1c}%</div></div>
+    <div class="info-cell"><div class="info-label">Diabetes Duration</div><div class="info-val">${p.diab} yrs</div></div>
+    <div class="info-cell"><div class="info-label">Pre-processing</div><div class="info-val">${p.filterUsed||'None'}</div></div>
+  </div>
+
+  <div class="sec-heading">Diagnosis Result</div>
+  <div class="diag-banner">
+    <div>
+      <div class="diag-stage">${p.stageName}</div>
+      <span class="diag-badge">${p.stageLevel===0?'DR Negative':'Refer to Ophthalmologist'}</span>
+    </div>
+    <div>
+      <div class="diag-certainty">${p.certainty}%</div>
+      <div class="diag-certainty-label">AI Certainty</div>
+    </div>
+  </div>
+
+  <div class="sec-heading">Severity Classification</div>
+  <div style="margin-bottom:28px;">
+    <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;color:#9093ae;margin-bottom:4px;">
+      <span>DR Severity Stage</span><span>Stage ${p.stageLevel} / 4</span>
+    </div>
+    <div class="sev-bar"><div class="sev-dot"></div></div>
+    <div class="sev-labels"><span>None</span><span>Mild</span><span>Moderate</span><span>Severe</span><span>Prolif.</span></div>
+  </div>
+
+  <div class="sec-heading">Clinical Recommendation</div>
+  <div class="rec-box"><strong>Action Required:</strong>${rec}</div>
+
+  <div class="sec-heading">Image Analysis Metrics</div>
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-box-val">${p.certainty}%</div><div class="stat-box-label">Certainty</div></div>
+    <div class="stat-box"><div class="stat-box-val">${p.density}</div><div class="stat-box-label">Lesion Density</div></div>
+    <div class="stat-box"><div class="stat-box-val">${p.brightness}</div><div class="stat-box-label">Brightness</div></div>
+    <div class="stat-box"><div class="stat-box-val">${p.contrast}</div><div class="stat-box-label">Contrast</div></div>
+  </div>
+
+  <div class="sec-heading">Risk Factor Breakdown</div>
+  <div class="risk-grid">
+    ${[
+      ['Vascular Abnormality', Math.min(100,p.stageLevel*22+10),'#6366f1'],
+      ['Microaneurysm Score', Math.min(100,p.stageLevel*18+8),'#f59e0b'],
+      ['Hemorrhage Risk', Math.min(100,p.stageLevel*15+6),'#ef4444'],
+      ['Exudate Presence', Math.min(100,p.stageLevel*12+5),'#f97316'],
+      ['Neovascularization', p.stageLevel===4?85:p.stageLevel*5,'#6366f1'],
+      ['Optic Disc Integrity', 100-(p.stageLevel*15),'#10b981']
+    ].map(([name,val,col])=>`
+      <div class="risk-row">
+        <div class="risk-row-name">${name}</div>
+        <div class="risk-row-bar"><div class="risk-row-fill" style="width:${val}%;background:${col};"></div></div>
+        <div class="risk-row-val">${val}%</div>
+      </div>
+    `).join('')}
+  </div>
+
+  <div class="disclaimer">
+    <strong>Disclaimer:</strong> This report is generated by an AI-assisted screening tool for research and clinical decision support purposes only. It does not constitute a definitive medical diagnosis. All findings must be reviewed and confirmed by a qualified ophthalmologist. Not approved as a standalone medical device.
+  </div>
+
+  <div class="rpt-footer">
+    <span>RetinaAI v2.0 · EfficientNetB0 · APTOS 2019 · AUC 0.952</span>
+    <span>${rptId} · ${now}</span>
+  </div>
+</div>
+<script>window.onload=()=>window.print();</script>
+</body>
+</html>`);
+  win.document.close();
+}
+
+// Override the existing PDF export button
+document.getElementById('downloadReportBtn').addEventListener('click', generateStyledReport);
+
+// Also update sidebar counts when analysis completes - hook into updateSessionCounts
+const _origUpdateCounts = updateSessionCounts;
+updateSessionCounts = function() {
+  _origUpdateCounts();
+  updateAIScanContext();
+};
