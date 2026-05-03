@@ -1043,3 +1043,10 @@ kbd { font-family:'JetBrains Mono',monospace; font-size:11px; padding:3px 10px; 
   .ai-messages { min-height: 300px; }
   .timeline-entry { grid-template-columns: 80px 24px 1fr; }
 }
+
+@media(max-width:500px) {
+  .timeline-entry { grid-template-columns: 1fr; }
+  .timeline-date { text-align: left; padding-bottom: 8px; }
+  .timeline-spine { flex-direction: row; gap: 8px; justify-content: flex-start; }
+  .timeline-line { width: 100%; height: 2px; margin: 0 0 0 6px; }
+}
