@@ -1050,3 +1050,7 @@ kbd { font-family:'JetBrains Mono',monospace; font-size:11px; padding:3px 10px; 
   .timeline-spine { flex-direction: row; gap: 8px; justify-content: flex-start; }
   .timeline-line { width: 100%; height: 2px; margin: 0 0 0 6px; }
 }
+
+@media(max-width:400px) {
+  .ai-msg-bubble { max-width: 100%; }
+}
