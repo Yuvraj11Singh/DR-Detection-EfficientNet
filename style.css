@@ -1037,20 +1037,3 @@ kbd { font-family:'JetBrains Mono',monospace; font-size:11px; padding:3px 10px; 
 .stage-3 { background: rgba(249,115,22,0.12); color: #f97316; }
 .stage-4 { background: rgba(var(--accent3-rgb),0.12); color: var(--vermillion); }
 
-@media(max-width:900px) {
-  .ai-chat-layout { grid-template-columns: 1fr; height: auto; }
-  .ai-chat-sidebar { height: auto; max-height: 280px; }
-  .ai-messages { min-height: 300px; }
-  .timeline-entry { grid-template-columns: 80px 24px 1fr; }
-}
-
-@media(max-width:500px) {
-  .timeline-entry { grid-template-columns: 1fr; }
-  .timeline-date { text-align: left; padding-bottom: 8px; }
-  .timeline-spine { flex-direction: row; gap: 8px; justify-content: flex-start; }
-  .timeline-line { width: 100%; height: 2px; margin: 0 0 0 6px; }
-}
-
-@media(max-width:400px) {
-  .ai-msg-bubble { max-width: 100%; }
-}
