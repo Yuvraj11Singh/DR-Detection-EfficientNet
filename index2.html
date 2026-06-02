@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Onboarding Agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,500;1,300&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #F7F5F0;
+  --ink: #1C1A16;
+  --ink2: #6B6760;
+  --ink3: #A8A49E;
+  --surface: #FFFFFF;
+  --surface2: #F0EDE6;
+  --border: #E4E0D8;
+  --border2: #D0CCBF;
+  --accent: #1A4FBF;
+  --accent-soft: #EBF0FF;
+  --green: #1A7A4A;
+  --green-soft: #E8F5EE;
+  --amber: #B86800;
+  --amber-soft: #FFF4E0;
+  --red: #C0392B;
+  --red-soft: #FEECEB;
+  --purple: #5B2D8E;
+  --purple-soft: #F0EAF9;
+  --teal: #0D6E6E;
+  --teal-soft: #E6F5F5;
+  --r: 10px;
+  --font: 'Sora', system-ui, sans-serif;
+  --serif: 'Fraunces', Georgia, serif;
+  --shadow: 0 2px 16px rgba(28,26,22,0.07);
+  --shadow2: 0 4px 24px rgba(28,26,22,0.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.6;min-height:100vh}
+
+/* TOPBAR */
+.topbar{background:var(--ink);color:#fff;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:300}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-logo{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.tb-title{font-family:var(--serif);font-size:18px;font-weight:300;letter-spacing:-0.2px}
+.tb-right{display:flex;align-items:center;gap:8px}
+.chip{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;letter-spacing:0.2px}
+.chip-sim{background:rgba(184,104,0,0.25);color:#FFBE5C;border:1px solid rgba(184,104,0,0.4)}
+.chip-phase{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.15)}
+
+/* TAB BAR — role switcher */
+.role-bar{background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0;padding:0 28px;overflow-x:auto}
+.role-tab{padding:14px 20px;font-size:13px;font-weight:500;color:var(--ink3);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all 0.15s;display:flex;align-items:center;gap:7px}
+.role-tab:hover{color:var(--ink2)}
+.role-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.role-dot{width:7px;height:7px;border-radius:50%}
+
+/* VIEWS */
+.view{display:none;animation:fadeIn 0.2s ease}
+.view.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ── TA VIEW ── */
+.ta-wrap{max-width:680px;margin:0 auto;padding:36px 24px}
+.view-heading{font-family:var(--serif);font-size:28px;font-weight:300;color:var(--ink);letter-spacing:-0.5px;margin-bottom:6px}
+.view-sub{color:var(--ink2);font-size:14px;margin-bottom:28px}
+
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:28px;box-shadow:var(--shadow);margin-bottom:20px}
+.fc-title{font-size:12px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--ink3);margin-bottom:18px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:9px 12px;font-family:var(--font);font-size:13px;color:var(--ink);outline:none;transition:border-color 0.15s,background 0.15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);background:#fff}
+.field textarea{resize:vertical;min-height:60px}
+.field select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23A8A49E' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:30px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+.submit-btn{width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.15s,box-shadow 0.15s;box-shadow:0 2px 12px rgba(26,79,191,0.3)}
+.submit-btn:hover{opacity:0.92;box-shadow:0 4px 20px rgba(26,79,191,0.4)}
+.submit-btn:disabled{opacity:0.45;cursor:not-allowed;box-shadow:none}
+.spin{width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.demo-bar{background:var(--amber-soft);border:1px solid rgba(184,104,0,0.25);border-radius:8px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
+.demo-text{font-size:13px;color:var(--amber)}
+.demo-btn{background:var(--amber);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font)}
+.demo-btn:hover{opacity:0.88}
+
+/* success notice */
+.ta-success{display:none;background:var(--green-soft);border:1px solid rgba(26,122,74,0.25);border-radius:10px;padding:20px 24px;margin-top:20px;text-align:center}
+.ta-success-icon{font-size:32px;margin-bottom:8px}
+.ta-success-title{font-family:var(--serif);font-size:20px;color:var(--green);margin-bottom:6px}
+.ta-success-sub{font-size:13px;color:rgba(26,122,74,0.75)}
+.switch-btn{margin-top:14px;display:inline-flex;align-items:center;gap:6px;padding:9px 18px;background:var(--green);color:#fff;border:none;border-radius:7px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer}
+.switch-btn:hover{opacity:0.88}
+
+/* ── AGENT PIPELINE VIEW ── */
+.pipeline-wrap{display:grid;grid-template-columns:260px 1fr;height:calc(100vh - 102px);overflow:hidden}
+
+/* Day sidebar */
+.day-nav{background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:20px 0}
+.day-nav::-webkit-scrollbar{width:3px}
+.day-nav::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.day-section{padding:0 16px;margin-bottom:6px}
+.day-label{font-size:10px;font-weight:600;letter-spacing:0.9px;text-transform:uppercase;color:var(--ink3);padding:8px 4px 6px}
+.day-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;transition:background 0.12s;margin-bottom:2px}
+.day-item:hover{background:var(--surface2)}
+.day-item.active{background:var(--accent-soft)}
+.day-item-dot{width:8px;height:8px;border-radius:50%;background:var(--border2);flex-shrink:0;transition:all 0.2s}
+.day-item.active .day-item-dot{background:var(--accent)}
+.day-item.done .day-item-dot{background:var(--green)}
+.day-item.running .day-item-dot{background:var(--accent);animation:dotpulse 1s ease infinite}
+@keyframes dotpulse{0%,100%{opacity:0.4;transform:scale(0.8)}50%{opacity:1;transform:scale(1)}}
+.day-item-info{}
+.day-item-title{font-size:13px;font-weight:500;color:var(--ink2);line-height:1.3}
+.day-item.active .day-item-title{color:var(--accent)}
+.day-item.done .day-item-title{color:var(--green)}
+.day-item-sub{font-size:11px;color:var(--ink3)}
+.day-item-badge{margin-left:auto;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;flex-shrink:0}
+.badge-done{background:var(--green-soft);color:var(--green)}
+.badge-running{background:var(--accent-soft);color:var(--accent)}
+.badge-pending{background:var(--surface2);color:var(--ink3)}
+
+/* Main pipeline area */
+.pipeline-main{overflow-y:auto;padding:24px 28px}
+.pipeline-main::-webkit-scrollbar{width:4px}
+.pipeline-main::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* Joiner profile card */
+.profile-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;box-shadow:var(--shadow)}
+.profile-left{display:flex;align-items:center;gap:14px}
+.profile-avatar{width:44px;height:44px;border-radius:50%;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:18px;color:var(--accent);font-weight:300;flex-shrink:0}
+.profile-name{font-family:var(--serif);font-size:18px;font-weight:300;color:var(--ink);letter-spacing:-0.2px}
+.profile-role{font-size:12px;color:var(--ink2);margin-top:2px}
+.profile-tags{display:flex;flex-wrap:wrap;gap:6px}
+.ptag{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:500}
+.ptag-blue{background:var(--accent-soft);color:var(--accent)}
+.ptag-green{background:var(--green-soft);color:var(--green)}
+.ptag-amber{background:var(--amber-soft);color:var(--amber)}
+
+/* Section header */
+.section-title{font-family:var(--serif);font-size:20px;font-weight:300;color:var(--ink);letter-spacing:-0.3px;margin-bottom:4px}
+.section-sub{font-size:12px;color:var(--ink3);margin-bottom:18px}
+
+/* Task cards */
+.task-list{display:flex;flex-direction:column;gap:12px;margin-bottom:28px}
+.task-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);transition:border-color 0.2s,box-shadow 0.2s}
+.task-card.tc-running{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.task-card.tc-done{border-color:rgba(26,122,74,0.3)}
+.task-card.tc-error{border-color:rgba(192,57,43,0.3)}
+
+.tc-header{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--surface2)}
+.tc-header-left{display:flex;align-items:center;gap:10px}
+.tc-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.icon-email{background:var(--accent-soft)}
+.icon-slack{background:var(--purple-soft)}
+.icon-it{background:var(--amber-soft)}
+.icon-admin{background:var(--teal-soft)}
+.icon-hr{background:var(--green-soft)}
+.icon-doc{background:var(--surface2);border:1px solid var(--border)}
+.tc-name{font-size:13px;font-weight:600;color:var(--ink)}
+.tc-channel{font-size:11px;color:var(--ink3);margin-top:1px}
+.tc-status{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500}
+.tcs-dot{width:6px;height:6px;border-radius:50%;background:var(--ink3)}
+.tcs-dot.running{background:var(--accent);animation:dotpulse 1s ease infinite}
+.tcs-dot.done{background:var(--green)}
+.tcs-dot.error{background:var(--red)}
+.tcs-label{color:var(--ink3)}
+.tcs-label.running{color:var(--accent)}
+.tcs-label.done{color:var(--green)}
+
+.tc-body{padding:16px}
+.tc-skeleton{display:flex;flex-direction:column;gap:7px}
+.skel{height:11px;background:var(--surface2);border-radius:4px;animation:shimmer 1.4s ease-in-out infinite}
+@keyframes shimmer{0%,100%{opacity:0.5}50%{opacity:1}}
+.tc-meta{display:flex;flex-direction:column;gap:3px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.meta-row{display:flex;gap:8px;font-size:12px}
+.meta-k{color:var(--ink3);min-width:52px;flex-shrink:0}
+.meta-v{color:var(--ink2)}
+.msg-subject{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:8px}
+.msg-body{font-size:13px;line-height:1.75;color:var(--ink2);white-space:pre-wrap}
+.tc-footer{padding:10px 16px;border-top:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:space-between}
+.tf-sent{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--green);font-weight:500}
+.tf-info{font-size:11px;color:var(--ink3)}
+.copy-btn{padding:4px 10px;border-radius:5px;font-size:11px;font-weight:500;border:1px solid var(--border2);background:transparent;color:var(--ink2);cursor:pointer;font-family:var(--font);transition:all 0.12s}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Non-AI task card (IT, Admin, HR notify) */
+.tc-action-body{padding:14px 16px;display:flex;align-items:flex-start;gap:12px}
+.tc-action-icon{font-size:22px;flex-shrink:0}
+.tc-action-text{font-size:13px;color:var(--ink2);line-height:1.6}
+.tc-action-text strong{color:var(--ink)}
+.tc-checklist{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.check-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);padding:6px 10px;background:var(--surface2);border-radius:6px}
+.check-item .ci-icon{flex-shrink:0}
+
+/* Day divider */
+.day-divider{display:flex;align-items:center;gap:12px;margin:28px 0 18px}
+.dd-line{flex:1;height:1px;background:var(--border)}
+.dd-label{font-size:12px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--ink3);white-space:nowrap;padding:4px 12px;background:var(--surface);border:1px solid var(--border);border-radius:20px}
+
+/* Overall progress bar */
+.progress-bar-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 20px;margin-bottom:20px;box-shadow:var(--shadow)}
+.pb-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.pb-label{font-size:13px;font-weight:500;color:var(--ink)}
+.pb-pct{font-size:13px;font-weight:600;color:var(--accent)}
+.pb-track{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.pb-fill{height:100%;background:var(--accent);border-radius:3px;transition:width 0.5s ease;width:0%}
+.pb-steps{display:flex;gap:16px;margin-top:10px;flex-wrap:wrap}
+.pb-step{font-size:11px;color:var(--ink3);display:flex;align-items:center;gap:4px}
+.pb-step.done{color:var(--green)}
+.pb-step.active{color:var(--accent)}
+
+/* Final success */
+.final-success{background:var(--green-soft);border:1px solid rgba(26,122,74,0.2);border-radius:var(--r);padding:24px;text-align:center;margin-top:20px;display:none}
+.fs-title{font-family:var(--serif);font-size:24px;font-weight:300;color:var(--green);margin:8px 0 6px}
+.fs-sub{font-size:13px;color:rgba(26,122,74,0.75);margin-bottom:16px}
+.fs-next-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;background:var(--green);color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer}
+.fs-next-btn:hover{opacity:0.88}
+
+/* idle pipeline */
+.pipeline-idle{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;text-align:center;gap:12px}
+.pi-icon{font-size:48px;opacity:0.2}
+.pi-title{font-family:var(--serif);font-size:22px;color:var(--ink2)}
+.pi-sub{font-size:13px;color:var(--ink3);max-width:320px;line-height:1.7}
+
+/* HR View */
+.hr-wrap{max-width:780px;margin:0 auto;padding:36px 24px}
+.hr-notice{background:var(--accent-soft);border:1px solid rgba(26,79,191,0.2);border-radius:10px;padding:18px 22px;margin-bottom:24px;display:flex;align-items:flex-start;gap:14px}
+.hr-notice-icon{font-size:24px;flex-shrink:0}
+.hr-notice-title{font-size:14px;font-weight:600;color:var(--accent);margin-bottom:3px}
+.hr-notice-sub{font-size:13px;color:rgba(26,79,191,0.75);line-height:1.6}
+.hr-tasks-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px}
+.hr-task-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+.hr-tc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.hr-tc-icon{font-size:22px}
+.hr-tc-status{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
+.hts-agent{background:var(--green-soft);color:var(--green)}
+.hts-hr{background:var(--amber-soft);color:var(--amber)}
+.hts-pending{background:var(--surface2);color:var(--ink3)}
+.hr-tc-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.hr-tc-desc{font-size:12px;color:var(--ink2);line-height:1.5}
+.hr-action-btn{margin-top:12px;width:100%;padding:7px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer}
+.hr-action-btn:hover{opacity:0.88}
+.hr-action-btn.done-btn{background:var(--surface2);color:var(--green);border:1px solid rgba(26,122,74,0.3);cursor:default}
+
+@media(max-width:800px){
+  .pipeline-wrap{grid-template-columns:1fr}
+  .day-nav{display:none}
+  .hr-tasks-grid{grid-template-columns:1fr}
+  .row2,.row3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-left">
+    <div class="tb-logo">🤝</div>
+    <span class="tb-title">Onboarding Agent</span>
+  </div>
+  <div class="tb-right">
+    <span class="chip chip-sim">⚡ Simulation mode</span>
+    <span class="chip chip-phase">Full pipeline</span>
+  </div>
+</div>
+
+<!-- Role tabs -->
+<div class="role-bar">
+  <div class="role-tab active" id="tab-ta" onclick="switchView('ta')">
+    <div class="role-dot" style="background:#B86800"></div>
+    TA Team · Data entry
+  </div>
+  <div class="role-tab" id="tab-agent" onclick="switchView('agent')">
+    <div class="role-dot" style="background:#1A4FBF"></div>
+    Agent Pipeline · Live run
+  </div>
+  <div class="role-tab" id="tab-hr" onclick="switchView('hr')">
+    <div class="role-dot" style="background:#1A7A4A"></div>
+    HR Team · Day 1 tasks
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- VIEW 1: TA TEAM                           -->
+<!-- ══════════════════════════════════════════ -->
+<div class="view active" id="view-ta">
+<div class="ta-wrap">
+  <div class="view-heading">New joiner intake</div>
+  <div class="view-sub">Filled by the TA team a day before joining. Submitting this triggers the onboarding agent automatically.</div>
+
+  <div class="demo-bar">
+    <span class="demo-text">🎯 Load sample data to see the full pipeline with Priya Sharma</span>
+    <button class="demo-btn" onclick="prefill()">Load demo data</button>
+  </div>
+
+  <div class="form-card">
+    <div class="fc-title">Employee information</div>
+    <div class="field"><label>Full legal name</label><input id="f-name" placeholder="e.g. Priya Sharma"/></div>
+    <div class="row3">
+      <div class="field"><label>Designation</label><input id="f-role" placeholder="Senior PM"/></div>
+      <div class="field"><label>Department</label><input id="f-dept" placeholder="Delivery"/></div>
+      <div class="field"><label>Work mode</label>
+        <select id="f-mode">
+          <option>Remote (WFH)</option>
+          <option>Hybrid (2 days/week)</option>
+          <option>On-site</option>
+        </select>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Date of joining</label><input type="date" id="f-doj"/></div>
+      <div class="field"><label>Personal email</label><input id="f-email" placeholder="priya@gmail.com"/></div>
+    </div>
+    <div class="field"><label>Home address (for welcome kit dispatch)</label><input id="f-address" placeholder="Flat 4B, Prestige Towers, Bengaluru 560001"/></div>
+  </div>
+
+  <div class="form-card">
+    <div class="fc-title">Manager & buddy details</div>
+    <div class="row2">
+      <div class="field"><label>Hiring manager</label><input id="f-mgr" placeholder="Rahul Gupta"/></div>
+      <div class="field"><label>Manager email</label><input id="f-mgr-email" placeholder="rahul@company.com"/></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Assigned buddy</label><input id="f-buddy" placeholder="Ananya Iyer"/></div>
+      <div class="field"><label>Buddy Slack handle</label><input id="f-buddyid" placeholder="@ananya.iyer"/></div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="fc-title">Company & IT details</div>
+    <div class="row2">
+      <div class="field"><label>Company name</label><input id="f-company" placeholder="Acme Corp"/></div>
+      <div class="field"><label>Slack announcement channel</label><input id="f-channel" placeholder="#general"/></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>IT assets required</label>
+        <select id="f-assets">
+          <option>Laptop + Mouse + Keyboard</option>
+          <option>Laptop only</option>
+          <option>Laptop + Monitor + Peripherals</option>
+          <option>Custom (see notes)</option>
+        </select>
+      </div>
+      <div class="field"><label>OS preference</label>
+        <select id="f-os">
+          <option>macOS</option>
+          <option>Windows</option>
+          <option>Linux</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Company culture / values (for personalised messages)</label>
+      <textarea id="f-culture" placeholder="e.g. We value ownership, async-first collaboration, and learning out loud."></textarea>
+    </div>
+  </div>
+
+  <button class="submit-btn" id="ta-submit" onclick="submitTA()">
+    <div class="spin" id="ta-spin"></div>
+    <span id="ta-label">Submit & trigger onboarding agent →</span>
+  </button>
+
+  <div class="ta-success" id="ta-success">
+    <div class="ta-success-icon">✅</div>
+    <div class="ta-success-title">Onboarding agent triggered!</div>
+    <div class="ta-success-sub">The agent has picked up <strong id="success-name"></strong>'s record and is now running the full pipeline automatically. HR has been notified.</div>
+    <button class="switch-btn" onclick="switchView('agent')">Watch the pipeline run →</button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- VIEW 2: AGENT PIPELINE                    -->
+<!-- ══════════════════════════════════════════ -->
+<div class="view" id="view-agent">
+<div class="pipeline-wrap">
+
+  <!-- Day nav sidebar -->
+  <div class="day-nav">
+    <div class="day-section">
+      <div class="day-label">Day −1</div>
+      <div class="day-item" id="nav-it" onclick="scrollTo('sec-dayminus1')">
+        <div class="day-item-dot"></div>
+        <div class="day-item-info">
+          <div class="day-item-title">IT requisition</div>
+          <div class="day-item-sub">Assets & access</div>
+        </div>
+        <span class="day-item-badge badge-pending" id="nbadge-it">—</span>
+      </div>
+      <div class="day-item" id="nav-admin" onclick="scrollTo('sec-dayminus1')">
+        <div class="day-item-dot"></div>
+        <div class="day-item-info">
+          <div class="day-item-title">Admin dispatch</div>
+          <div class="day-item-sub">Welcome kit</div>
+        </div>
+        <span class="day-item-badge badge-pending" id="nbadge-admin">—</span>
+      </div>
+      <div class="day-item" id="nav-welcome" onclick="scrollTo('sec-dayminus1')">
+        <div class="day-item-dot"></div>
+        <div class="day-item-info">
+          <div class="day-item-title">Welcome email</div>
+          <div class="day-item-sub">To joiner inbox</div>
+        </div>
+        <span class="day-item-badge badge-pending" id="nbadge-welcome">—</span>
+      </div>
+    </div>
+    <div class="day-section">
+      <div class="day-label">Day 0</div>
+      <div class="day-item" id="nav-accounts" onclick="scrollTo('sec-day0')">
+        <div class="day-item-dot"></div>
+        <div class="day-item-info">
+          <div class="day-item-title">System access</div>
+          <div class="day-item-sub">M365, Slack, Drive</div>
+        </div>
+        <span class="day-item-badge badge-pending" id="nbadge-accounts">—</span>
+      </div>
+      <div class="day-item" id="nav-buddy" onclick="scrollTo('sec-day0')">
+        <div class="day-item-dot"></div>
+        <div class="day-item-info">
+          <div class="day-item-title">Buddy intro</div>
+          <div class="day-item-sub">Slack DM</div>
+        </div>
+        <span class="day-item-badge badge-pending" id="nbadge-buddy">—</span>
+      </div>
+      <div class="day-item" id="nav-org" onclick="scrollTo('sec-day0')">
+        <div class="day-item-dot"></div>
+        <div class="day-item-info">
+          <div class="day-item-title">Org announcement</div>
+          <div class="day-item-sub">Slack channel</div>
+        </div>
+        <span class="day-item-badge badge-pending" id="nbadge-org">—</span>
+      </div>
+    </div>
+    <div class="day-section">
+      <div class="day-label">Day 1</div>
+      <div class="day-item" id="nav-doccollect" onclick="scrollTo('sec-day1')">
+        <div class="day-item-dot"></div>
+        <div class="day-item-info">
+          <div class="day-item-title">Doc collection</div>
+          <div class="day-item-sub">Email to joiner</div>
+        </div>
+        <span class="day-item-badge badge-pending" id="nbadge-doccollect">—</span>
+      </div>
+      <div class="day-item" id="nav-apptletter" onclick="scrollTo('sec-day1')">
+        <div class="day-item-dot"></div>
+        <div class="day-item-info">
+          <div class="day-item-title">Appointment letter</div>
+          <div class="day-item-sub">Auto-generated</div>
+        </div>
+        <span class="day-item-badge badge-pending" id="nbadge-apptletter">—</span>
+      </div>
+      <div class="day-item" id="nav-ld" onclick="scrollTo('sec-day1')">
+        <div class="day-item-dot"></div>
+        <div class="day-item-info">
+          <div class="day-item-title">L&D schedule</div>
+          <div class="day-item-sub">Calendar invites</div>
+        </div>
+        <span class="day-item-badge badge-pending" id="nbadge-ld">—</span>
+      </div>
+    </div>
+    <div class="day-section">
+      <div class="day-label">Day 2–3</div>
+      <div class="day-item" id="nav-hrms" onclick="scrollTo('sec-day23')">
+        <div class="day-item-dot"></div>
+        <div class="day-item-info">
+          <div class="day-item-title">HRMS update</div>
+          <div class="day-item-sub">Employee record</div>
+        </div>
+        <span class="day-item-badge badge-pending" id="nbadge-hrms">—</span>
+      </div>
+      <div class="day-item" id="nav-handoff" onclick="scrollTo('sec-day23')">
+        <div class="day-item-dot"></div>
+        <div class="day-item-info">
+          <div class="day-item-title">Manager handoff</div>
+          <div class="day-item-sub">Project assignment</div>
+        </div>
+        <span class="day-item-badge badge-pending" id="nbadge-handoff">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pipeline main -->
+  <div class="pipeline-main" id="pipeline-main">
+
+    <div class="pipeline-idle" id="pipeline-idle">
+      <div class="pi-icon">🤖</div>
+      <div class="pi-title">Agent standing by</div>
+      <div class="pi-sub">Go to the TA Team tab, fill in (or load demo) joiner details, and submit. The agent will run automatically here.</div>
+    </div>
+
+    <div id="pipeline-content" style="display:none">
+      <!-- Joiner profile -->
+      <div class="profile-card" id="profile-card"></div>
+
+      <!-- Progress bar -->
+      <div class="progress-bar-wrap">
+        <div class="pb-top">
+          <span class="pb-label">Onboarding progress</span>
+          <span class="pb-pct" id="pb-pct">0%</span>
+        </div>
+        <div class="pb-track"><div class="pb-fill" id="pb-fill"></div></div>
+        <div class="pb-steps" id="pb-steps"></div>
+      </div>
+
+      <!-- Day -1 -->
+      <div class="day-divider" id="sec-dayminus1">
+        <div class="dd-line"></div>
+        <div class="dd-label">Day −1 · Pre-joining setup</div>
+        <div class="dd-line"></div>
+      </div>
+      <div class="task-list" id="tasks-dayminus1"></div>
+
+      <!-- Day 0 -->
+      <div class="day-divider" id="sec-day0">
+        <div class="dd-line"></div>
+        <div class="dd-label">Day 0 · Access & announcements</div>
+        <div class="dd-line"></div>
+      </div>
+      <div class="task-list" id="tasks-day0"></div>
+
+      <!-- Day 1 -->
+      <div class="day-divider" id="sec-day1">
+        <div class="dd-line"></div>
+        <div class="dd-label">Day 1 · Documentation & onboarding</div>
+        <div class="dd-line"></div>
+      </div>
+      <div class="task-list" id="tasks-day1"></div>
+
+      <!-- Day 2-3 -->
+      <div class="day-divider" id="sec-day23">
+        <div class="dd-line"></div>
+        <div class="dd-label">Day 2–3 · Close & handoff</div>
+        <div class="dd-line"></div>
+      </div>
+      <div class="task-list" id="tasks-day23"></div>
+
+      <div class="final-success" id="final-success">
+        <div style="font-size:36px">🎉</div>
+        <div class="fs-title">Onboarding complete</div>
+        <div class="fs-sub" id="fs-sub"></div>
+        <button class="fs-next-btn" onclick="switchView('hr')">View HR Day 1 checklist →</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- VIEW 3: HR TEAM                           -->
+<!-- ══════════════════════════════════════════ -->
+<div class="view" id="view-hr">
+<div class="hr-wrap">
+  <div class="view-heading">HR team · Day 1 dashboard</div>
+  <div class="view-sub">These are the tasks the HR team handles directly. Everything else has already been completed by the agent.</div>
+
+  <div class="hr-notice" id="hr-notice">
+    <div class="hr-notice-icon">ℹ️</div>
+    <div>
+      <div class="hr-notice-title">Waiting for TA submission</div>
+      <div class="hr-notice-sub">Once TA submits the joiner details and the pipeline runs, this dashboard will populate with the Day 1 HR checklist for that employee.</div>
+    </div>
+  </div>
+
+  <div id="hr-content" style="display:none">
+    <div class="hr-notice" id="hr-agent-notice">
+      <div class="hr-notice-icon">🤖</div>
+      <div>
+        <div class="hr-notice-title" id="hr-notice-title">Agent has completed pre-work for Priya Sharma</div>
+        <div class="hr-notice-sub">Welcome email sent ✓ · IT requisition raised ✓ · Welcome kit dispatched ✓ · Buddy notified ✓ · Org announcement posted ✓ · Appointment letter issued ✓ · L&D schedule sent ✓</div>
+      </div>
+    </div>
+
+    <div class="hr-tasks-grid" id="hr-tasks-grid"></div>
+  </div>
+</div>
+</div>
+
+<script>
+// ── State ──
+let joiner = null;
+let pipelineRunning = false;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// ── View switching ──
+function switchView(v) {
+  ['ta','agent','hr'].forEach(id => {
+    document.getElementById('view-' + id).classList.toggle('active', id === v);
+    document.getElementById('tab-' + id).classList.toggle('active', id === v);
+  });
+}
+
+function scrollTo(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Prefill ──
+function prefill() {
+  const tom = new Date(); tom.setDate(tom.getDate() + 1);
+  document.getElementById('f-name').value = 'Priya Sharma';
+  document.getElementById('f-role').value = 'Senior Product Manager';
+  document.getElementById('f-dept').value = 'Delivery';
+  document.getElementById('f-mode').value = 'Remote (WFH)';
+  document.getElementById('f-doj').value = tom.toISOString().split('T')[0];
+  document.getElementById('f-email').value = 'priya.sharma.personal@gmail.com';
+  document.getElementById('f-address').value = 'Flat 4B, Prestige Towers, Whitefield, Bengaluru 560066';
+  document.getElementById('f-mgr').value = 'Rahul Gupta';
+  document.getElementById('f-mgr-email').value = 'rahul.gupta@acmecorp.com';
+  document.getElementById('f-buddy').value = 'Ananya Iyer';
+  document.getElementById('f-buddyid').value = '@ananya.iyer';
+  document.getElementById('f-company').value = 'Acme Corp';
+  document.getElementById('f-channel').value = '#general';
+  document.getElementById('f-assets').value = 'Laptop + Mouse + Keyboard';
+  document.getElementById('f-os').value = 'macOS';
+  document.getElementById('f-culture').value = 'We value ownership, async-first collaboration, and learning out loud. Every voice matters.';
+}
+
+function fmtDate(d) {
+  if (!d) return 'soon';
+  const dt = new Date(d + 'T00:00:00');
+  return dt.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function nowTime() {
+  return new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
+function initials(name) {
+  return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+}
+
+// ── TA Submit ──
+async function submitTA() {
+  const name = document.getElementById('f-name').value.trim();
+  const role = document.getElementById('f-role').value.trim();
+  if (!name || !role) { alert('Please fill in at least name and role.'); return; }
+
+  joiner = {
+    name, role,
+    dept: document.getElementById('f-dept').value.trim(),
+    mode: document.getElementById('f-mode').value,
+    doj: document.getElementById('f-doj').value,
+    dojFmt: fmtDate(document.getElementById('f-doj').value),
+    email: document.getElementById('f-email').value.trim(),
+    address: document.getElementById('f-address').value.trim(),
+    mgr: document.getElementById('f-mgr').value.trim(),
+    mgrEmail: document.getElementById('f-mgr-email').value.trim(),
+    buddy: document.getElementById('f-buddy').value.trim(),
+    buddyId: document.getElementById('f-buddyid').value.trim(),
+    company: document.getElementById('f-company').value.trim() || 'the company',
+    channel: document.getElementById('f-channel').value.trim() || '#general',
+    assets: document.getElementById('f-assets').value,
+    os: document.getElementById('f-os').value,
+    culture: document.getElementById('f-culture').value.trim(),
+    firstName: name.split(' ')[0]
+  };
+
+  const btn = document.getElementById('ta-submit');
+  btn.disabled = true;
+  document.getElementById('ta-spin').style.display = 'block';
+  document.getElementById('ta-label').textContent = 'Triggering agent…';
+
+  await sleep(1200);
+
+  document.getElementById('ta-spin').style.display = 'none';
+  document.getElementById('ta-label').textContent = 'Submitted!';
+  document.getElementById('success-name').textContent = name;
+  document.getElementById('ta-success').style.display = 'block';
+
+  // Prep pipeline in background
+  prepPipeline();
+}
+
+// ── Pipeline task helpers ──
+let taskCount = 0;
+let doneCount = 0;
+
+function makeTaskCard(id, sectionId, iconEmoji, iconClass, name, channel, meta, isAI = true) {
+  taskCount++;
+  const section = document.getElementById('tasks-' + sectionId);
+  const card = document.createElement('div');
+  card.className = 'task-card';
+  card.id = 'tc-' + id;
+  let metaHTML = meta.map(m => `<div class="meta-row"><span class="meta-k">${m.k}</span><span class="meta-v">${m.v}</span></div>`).join('');
+  card.innerHTML = `
+    <div class="tc-header">
+      <div class="tc-header-left">
+        <div class="tc-icon ${iconClass}">${iconEmoji}</div>
+        <div>
+          <div class="tc-name">${name}</div>
+          <div class="tc-channel">${channel}</div>
+        </div>
+      </div>
+      <div class="tc-status">
+        <div class="tcs-dot" id="dot-${id}"></div>
+        <span class="tcs-label" id="stlbl-${id}">Queued</span>
+      </div>
+    </div>
+    <div class="tc-body" id="tcb-${id}">
+      ${isAI ? `<div class="tc-skeleton"><div class="skel" style="width:55%"></div><div class="skel" style="width:88%"></div><div class="skel" style="width:70%"></div></div>` : ''}
+      ${!isAI ? `<div class="tc-meta">${metaHTML}</div>` : ''}
+    </div>`;
+  section.appendChild(card);
+  return card;
+}
+
+function setRunning(id) {
+  const c = document.getElementById('tc-' + id);
+  if (c) c.className = 'task-card tc-running';
+  const d = document.getElementById('dot-' + id);
+  if (d) { d.className = 'tcs-dot running'; }
+  const l = document.getElementById('stlbl-' + id);
+  if (l) { l.textContent = 'Running…'; l.className = 'tcs-label running'; }
+}
+
+function setDone(id, subject, body, meta, channel, dest) {
+  doneCount++;
+  updateProgress();
+  const c = document.getElementById('tc-' + id);
+  if (c) c.className = 'task-card tc-done';
+  const d = document.getElementById('dot-' + id);
+  if (d) d.className = 'tcs-dot done';
+  const l = document.getElementById('stlbl-' + id);
+  if (l) { l.textContent = 'Delivered · ' + nowTime(); l.className = 'tcs-label done'; }
+  const b = document.getElementById('tcb-' + id);
+  if (b) {
+    let metaHTML = (meta || []).map(m => `<div class="meta-row"><span class="meta-k">${m.k}</span><span class="meta-v">${m.v}</span></div>`).join('');
+    let html = '';
+    if (metaHTML) html += `<div class="tc-meta">${metaHTML}</div>`;
+    if (subject) html += `<div class="msg-subject">${subject}</div>`;
+    if (body) html += `<div class="msg-body" id="msgb-${id}">${body}</div>`;
+    b.innerHTML = html;
+    c.innerHTML += `<div class="tc-footer"><div class="tf-sent">✓ Delivered via ${channel} → ${dest}</div>${body ? `<button class="copy-btn" onclick="copyMsg('${id}')">Copy</button>` : ''}</div>`;
+  }
+  // update nav badge
+  const nb = document.getElementById('nbadge-' + id);
+  if (nb) { nb.textContent = '✓'; nb.className = 'day-item-badge badge-done'; }
+}
+
+function setActionDone(id, lines, channel, dest) {
+  doneCount++;
+  updateProgress();
+  const c = document.getElementById('tc-' + id);
+  if (c) c.className = 'task-card tc-done';
+  const d = document.getElementById('dot-' + id);
+  if (d) d.className = 'tcs-dot done';
+  const l = document.getElementById('stlbl-' + id);
+  if (l) { l.textContent = 'Dispatched · ' + nowTime(); l.className = 'tcs-label done'; }
+  const b = document.getElementById('tcb-' + id);
+  if (b) {
+    let html = `<div class="tc-action-body"><div class="tc-action-icon">✅</div><div class="tc-action-text"><strong>Completed by agent</strong> — ${channel} → ${dest}<div class="tc-checklist">`;
+    lines.forEach(l => { html += `<div class="check-item"><span class="ci-icon">✓</span>${l}</div>`; });
+    html += '</div></div></div>';
+    b.innerHTML = html;
+    c.innerHTML += `<div class="tc-footer"><div class="tf-sent">✓ ${channel}</div><div class="tf-info">${nowTime()}</div></div>`;
+  }
+  const nb = document.getElementById('nbadge-' + id);
+  if (nb) { nb.textContent = '✓'; nb.className = 'day-item-badge badge-done'; }
+}
+
+function updateProgress() {
+  const pct = Math.round((doneCount / taskCount) * 100);
+  document.getElementById('pb-fill').style.width = pct + '%';
+  document.getElementById('pb-pct').textContent = pct + '%';
+}
+
+function copyMsg(id) {
+  const el = document.getElementById('msgb-' + id);
+  if (el) navigator.clipboard.writeText(el.innerText);
+}
+
+// ── Claude API ──
+async function callClaude(system, user) {
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system,
+        messages: [{ role: 'user', content: user }]
+      })
+    });
+    const data = await resp.json();
+    return data.content?.[0]?.text?.trim() || '';
+  } catch(e) { return '[Could not generate — API error]'; }
+}
+
+// ── Prepare pipeline UI ──
+function prepPipeline() {
+  if (!joiner) return;
+  document.getElementById('pipeline-idle').style.display = 'none';
+  document.getElementById('pipeline-content').style.display = 'block';
+
+  // Profile card
+  document.getElementById('profile-card').innerHTML = `
+    <div class="profile-left">
+      <div class="profile-avatar">${initials(joiner.name)}</div>
+      <div>
+        <div class="profile-name">${joiner.name}</div>
+        <div class="profile-role">${joiner.role} · ${joiner.dept} · ${joiner.company}</div>
+      </div>
+    </div>
+    <div class="profile-tags">
+      <span class="ptag ptag-blue">${joiner.mode}</span>
+      <span class="ptag ptag-amber">Joins ${joiner.dojFmt}</span>
+      <span class="ptag ptag-green">Buddy: ${joiner.buddy}</span>
+    </div>`;
+
+  // Progress steps
+  document.getElementById('pb-steps').innerHTML = `
+    <span class="pb-step" id="pbs-dayminus1">◦ Day −1</span>
+    <span class="pb-step" id="pbs-day0">◦ Day 0</span>
+    <span class="pb-step" id="pbs-day1">◦ Day 1</span>
+    <span class="pb-step" id="pbs-day23">◦ Day 2–3</span>`;
+
+  // Create all task cards (skeletons)
+  // Day -1
+  makeTaskCard('it', 'dayminus1', '💻', 'tc-icon icon-it', 'IT asset requisition', 'IT Ticketing system', [], false);
+  makeTaskCard('admin', 'dayminus1', '📦', 'tc-icon icon-admin', 'Welcome kit dispatch', 'Admin team notification', [], false);
+  makeTaskCard('welcome', 'dayminus1', '📧', 'tc-icon icon-email', 'Welcome email to joiner', `Outlook → ${joiner.email || joiner.name}`, []);
+  // Day 0
+  makeTaskCard('accounts', 'day0', '🔑', 'tc-icon icon-it', 'System access provisioning', 'M365 · Slack · Google Drive', [], false);
+  makeTaskCard('buddy', 'day0', '💬', 'tc-icon icon-slack', 'Buddy introduction', `Slack DM → ${joiner.buddyId || joiner.buddy}`, []);
+  makeTaskCard('org', 'day0', '📣', 'tc-icon icon-slack', 'Org-wide announcement', `Slack → ${joiner.channel}`, []);
+  // Day 1
+  makeTaskCard('doccollect', 'day1', '📋', 'tc-icon icon-hr', 'Document collection email', `Outlook → ${joiner.email || joiner.name}`, []);
+  makeTaskCard('apptletter', 'day1', '📜', 'tc-icon icon-doc', 'Appointment letter', `Outlook → ${joiner.email || joiner.name}`, []);
+  makeTaskCard('ld', 'day1', '🗓', 'tc-icon icon-hr', 'L&D onboarding schedule', `Outlook calendar → ${joiner.email || joiner.name}`, []);
+  // Day 2-3
+  makeTaskCard('hrms', 'day23', '🗄', 'tc-icon icon-it', 'HRMS employee record update', 'HRMS / HCM system', [], false);
+  makeTaskCard('handoff', 'day23', '🤝', 'tc-icon icon-email', 'Manager handoff & project assignment', `Outlook → ${joiner.mgrEmail || joiner.mgr}`, []);
+}
+
+// ── Run full pipeline ──
+async function runPipeline() {
+  if (!joiner || pipelineRunning) return;
+  pipelineRunning = true;
+  doneCount = 0;
+  taskCount = 10; // total tasks
+  updateProgress();
+
+  const J = joiner;
+  const sys = `You are an HR communications writer for ${J.company}. Write warm, genuine, professional messages. Be specific, no generic filler. No markdown, no asterisks. Return only the message text.`;
+
+  // ── DAY -1 ──
+  document.getElementById('pbs-dayminus1').className = 'pb-step active';
+
+  // IT requisition (non-AI)
+  setRunning('it');
+  await sleep(900);
+  setActionDone('it', [
+    `Asset: ${J.assets} (${J.os})`,
+    `Delivery address: ${J.address || 'Home address on file'}`,
+    `Required by: ${J.dojFmt}`,
+    `Ticket ID: IT-${Math.floor(Math.random()*9000+1000)} raised in system`
+  ], 'IT Ticketing system', 'IT Support team');
+
+  await sleep(400);
+
+  // Admin welcome kit (non-AI)
+  setRunning('admin');
+  await sleep(800);
+  setActionDone('admin', [
+    `Welcome kit dispatched to: ${J.address || 'Home address on file'}`,
+    `Contents: Offer letter, Company handbook, Branded merchandise`,
+    `Estimated delivery: ${J.dojFmt}`,
+    `Tracking ID: ADM-${Math.floor(Math.random()*9000+1000)}`
+  ], 'Admin team', 'Courier dispatched');
+
+  await sleep(400);
+
+  // Welcome email (AI)
+  setRunning('welcome');
+  const welcomeText = await callClaude(sys,
+    `Write a warm welcome email to ${J.name} joining as ${J.role} in the ${J.dept} team at ${J.company} on ${J.dojFmt}. Work mode: ${J.mode}. Buddy: ${J.buddy}. Manager: ${J.mgr}. ${J.culture ? 'Culture: ' + J.culture : ''} Mention what they can expect on Day 1, name their buddy, and close warmly. Under 180 words. From the HR team. Just the email body, no subject.`
+  );
+  setDone('welcome',
+    `Welcome to ${J.company}, ${J.firstName}! 🎉`,
+    welcomeText,
+    [{ k: 'To:', v: J.email || J.name }, { k: 'From:', v: `hr@${J.company.toLowerCase().replace(/\s/g,'')}.com` }, { k: 'Via:', v: 'Outlook' }],
+    'Outlook', J.email || J.name
+  );
+
+  document.getElementById('pbs-dayminus1').className = 'pb-step done';
+  document.getElementById('pbs-day0').className = 'pb-step active';
+  await sleep(600);
+
+  // ── DAY 0 ──
+
+  // Accounts (non-AI)
+  setRunning('accounts');
+  await sleep(1000);
+  setActionDone('accounts', [
+    `Microsoft 365 account created: ${J.firstName.toLowerCase()}.${J.name.split(' ').slice(-1)[0].toLowerCase()}@${J.company.toLowerCase().replace(/\s/g,'')}.com`,
+    `Slack workspace invite sent to ${J.email || J.name}`,
+    `Google Drive shared folder access granted`,
+    `Temporary password sent via secure link`
+  ], 'M365 + Slack + Drive', J.email || J.name);
+
+  await sleep(400);
+
+  // Buddy intro (AI)
+  setRunning('buddy');
+  const buddyText = await callClaude(sys,
+    `Write a friendly Slack DM to ${J.buddy} (${J.buddyId}), telling them they are the buddy for ${J.name} who joins as ${J.role} on ${J.dojFmt}. Ask them to reach out with a quick intro call in week 1 and be the go-to for any culture or process questions. Warm, under 90 words. From HR.`
+  );
+  setDone('buddy', null, buddyText,
+    [{ k: 'To:', v: J.buddyId || J.buddy }, { k: 'Via:', v: 'Slack DM' }],
+    'Slack', J.buddyId || J.buddy
+  );
+
+  await sleep(400);
+
+  // Org announcement (AI)
+  setRunning('org');
+  const orgText = await callClaude(sys,
+    `Write a short Slack announcement for ${J.channel} welcoming ${J.name} who joins as ${J.role} in the ${J.dept} team on ${J.dojFmt}. Work mode: ${J.mode}. Manager: ${J.mgr}. Invite team to say hello. Under 65 words. Upbeat, human, not corporate. From HR.`
+  );
+  setDone('org', null, orgText,
+    [{ k: 'To:', v: J.channel }, { k: 'Via:', v: 'Slack' }],
+    'Slack', J.channel
+  );
+
+  document.getElementById('pbs-day0').className = 'pb-step done';
+  document.getElementById('pbs-day1').className = 'pb-step active';
+  await sleep(600);
+
+  // ── DAY 1 ──
+
+  // Doc collection (AI)
+  setRunning('doccollect');
+  const docText = await callClaude(sys,
+    `Write an email to ${J.name} (${J.role}) asking them to submit the following documents by end of Day 1: Aadhaar card, PAN card, last 3 months payslips, educational certificates, previous employer relieving letter, passport-size photo. Mention they can reply to this email with attachments. Professional but friendly. Under 130 words. From the HR team.`
+  );
+  setDone('doccollect',
+    `Action needed: Please submit your joining documents`,
+    docText,
+    [{ k: 'To:', v: J.email || J.name }, { k: 'From:', v: `hr@${J.company.toLowerCase().replace(/\s/g,'')}.com` }, { k: 'Via:', v: 'Outlook' }],
+    'Outlook', J.email || J.name
+  );
+
+  await sleep(400);
+
+  // Appointment letter (AI)
+  setRunning('apptletter');
+  const apptText = await callClaude(sys,
+    `Write a formal appointment letter for ${J.name} being appointed as ${J.role} in the ${J.dept} department at ${J.company}, joining on ${J.dojFmt}. Work arrangement: ${J.mode}. Reporting to: ${J.mgr}. Include: warm welcome, role confirmation, start date, reporting structure, a brief note on probation period (3 months standard), and a line about looking forward to their contribution. Under 200 words. Formal but welcoming.`
+  );
+  setDone('apptletter',
+    `Appointment Letter — ${J.name} · ${J.role}`,
+    apptText,
+    [{ k: 'To:', v: J.email || J.name }, { k: 'Type:', v: 'Formal appointment letter' }, { k: 'Via:', v: 'Outlook' }],
+    'Outlook', J.email || J.name
+  );
+
+  await sleep(400);
+
+  // L&D schedule (non-AI)
+  setRunning('ld');
+  await sleep(700);
+  setActionDone('ld', [
+    `Day 1: Company overview & culture session — 10:00 AM (Google Meet)`,
+    `Day 1: HR policies & benefits walkthrough — 2:00 PM (Google Meet)`,
+    `Day 2: Role-specific onboarding with ${J.mgr} — 11:00 AM`,
+    `Day 3: Tools & systems deep-dive — 10:00 AM`,
+    `Week 2: First 1:1 with ${J.buddy} (buddy check-in)`,
+    `All calendar invites sent via Outlook to ${J.email || J.name}`
+  ], 'Outlook Calendar', J.email || J.name);
+
+  document.getElementById('pbs-day1').className = 'pb-step done';
+  document.getElementById('pbs-day23').className = 'pb-step active';
+  await sleep(600);
+
+  // ── DAY 2-3 ──
+
+  // HRMS update (non-AI)
+  setRunning('hrms');
+  await sleep(900);
+  setActionDone('hrms', [
+    `Employee ID assigned: EMP-${Math.floor(Math.random()*90000+10000)}`,
+    `Record created: ${J.name} · ${J.role} · ${J.dept}`,
+    `Status: Active from ${J.dojFmt}`,
+    `Reporting manager linked: ${J.mgr}`,
+    `Work mode tagged: ${J.mode}`
+  ], 'HRMS / HCM', 'Employee database');
+
+  await sleep(400);
+
+  // Handoff email (AI)
+  setRunning('handoff');
+  const handoffText = await callClaude(sys,
+    `Write a brief email to ${J.mgr} (${J.mgrEmail || 'hiring manager'}) informing them that ${J.name}'s onboarding is complete. Mention: all documentation collected, accounts provisioned, L&D schedule done, employee is ready for project assignment. Ask the manager to schedule the first project briefing. Professional and concise. Under 100 words. From HR.`
+  );
+  setDone('handoff',
+    `${J.firstName} is onboarding-complete — project assignment ready`,
+    handoffText,
+    [{ k: 'To:', v: J.mgrEmail || J.mgr }, { k: 'From:', v: `hr@${J.company.toLowerCase().replace(/\s/g,'')}.com` }, { k: 'Via:', v: 'Outlook' }],
+    'Outlook', J.mgrEmail || J.mgr
+  );
+
+  document.getElementById('pbs-day23').className = 'pb-step done';
+  await sleep(400);
+
+  // Final
+  document.getElementById('final-success').style.display = 'block';
+  document.getElementById('fs-sub').textContent = `${J.name} is fully onboarded. 10 tasks completed across Day −1 through Day 2–3. ${J.mgr} has been notified for project assignment.`;
+
+  // Update HR view
+  buildHRView();
+  pipelineRunning = false;
+}
+
+// ── HR view ──
+function buildHRView() {
+  if (!joiner) return;
+  const J = joiner;
+  document.getElementById('hr-notice').style.display = 'none';
+  document.getElementById('hr-content').style.display = 'block';
+  document.getElementById('hr-notice-title').textContent = `Agent has completed pre-work for ${J.name}`;
+
+  const tasks = [
+    { icon: '📞', title: 'Day 1 connect call with employee', desc: `Call ${J.name} to check in, answer any questions, and ensure they have system access. 15–20 min.`, who: 'hr', action: 'Mark as done' },
+    { icon: '📄', title: 'Review submitted documents', desc: `${J.name} will email documents. Review completeness and flag any missing items. Store to SharePoint.`, who: 'hr', action: 'Mark as done' },
+    { icon: '🎤', title: 'In-person onboarding presentation', desc: `Run the Day 1 onboarding presentation (if hybrid) or share slides over Meet. Agent has already sent the invite.`, who: 'hr', action: 'Mark as done' },
+    { icon: '✅', title: 'HRMS documentation sign-off', desc: `Confirm all documents are in order and mark employee record as documentation-complete in HRMS.`, who: 'hr', action: 'Mark as done' },
+    { icon: '🤖', title: 'Welcome email sent', desc: `Sent automatically by agent on Day −1 to ${J.email}.`, who: 'agent' },
+    { icon: '🤖', title: 'Appointment letter issued', desc: `Generated and emailed by agent on Day 1.`, who: 'agent' },
+    { icon: '🤖', title: 'Buddy introduced', desc: `${J.buddy} notified via Slack DM by agent.`, who: 'agent' },
+    { icon: '🤖', title: 'L&D schedule dispatched', desc: `4 calendar invites sent by agent to ${J.email}.`, who: 'agent' }
+  ];
+
+  const grid = document.getElementById('hr-tasks-grid');
+  grid.innerHTML = '';
+  tasks.forEach((t, i) => {
+    const card = document.createElement('div');
+    card.className = 'hr-task-card';
+    card.innerHTML = `
+      <div class="hr-tc-top">
+        <div class="hr-tc-icon">${t.icon}</div>
+        <span class="hr-tc-status ${t.who === 'agent' ? 'hts-agent' : 'hts-hr'}">${t.who === 'agent' ? '🤖 Agent done' : '👤 HR action'}</span>
+      </div>
+      <div class="hr-tc-title">${t.title}</div>
+      <div class="hr-tc-desc">${t.desc}</div>
+      ${t.action ? `<button class="hr-action-btn" id="hr-act-${i}" onclick="markHRDone(${i})">✓ ${t.action}</button>` : ''}`;
+    grid.appendChild(card);
+  });
+}
+
+function markHRDone(i) {
+  const btn = document.getElementById('hr-act-' + i);
+  if (btn) { btn.textContent = '✓ Done'; btn.className = 'hr-action-btn done-btn'; btn.disabled = true; }
+}
+
+// ── Auto-run pipeline when view switches ──
+const _origSwitch = switchView;
+window.switchView = function(v) {
+  _origSwitch(v);
+  if (v === 'agent' && joiner && !pipelineRunning && doneCount === 0) {
+    setTimeout(runPipeline, 400);
+  }
+};
+
+// Default date
+const tom = new Date(); tom.setDate(tom.getDate() + 1);
+document.getElementById('f-doj').value = tom.toISOString().split('T')[0];
+</script>
+</body>
+</html>
